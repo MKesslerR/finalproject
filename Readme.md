@@ -20,23 +20,30 @@ Analysis Geo 880**
 ## Abstract 
 <!-- (50-60 words) -->
 
-## Research Questions
+## Background and Research Questions
 <!-- (50-60 words) -->
 
-## Results / products
+## Results
 <!-- What do you expect, anticipate? -->
 
-## Data
+## Data and Methods
 <!-- What data will you use? Will you require additional context data? Where do you get this data from? Do you already have all the data? -->
-
-## Analytical concepts
-<!-- Which analytical concepts will you use? What conceptual movement spaces and respective modelling approaches of trajectories will you be using? What additional spatial analysis methods will you be using? -->
-
-## R concepts
+###Data set
+<!-- What data will you use? Will you require additional context data? Where do you get this data from? Do you already have all the data? -->
+###Pre-processing
+<!-- What data will you use? Will you require additional context data? Where do you get this data from? Do you already have all the data? -->
+###Analysis
+<!-- What data will you use? Will you require additional context data? Where do you get this data from? Do you already have all the data? -->
 <!-- Which R concepts, functions, packages will you mainly use. What additional spatial analysis methods will you be using? -->
 
-## Risk analysis
+
+## Results
+<!-- Which analytical concepts will you use? What conceptual movement spaces and respective modelling approaches of trajectories will you be using? What additional spatial analysis methods will you be using? -->
+
+## Discussion and conclussions
+<!-- Which R concepts, functions, packages will you mainly use. What additional spatial analysis methods will you be using? -->
+
+## References
 <!-- What could be the biggest challenges/problems you might face? What is your plan B? -->
 
-## Questions? 
-<!-- Which questions would you like to discuss at the coaching session? -->
+
