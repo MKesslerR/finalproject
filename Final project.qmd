@@ -1,0 +1,136 @@
+---
+title: "Final project"
+format: html
+---
+```{r}
+library(readr)
+library(sf)
+library(dplyr)
+library(ggplot2)
+library(tidyverse)
+library(lubridate)
+```
+
+```{r}
+posmo_MK <- read_delim("Data/posmo_MK_edited.csv")
+str(posmo_MK)
+
+posmo_walk <- filter (posmo_MK, transport_mode == "Walk")
+posmo_walk <- select(posmo_walk, datetime, lon_x, lat_y, Trajectory, Type)
+posmo_walk <- st_as_sf(posmo_walk,
+    coords = c("lon_x", "lat_y"),
+    crs = 4326)#transforms the data frame into a sf object
+
+posmo_walk <- st_transform(posmo_walk, 2056)#convert the coordinate system to CH1903+ LV95: EPSG:2056
+```
+
+```{r}
+posmoMK_coordinates <- st_coordinates(posmo_walk)
+
+#We can bind these coordinates back to our sf object using cbind
+posmo <- cbind(posmo_walk, posmoMK_coordinates)
+str(posmo)
+posmo <- posmo %>%
+  add_column(walker = "K")
+
+is.POSIXt(posmo$datetime)
+
+posmo$Date <- date(posmo$datetime)
+posmo$Time <- format(posmo$datetime, format = "%H:%M:%S")
+
+posmo
+ggplot(posmo, aes(X, Y))+
+  geom_path()+
+    geom_point()+
+                 coord_fixed()
+```
+
+
+
+```{r}
+str(posmo)
+T1 <- posmo %>%
+  filter(Trajectory == "T1")
+
+T1a <- ggplot(T1, aes(X, Y))+
+  geom_path()+
+  geom_point()+
+  coord_fixed()
+
+#To calculate the step-length among  observation 1 and 2 back and forward.
+T1step <- T1 |>
+    mutate(
+      n_plus1 = sqrt ((lead(X, 1) - X)^2 + (lead(Y, 1)-Y)^2), 
+      n_plus2 = sqrt ((lead(X, 2) - X)^2 + (lead(Y, 2)-Y)^2),
+      nMinus1 = sqrt((lag(X, 1) - X)^2 + (lag(Y, 1) - Y)^2),
+      nMinus2 = sqrt((lag(X, 2) - X)^2 + (lag(Y, 2) - Y)^2)
+)
+
+ T1step <- T1step  |>
+    rowwise() |>
+    mutate(
+        stepMean = mean(c(nMinus2, nMinus1, n_plus1, n_plus2))
+    ) |>
+    ungroup()
+ 
+ ggplot(T1step, aes(stepMean)) +
+  geom_histogram(binwidth = 5) +
+  geom_vline(xintercept = mean(T1step$stepMean, na.rm = TRUE))
+ 
+#Remove static points by applying threshold and visualize the segmented trajectories
+ 
+T1step <- T1step |> 
+  mutate(static = stepMean < mean(stepMean, na.rm = TRUE))
+
+T1_filter <- T1step |>
+    filter(!static)
+
+T1b <- ggplot(T1_filter, aes(X, Y))+
+  geom_path()+
+    geom_point()+
+    coord_fixed()
+
+library("cowplot")
+plot_grid(T1a, T1b, 
+          labels = c("A", "B"),
+          ncol = 2, nrow = 1)
+
+#write.csv(T1, file = "T1.csv")
+
+```
+
+
+```{r}
+
+T2 <- posmo %>%
+  filter(Trajectory == "T2")
+
+ggplot(T2, aes(X, Y))+
+  geom_path()+
+  geom_point()+coord_fixed()
+                 
+GR <- posmo %>%
+  filter(Date == "2023-04-07")
+
+ggplot(GR, aes(X, Y))+
+  geom_path()+
+  geom_point()+
+  coord_fixed()
+
+T3 <- posmo %>%
+  filter(Trajectory == "T3")
+
+ggplot(T3, aes(X, Y))+
+  geom_path()+
+  geom_point()+coord_fixed()
+
+
+
+T8 <- posmo %>%
+  filter(Trajectory == "T8")
+
+ggplot(T8, aes(X, Y))+
+  geom_path()+
+    geom_point()+coord_fixed()
+```
+
