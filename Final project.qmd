@@ -11,8 +11,6 @@ library(tidyverse)
 library(lubridate)
 ```
 
-
-#Data import and transformation
 ```{r}
 posmo_MK <- read_delim("Data/posmo_MK_edited.csv")
 str(posmo_MK)
@@ -25,15 +23,13 @@ posmo_walk <- st_as_sf(posmo_walk,
 
 posmo_walk <- st_transform(posmo_walk, 2056)#convert the coordinate system to CH1903+ LV95: EPSG:2056
 ```
-#Pre-processing.
-Separate x and y coordinates in separate columns, separate date and time in different columns.
+
 ```{r}
 posmoMK_coordinates <- st_coordinates(posmo_walk)
 
 #We can bind these coordinates back to our sf object using cbind
 posmo <- cbind(posmo_walk, posmoMK_coordinates)
 str(posmo)
-
 
 is.POSIXt(posmo$datetime)
 
@@ -44,19 +40,10 @@ posmo
 ggplot(posmo, aes(X, Y))+
   geom_path()+
     geom_point()+
-    coord_fixed()
-```
-#Time lag. 
-How often was the position recorded. 
-```{r}
-posmo <- posmo |> 
-    group_by(Trajectory)|> 
-    mutate(timelag = as.numeric(difftime(lead(datetime), datetime)), units = "secs")
+                 coord_fixed()
 ```
 
 
-
-#Pre-processing for each trajectory
 
 ```{r}
 str(posmo)
@@ -65,7 +52,7 @@ T1 <- posmo %>%
 
 T1a <- ggplot(T1, aes(X, Y))+
   geom_path()+
-  geom_point(color  = "blue")+
+  geom_point()+
   coord_fixed()
 
 #To calculate the step-length among  observation 1 and 2 back and forward.
@@ -101,10 +88,9 @@ T1b <- ggplot(T1_filter, aes(X, Y))+
     geom_point()+
     coord_fixed()
 
-#to visualize the raw trajectory and the trajectory with the static points removed
 library("cowplot")
 plot_grid(T1a, T1b, 
-          labels = c("Raw", "Static points removed"),
+          labels = c("A", "B"),
           ncol = 2, nrow = 1)
 
 #write.csv(T1, file = "T1.csv")
@@ -112,125 +98,10 @@ plot_grid(T1a, T1b,
 ```
 
 
-How would it look like if we plot by date? It doesn't work because it connects the last location from the earlier trajectory with the first location of the following trajectory
-```{r}
-TMay28 <- posmo %>%
-  filter(Date == "2023-05-28")
-
-ggplot(TMay28, aes(X, Y))+
-  geom_path()+
-  geom_point(color  = "red")+
-  coord_fixed()
-```
-
-
-
-```{r}
-T41 <- posmo %>%
-  filter(Trajectory == "T41")
-
-T41a <- ggplot(T41, aes(X, Y))+
-  geom_path()+
-  geom_point(color  = "blue")+
-  coord_fixed()
-
-#To calculate the step-length among  observation 1 and 2 back and forward.
-T41step <- T41 |>
-    mutate(
-      n_plus1 = sqrt ((lead(X, 1) - X)^2 + (lead(Y, 1)-Y)^2), 
-      n_plus2 = sqrt ((lead(X, 2) - X)^2 + (lead(Y, 2)-Y)^2),
-      nMinus1 = sqrt((lag(X, 1) - X)^2 + (lag(Y, 1) - Y)^2),
-      nMinus2 = sqrt((lag(X, 2) - X)^2 + (lag(Y, 2) - Y)^2)
-)
-
- T41step <- T41step  |>
-    rowwise() |>
-    mutate(
-        stepMean = mean(c(nMinus2, nMinus1, n_plus1, n_plus2))
-    ) |>
-    ungroup()
- 
-#Remove static points by applying threshold and visualize the segmented trajectories
- 
-T41step <- T41step |> 
-  mutate(static = stepMean < mean(stepMean, na.rm = TRUE))
-
-T41_filter <- T41step |>
-    filter(!static)
-
-T41b <- ggplot(T41_filter, aes(X, Y))+
-  geom_path()+
-    geom_point()+
-    coord_fixed()
-
-library("cowplot")
-plot_grid(T41a, T41b, 
-          labels = c("Raw", "Static points removed"),
-          ncol = 2, nrow = 1)
-
-#write.csv(T1, file = "T1.csv")
-
-#function to create a unique ID for each segment
-#rle_id <- function(vec) {
-#    x <- rle(vec)$lengths
-#    as.factor(rep(seq_along(x), times = x))
-#}
-#T41_filter <- T41_filter |>
-#    mutate(segment_id = rle_id(static))
-
-#ggplot(T41_filter, aes(X, Y))+
-#  geom_path()+
-#  geom_point(aes(color = segment_id))+
-#  coord_fixed()
-```
-
-#Speed
-
-```{r}
-posmo <- posmo |> 
-    group_by(Trajectory)|> 
-    mutate(timelag = as.numeric(difftime(lead(datetime), datetime)), units = "secs")
-
-posmo <- posmo |>
-  group_by(Trajectory) |> 
-  mutate(steplenght = sqrt ((X-lead(X))^2 + (Y-lead(Y))^2))|>
-  mutate(speed = steplenght/timelag)
-
-speed <- posmo |> 
-  group_by(Trajectory) |>  
-  filter(timelag > 0)|>   
-  filter(speed > 0)|>
-  summarise(average.speed = mean(speed, na.rm = TRUE))
-
-```
-#Duration
-
-```{r}
-duration <- posmo |> 
-  group_by(Trajectory) |>  
-  summarise(end = max(Time), start = min(Time))
-
-duration$end <- as.POSIXct(duration$end, tz = "UTC", "%H:%M:%OS")
-duration$start <- as.POSIXct(duration$start, tz = "UTC", "%H:%M:%OS")
-str(duration)
-
-
-duration <- duration |> 
-  rowwise() |>
-  mutate(duration = as.numeric(difftime(end, start)), units = "mins")
-
-devtools::install_github("benmarwick/wordcountaddin",  type = "source", dependencies = TRUE)
-
-
-#duration$duration <-as.numeric(difftime(end, start, units = "mins"))
-```
-
-
-
 ```{r}
 
-TMay28 <- posmo %>%
-  filter(Date == "2023-05-28")
+T2 <- posmo %>%
+  filter(Trajectory == "T2")
 
 ggplot(T2, aes(X, Y))+
   geom_path()+
