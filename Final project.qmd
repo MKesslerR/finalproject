@@ -43,6 +43,44 @@ ggplot(posmo, aes(X, Y))+
                  coord_fixed()
 ```
 
+#Speed
+
+```{r}
+posmo <- posmo |> 
+    group_by(Trajectory)|> 
+    mutate(timelag = as.numeric(difftime(lead(datetime), datetime)), units = "secs")
+
+posmo <- posmo |>
+  group_by(Trajectory) |> 
+  mutate(steplenght = sqrt ((X-lead(X))^2 + (Y-lead(Y))^2))|>
+  mutate(speed = steplenght/timelag)
+
+speed <- posmo |> 
+  group_by(Trajectory) |>  
+  filter(timelag > 0)|>   
+  filter(speed > 0)|>
+  summarise(average.speed = mean(speed, na.rm = TRUE))
+
+```
+#Duration
+
+```{r}
+duration <- posmo |> 
+  group_by(Trajectory) |>  
+  summarise(end = max(Time), start = min(Time))
+
+duration$end <- as.POSIXct(duration$end, tz = "UTC", "%H:%M:%OS")
+duration$start <- as.POSIXct(duration$start, tz = "UTC", "%H:%M:%OS")
+str(duration)
+
+
+duration <- duration |> 
+  rowwise() |>
+  mutate(duration = as.numeric(difftime(end, start)), units = "mins")
+
+#devtools::install_github("benmarwick/wordcountaddin",  type = "source", dependencies = TRUE)
+
+```
 
 
 ```{r}
@@ -98,6 +136,81 @@ plot_grid(T1a, T1b,
 ```
 
 
+<<<<<<< HEAD
+=======
+How would it look like if we plot by date? It doesn't work because it connects the last location from the earlier trajectory with the first location of the following trajectory
+```{r}
+TMay28 <- posmo %>%
+  filter(Date == "2023-05-28")
+
+ggplot(TMay28, aes(X, Y))+
+  geom_path()+
+  geom_point(color  = "red")+
+  coord_fixed()
+```
+
+
+
+```{r}
+T41 <- posmo %>%
+  filter(Trajectory == "T41")
+
+T41a <- ggplot(T41, aes(X, Y))+
+  geom_path()+
+  geom_point(color  = "blue")+
+  coord_fixed()
+
+#To calculate the step-length among  observation 1 and 2 back and forward.
+T41step <- T41 |>
+    mutate(
+      n_plus1 = sqrt ((lead(X, 1) - X)^2 + (lead(Y, 1)-Y)^2), 
+      n_plus2 = sqrt ((lead(X, 2) - X)^2 + (lead(Y, 2)-Y)^2),
+      nMinus1 = sqrt((lag(X, 1) - X)^2 + (lag(Y, 1) - Y)^2),
+      nMinus2 = sqrt((lag(X, 2) - X)^2 + (lag(Y, 2) - Y)^2)
+)
+
+ T41step <- T41step  |>
+    rowwise() |>
+    mutate(
+        stepMean = mean(c(nMinus2, nMinus1, n_plus1, n_plus2))
+    ) |>
+    ungroup()
+ 
+#Remove static points by applying threshold and visualize the segmented trajectories
+ 
+T41step <- T41step |> 
+  mutate(static = stepMean < mean(stepMean, na.rm = TRUE))
+
+T41_filter <- T41step |>
+    filter(!static)
+
+T41b <- ggplot(T41_filter, aes(X, Y))+
+  geom_path()+
+    geom_point()+
+    coord_fixed()
+
+library("cowplot")
+plot_grid(T41a, T41b, 
+          labels = c("Raw", "Static points removed"),
+          ncol = 2, nrow = 1)
+
+#write.csv(T1, file = "T1.csv")
+
+#function to create a unique ID for each segment
+#rle_id <- function(vec) {
+#    x <- rle(vec)$lengths
+#    as.factor(rep(seq_along(x), times = x))
+#}
+#T41_filter <- T41_filter |>
+#    mutate(segment_id = rle_id(static))
+
+#ggplot(T41_filter, aes(X, Y))+
+#  geom_path()+
+#  geom_point(aes(color = segment_id))+
+#  coord_fixed()
+```
+
+>>>>>>> c78e2b3758675e1376be8a215f93a32c68ba0fab
 ```{r}
 
 T2 <- posmo %>%
