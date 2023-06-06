@@ -89,10 +89,8 @@ duration <- duration |>
   rowwise() |>
   mutate(duration = as.numeric(difftime(end, start)), units = "mins")
 
-devtools::install_github("benmarwick/wordcountaddin",  type = "source", dependencies = TRUE)
+#devtools::install_github("benmarwick/wordcountaddin",  type = "source", dependencies = TRUE)
 
-
-#duration$duration <-as.numeric(difftime(end, start, units = "mins"))
 ```
 
 
