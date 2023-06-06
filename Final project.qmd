@@ -54,6 +54,46 @@ posmo <- posmo |>
     mutate(timelag = as.numeric(difftime(lead(datetime), datetime)), units = "secs")
 ```
 
+#Speed
+
+```{r}
+posmo <- posmo |> 
+    group_by(Trajectory)|> 
+    mutate(timelag = as.numeric(difftime(lead(datetime), datetime)), units = "secs")
+
+posmo <- posmo |>
+  group_by(Trajectory) |> 
+  mutate(steplenght = sqrt ((X-lead(X))^2 + (Y-lead(Y))^2))|>
+  mutate(speed = steplenght/timelag)
+
+speed <- posmo |> 
+  group_by(Trajectory) |>  
+  filter(timelag > 0)|>   
+  filter(speed > 0)|>
+  summarise(average.speed = mean(speed, na.rm = TRUE))
+
+```
+#Duration
+
+```{r}
+duration <- posmo |> 
+  group_by(Trajectory) |>  
+  summarise(end = max(Time), start = min(Time))
+
+duration$end <- as.POSIXct(duration$end, tz = "UTC", "%H:%M:%OS")
+duration$start <- as.POSIXct(duration$start, tz = "UTC", "%H:%M:%OS")
+str(duration)
+
+
+duration <- duration |> 
+  rowwise() |>
+  mutate(duration = as.numeric(difftime(end, start)), units = "mins")
+
+devtools::install_github("benmarwick/wordcountaddin",  type = "source", dependencies = TRUE)
+
+
+#duration$duration <-as.numeric(difftime(end, start, units = "mins"))
+```
 
 
 #Pre-processing for each trajectory
@@ -183,49 +223,6 @@ plot_grid(T41a, T41b,
 #  geom_point(aes(color = segment_id))+
 #  coord_fixed()
 ```
-
-#Speed
-
-```{r}
-posmo <- posmo |> 
-    group_by(Trajectory)|> 
-    mutate(timelag = as.numeric(difftime(lead(datetime), datetime)), units = "secs")
-
-posmo <- posmo |>
-  group_by(Trajectory) |> 
-  mutate(steplenght = sqrt ((X-lead(X))^2 + (Y-lead(Y))^2))|>
-  mutate(speed = steplenght/timelag)
-
-speed <- posmo |> 
-  group_by(Trajectory) |>  
-  filter(timelag > 0)|>   
-  filter(speed > 0)|>
-  summarise(average.speed = mean(speed, na.rm = TRUE))
-
-```
-#Duration
-
-```{r}
-duration <- posmo |> 
-  group_by(Trajectory) |>  
-  summarise(end = max(Time), start = min(Time))
-
-duration$end <- as.POSIXct(duration$end, tz = "UTC", "%H:%M:%OS")
-duration$start <- as.POSIXct(duration$start, tz = "UTC", "%H:%M:%OS")
-str(duration)
-
-
-duration <- duration |> 
-  rowwise() |>
-  mutate(duration = as.numeric(difftime(end, start)), units = "mins")
-
-devtools::install_github("benmarwick/wordcountaddin",  type = "source", dependencies = TRUE)
-
-
-#duration$duration <-as.numeric(difftime(end, start, units = "mins"))
-```
-
-
 
 ```{r}
 
