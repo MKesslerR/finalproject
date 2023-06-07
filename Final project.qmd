@@ -35,6 +35,8 @@ precip_data <- read_delim("data/weather_data.csv") |>
 
 # filter SHA weather station
 precip_SHA <- precip_data |> filter(stn == "SHA") |> rename(datetime = time)
+precip_SHA$datetime <- as.POSIXct(precip_SHA$datetime, tz = "UTC") # convert character into POSIXct
+
 
 # Import Posmo data MN
 # filter walk transportmode, select only necessary columns, and transform data frame into sf object and transform it into EPSG 2056 coordinate system
@@ -83,6 +85,14 @@ posmo_MN <- cbind(posmo_MN, posmoMN_coordinates) |>
     Date = date(datetime),
     Time = format(datetime, format = "%H:%M:%S")
     )
+
+# Create new column with time values rounded to closest 10 minutes, to be able to join with weather data
+posmo_MN <- posmo_MN |> mutate(
+  Datetime_round = lubridate::round_date(datetime,"10 minutes")
+)
+
+# Join posmo data with weather data
+posmo_weather_join <- left_join(posmo_MN, precip_SHA, by = c("Datetime_round" = "datetime"))
 
 ggplot(posmo_MN, aes(X, Y))+
   geom_path()+
