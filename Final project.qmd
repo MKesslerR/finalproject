@@ -11,7 +11,7 @@ library(tidyverse)
 library(lubridate)
 library(tmap)
 ```
-
+#Import data and pre-processing
 ```{r}
 posmo_MK <- read_delim("Data/posmo_join.csv")
 str(posmo_MK)
@@ -24,10 +24,10 @@ posmo_walk <- st_as_sf(posmo_walk,
 
 posmo_walk <- st_transform(posmo_walk, 2056)
 
-#Pre-processing.
-# Separate x and y coordinates in separate columns, separate date and time in different columns.
+# Separate x and y coordinates in separate columns
 
-posmo_walk <- st_transform(posmo_walk, 2056)#convert the coordinate system to CH1903+ LV95: EPSG:2056
+posmo_walk <- st_transform(posmo_walk, 2056)
+
 
 # import Weather Data
 precip_data <- read_delim("data/weather_data.csv") |> 
@@ -58,22 +58,12 @@ str(posmo)
 #posmo$Date <- date(posmo$datetime)
 #posmo$Time <- format(posmo$datetime, format = "%H:%M:%S")
 
-is.POSIXt(posmo$datetime)
-
-posmo$Date <- date(posmo$datetime)
-posmo$Time <- format(posmo$datetime, format = "%H:%M:%S")
-
-
 posmo
 ggplot(posmo, aes(X, Y))+
   geom_path()+
     geom_point()+
-
     coord_fixed()
 
-#Removal of static points
-
-coord_fixed()
 
 # the same with MN Data
 posmoMN_coordinates <- st_coordinates(posmo_MN)
