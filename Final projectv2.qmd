@@ -81,55 +81,13 @@ posmo_weather_MN <- left_join(posmo_MN, precip_SHA, by = c("Datetime_round" = "d
 
 posmo_weather_MK <- left_join(posmo_MN, precip_SHA, by = c("Datetime_round" = "datetime"))
 
-posmo_all <- 
-```
-
-```{r}
-
-
-#Removal of static points
-
-coord_fixed()
-
-# the same with MN Data
-posmoMN_coordinates <- st_coordinates(posmo_MN)
-
-posmo_MN <- cbind(posmo_MN, posmoMN_coordinates) |> 
-  mutate(
-    Date = date(datetime),
-    Time = format(datetime, format = "%H:%M:%S")
-    )
-
-# Create new column with time values rounded to closest 10 minutes, to be able to join with weather data
-posmo_MN <- posmo_MN |> mutate(
-  Datetime_round = lubridate::round_date(datetime,"10 minutes")
-)
-
-# Join posmo data with weather data
-posmo_weather_join <- left_join(posmo_MN, precip_SHA, by = c("Datetime_round" = "datetime"))
-
-ggplot(posmo_MN, aes(X, Y))+
-  geom_path()+
-  geom_point()+
-  coord_fixed()
-
+#Join the two datasets vertically
+posmo <- rbind(posmo_weather_MN, posmo_weather_MK)
 ```
 
 
 
-<<<<<<< HEAD
 #To remove static points from trajectories. posmo-filter contains the trajectories without static points
-=======
-duration <- duration |> 
-  rowwise() |>
-  mutate(duration = as.numeric(difftime(end, start)), units = "mins")
-
-#devtools::install_github("benmarwick/wordcountaddin",  type = "source", dependencies = TRUE)
-
-```
-
-
->>>>>>> f4080f3aeef39c7e7e73c09fa61c986381fbf844
 
 ```{r}
 str(posmo)
@@ -315,68 +273,7 @@ ggplot(posmo, mapping = aes(type, distance))+
   theme_light()
 ```
 
-
-#After this line all previous calculations that are no longer needed
-
-#Speed
-
 ```{r}
-
-posmo <- posmo |>
-  group_by(Trajectory) |> 
-  mutate(steplenght = sqrt ((X-lead(X))^2 + (Y-lead(Y))^2))|>
-  mutate(speed = steplenght/timelag)
-
-#speed <- posmo |> 
-#  group_by(Trajectory) |>  
-#  filter(timelag > 0)|>   
-#  filter(speed > 0)|>
-#  summarise(average.speed = mean(speed, na.rm = TRUE))
-
-```
-#Duration
-
-```{r}
-duration <- posmo |> 
-  group_by(Trajectory) |>  
-  summarise(end = max(Time), start = min(Time))
-
-duration$end <- as.POSIXct(duration$end, tz = "UTC", "%H:%M:%OS")
-duration$start <- as.POSIXct(duration$start, tz = "UTC", "%H:%M:%OS")
-str(duration)
-
-
-duration <- duration |> 
-  rowwise() |>
-  mutate(duration = as.numeric(difftime(end, start)), units = "mins")
-
-```
-
-
-```{r}
-T41 <- posmo %>%
-  filter(trajectoryID == "T41")
-T41_filter <- posmo_filter %>%
-  filter(trajectoryID == "T41")
-
-T41a <- ggplot(T41, aes(X, Y))+
-  geom_path()+
-  geom_point(color  = "blue")+
-  coord_fixed()
-
-
-T41b <- ggplot(T41_filter, aes(X, Y))+
-  geom_path()+
-    geom_point()+
-    coord_fixed()
-
-library("cowplot")
-plot_grid(T41a, T41b, 
-          labels = c("Raw", "Static points removed"),
-          ncol = 2, nrow = 1)
-
-#write.csv(T1, file = "T1.csv")
-
 #function to create a unique ID for each segment
 #rle_id <- function(vec) {
 #    x <- rle(vec)$lengths
@@ -416,28 +313,11 @@ ggplot(T8, aes(X, Y))+
     geom_point()+coord_fixed()
 ```
 
-#Calculation of average speed by trajectory and by type of walk (old method)
-
-```{r}
-speed <- posmo_filter |> 
-  group_by(trajectoryID) |>  
-  filter(timelag > 0)|>   
-  filter(speed > 0)|>
-  summarise(average.speed = mean(speed, na.rm = TRUE))
-
-type.walk <- posmo |> 
-  group_by(type) |>  
-  filter(timelag > 0)|>   
-  filter(speed > 0)|>
-  summarise(average.speed = mean(speed, na.rm = TRUE))
-
-```
-
-
 
 ```{r}
 arealstat_csv <- read_csv("data-raw/arealstatistik/ag-b-00.03-37-nolc04/AREA_NOLC04_27_161114.csv",                          col_types = cols_only(X = col_integer(), Y = col_integer(),LC09_27 = col_integer(),LC09_6 = col_integer())) %>%  transmute(E = X + 2e6, N = Y + 1e6, hauptbereiche6 = LC09_6, grundkat27 = LC09_27) # This is not a precise transformation 21781 > 2056 but it seems this method was used on the newer data as wellarealstat_hauptbereiche <- arealstat_csv %>% dplyr::select(E,N,hauptbereiche6) %>%  rasterFromXYZ() %>%  terra::rast()
 terra::crs(arealstat_hauptbereiche) <- "EPSG: 2056" 
 arealstat_grundkategorien <- arealstat_csv %>%  dplyr::select(E,N,grundkat27) %>%  rasterFromXYZ() %>%  terra::rast()terra::crs(arealstat_grundkategorien) <- "EPSG: 2056"# usethis::use_data(arealstat_hauptbereiche, overwrite = TRUE) # usethis::use_data(arealstat_grundkategorien, overwrite = TRUE) terra::writeRaster(arealstat_grundkategorien, "inst/extdata/arealstat_boden_grundkategrien.tif", overwrite = TRUE, datatype = "INT1U") terra::writeRaster(arealstat_hauptbereiche, "inst/extdata/arealstat_boden_hauptbereiche.tif", overwrite = TRUE, datatype = "INT1U")
 ```
+
 
