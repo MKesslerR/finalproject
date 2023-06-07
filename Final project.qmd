@@ -9,36 +9,34 @@ library(dplyr)
 library(ggplot2)
 library(tidyverse)
 library(lubridate)
+library(tmap)
 ```
 
 
 #Data import and transformation
 ```{r}
-posmo_MK <- read_delim("Data/posmo_MK_edited.csv")
+posmo_MK <- read_delim("Data/posmo_join.csv")
 str(posmo_MK)
 
 posmo_walk <- filter (posmo_MK, transport_mode == "Walk")
-posmo_walk <- select(posmo_walk, datetime, lon_x, lat_y, Trajectory, Type)
+posmo_walk <- select(posmo_walk, datetime, lon_x, lat_y, trajectoryID, type)
 posmo_walk <- st_as_sf(posmo_walk,
     coords = c("lon_x", "lat_y"),
-    crs = 4326)#transforms the data frame into a sf object
+    crs = 4326)
 
-posmo_walk <- st_transform(posmo_walk, 2056)#convert the coordinate system to CH1903+ LV95: EPSG:2056
+posmo_walk <- st_transform(posmo_walk, 2056)
 ```
 #Pre-processing.
 Separate x and y coordinates in separate columns, separate date and time in different columns.
+
 ```{r}
 posmoMK_coordinates <- st_coordinates(posmo_walk)
 
-#We can bind these coordinates back to our sf object using cbind
 posmo <- cbind(posmo_walk, posmoMK_coordinates)
 str(posmo)
 
-
-is.POSIXt(posmo$datetime)
-
-posmo$Date <- date(posmo$datetime)
-posmo$Time <- format(posmo$datetime, format = "%H:%M:%S")
+#posmo$Date <- date(posmo$datetime)
+#posmo$Time <- format(posmo$datetime, format = "%H:%M:%S")
 
 posmo
 ggplot(posmo, aes(X, Y))+
@@ -46,68 +44,14 @@ ggplot(posmo, aes(X, Y))+
     geom_point()+
     coord_fixed()
 ```
-#Time lag. 
-How often was the position recorded. 
-```{r}
-posmo <- posmo |> 
-    group_by(Trajectory)|> 
-    mutate(timelag = as.numeric(difftime(lead(datetime), datetime)), units = "secs")
-```
-
-#Speed
-
-```{r}
-posmo <- posmo |> 
-    group_by(Trajectory)|> 
-    mutate(timelag = as.numeric(difftime(lead(datetime), datetime)), units = "secs")
-
-posmo <- posmo |>
-  group_by(Trajectory) |> 
-  mutate(steplenght = sqrt ((X-lead(X))^2 + (Y-lead(Y))^2))|>
-  mutate(speed = steplenght/timelag)
-
-speed <- posmo |> 
-  group_by(Trajectory) |>  
-  filter(timelag > 0)|>   
-  filter(speed > 0)|>
-  summarise(average.speed = mean(speed, na.rm = TRUE))
-
-```
-#Duration
-
-```{r}
-duration <- posmo |> 
-  group_by(Trajectory) |>  
-  summarise(end = max(Time), start = min(Time))
-
-duration$end <- as.POSIXct(duration$end, tz = "UTC", "%H:%M:%OS")
-duration$start <- as.POSIXct(duration$start, tz = "UTC", "%H:%M:%OS")
-str(duration)
-
-
-duration <- duration |> 
-  rowwise() |>
-  mutate(duration = as.numeric(difftime(end, start)), units = "mins")
-
-#devtools::install_github("benmarwick/wordcountaddin",  type = "source", dependencies = TRUE)
-
-```
-
-
-#Pre-processing for each trajectory
+#Removal of static points
 
 ```{r}
 str(posmo)
-T1 <- posmo %>%
-  filter(Trajectory == "T1")
 
-T1a <- ggplot(T1, aes(X, Y))+
-  geom_path()+
-  geom_point(color  = "blue")+
-  coord_fixed()
-
-#To calculate the step-length among  observation 1 and 2 back and forward.
-T1step <- T1 |>
+#To calculate distance among  observation 1 and 2 back and forward.
+posmo <- posmo |>
+  group_by(trajectoryID) |> 
     mutate(
       n_plus1 = sqrt ((lead(X, 1) - X)^2 + (lead(Y, 1)-Y)^2), 
       n_plus2 = sqrt ((lead(X, 2) - X)^2 + (lead(Y, 2)-Y)^2),
@@ -115,24 +59,46 @@ T1step <- T1 |>
       nMinus2 = sqrt((lag(X, 2) - X)^2 + (lag(Y, 2) - Y)^2)
 )
 
- T1step <- T1step  |>
+ posmo <- posmo  |>
     rowwise() |>
     mutate(
         stepMean = mean(c(nMinus2, nMinus1, n_plus1, n_plus2))
     ) |>
     ungroup()
  
- ggplot(T1step, aes(stepMean)) +
+ ggplot(posmo, aes(stepMean)) +
   geom_histogram(binwidth = 5) +
-  geom_vline(xintercept = mean(T1step$stepMean, na.rm = TRUE))
+  geom_vline(xintercept = mean(posmo$stepMean, na.rm = TRUE))
  
-#Remove static points by applying threshold and visualize the segmented trajectories
+#Remove static points by applying threshold,  the threshold is the average step Mean. 
  
-T1step <- T1step |> 
+posmo <- posmo |> 
   mutate(static = stepMean < mean(stepMean, na.rm = TRUE))
 
-T1_filter <- T1step |>
+posmo_filter <- posmo |>
     filter(!static)
+
+which(posmo$stepMean> 100)
+which(posmo$stepMean> 50 )
+
+
+#posmo |> mutate(steplenght_large = steplenght>60)
+
+```
+ Trajectories visualization
+
+```{r}
+
+T1 <- posmo %>%
+  filter(trajectoryID == "T1")
+
+T1_filter <- posmo_filter %>%
+  filter(trajectoryID == "T1")
+  
+T1a <- ggplot(T1, aes(X, Y))+
+  geom_path()+
+  geom_point(color  = "blue")+
+  coord_fixed()
 
 T1b <- ggplot(T1_filter, aes(X, Y))+
   geom_path()+
@@ -150,51 +116,41 @@ plot_grid(T1a, T1b,
 ```
 
 
-How would it look like if we plot by date? It doesn't work because it connects the last location from the earlier trajectory with the first location of the following trajectory
 ```{r}
-TMay28 <- posmo %>%
-  filter(Date == "2023-05-28")
+M24 <- posmo %>%
+  filter(trajectoryID == "24")
 
-ggplot(TMay28, aes(X, Y))+
+M24_filter <- posmo_filter %>%
+  filter(trajectoryID == "24")
+  
+M24a <- ggplot(M24, aes(X, Y))+
   geom_path()+
-  geom_point(color  = "red")+
+  geom_point(color  = "blue")+
   coord_fixed()
+
+M24b <- ggplot(M24_filter, aes(X, Y))+
+  geom_path()+
+    geom_point()+
+    coord_fixed()
+
+#to visualize the raw trajectory and the trajectory with the static points removed
+library("cowplot")
+plot_grid(M24a, M24b, 
+          labels = c("Raw", "Static points removed"),
+          ncol = 2, nrow = 1)
 ```
-
-
 
 ```{r}
 T41 <- posmo %>%
-  filter(Trajectory == "T41")
+  filter(trajectoryID == "T41")
+T41_filter <- posmo_filter %>%
+  filter(trajectoryID == "T41")
 
 T41a <- ggplot(T41, aes(X, Y))+
   geom_path()+
   geom_point(color  = "blue")+
   coord_fixed()
 
-#To calculate the step-length among  observation 1 and 2 back and forward.
-T41step <- T41 |>
-    mutate(
-      n_plus1 = sqrt ((lead(X, 1) - X)^2 + (lead(Y, 1)-Y)^2), 
-      n_plus2 = sqrt ((lead(X, 2) - X)^2 + (lead(Y, 2)-Y)^2),
-      nMinus1 = sqrt((lag(X, 1) - X)^2 + (lag(Y, 1) - Y)^2),
-      nMinus2 = sqrt((lag(X, 2) - X)^2 + (lag(Y, 2) - Y)^2)
-)
-
- T41step <- T41step  |>
-    rowwise() |>
-    mutate(
-        stepMean = mean(c(nMinus2, nMinus1, n_plus1, n_plus2))
-    ) |>
-    ungroup()
- 
-#Remove static points by applying threshold and visualize the segmented trajectories
- 
-T41step <- T41step |> 
-  mutate(static = stepMean < mean(stepMean, na.rm = TRUE))
-
-T41_filter <- T41step |>
-    filter(!static)
 
 T41b <- ggplot(T41_filter, aes(X, Y))+
   geom_path()+
@@ -224,20 +180,12 @@ plot_grid(T41a, T41b,
 
 ```{r}
 
-TMay28 <- posmo %>%
-  filter(Date == "2023-05-28")
+T2 <- posmo %>%
+  filter(Trajectory == "T2")
 
 ggplot(T2, aes(X, Y))+
   geom_path()+
   geom_point()+coord_fixed()
-                 
-GR <- posmo %>%
-  filter(Date == "2023-04-07")
-
-ggplot(GR, aes(X, Y))+
-  geom_path()+
-  geom_point()+
-  coord_fixed()
 
 T3 <- posmo %>%
   filter(Trajectory == "T3")
@@ -246,13 +194,135 @@ ggplot(T3, aes(X, Y))+
   geom_path()+
   geom_point()+coord_fixed()
 
-
-
 T8 <- posmo %>%
   filter(Trajectory == "T8")
 
 ggplot(T8, aes(X, Y))+
   geom_path()+
     geom_point()+coord_fixed()
+```
+
+#Timelag. 
+How often was the position recorded. Calculated for the trajectories with and without (posmo_filter) static points
+```{r}
+posmo <- posmo |> 
+    group_by(trajectoryID)|> 
+    mutate(timelag = as.numeric(difftime(lead(datetime), datetime, units = "secs")))
+
+posmo_filter <- posmo_filter |> 
+    group_by(trajectoryID)|> 
+    mutate(timelag = as.numeric(difftime(lead(datetime), datetime, units = "secs")))
+
+ ggplot(posmo, aes(timelag)) +
+  geom_histogram(binwidth = 5) +
+  geom_vline(xintercept = mean(posmo$timelag, na.rm = TRUE))
+
+which(posmo$timelag> 300)#The threshold was set at 300 (15*20), sometimes we had pauses of up to 20 minutes during the walks that recorded the same location several times
+which(posmo$timelag> 1000)
+ 
+```
+
+```{r}
+library(tmap)
+tmap_mode("view")
+posmo[330:340,] |> tm_shape() + tm_dots()
+
+posmo[330:340,] |> tm_shape() + tm_dots()
+
+posmo[4828:4835,] |> tm_shape() + tm_dots()
+
+posmo[5830:5840,] |> tm_shape() + tm_dots()
+
+```
+
+
+#Steplenght and speed calculation
+
+```{r}
+#calculation with the whole trajectories 
+posmo <- posmo |>
+  group_by(trajectoryID) |> 
+  mutate(steplenght = sqrt ((X-lead(X))^2 + (Y-lead(Y))^2))|>
+  mutate(speed = steplenght/timelag)|>
+  mutate(duration = (max(datetime)- min(datetime))/60)|>
+  mutate(distance = sum(steplenght, na.rm = TRUE))
+
+#calculation with the trajectories without static points
+posmo_filter <- posmo_filter |>
+  group_by(trajectoryID) |> 
+  mutate(steplenght = sqrt ((X-lead(X))^2 + (Y-lead(Y))^2))|>
+  mutate(speed = steplenght/timelag)|>
+  mutate(duration = (max(datetime)- min(datetime))/60)|>
+  mutate(distance = sum(steplenght, na.rm = TRUE))
+
+
+#posmo$steplenght |> hist()
+#posmo_filter$steplenght |> hist()
+
+#which(posmo$steplenght> 100)
+#which(posmo_filter$steplenght>100 )
+
+
+#posmo |> mutate(steplenght_large = steplenght>60)
+
+
+```
+
+#Visualization of parameters
+
+```{r}
+ggplot(posmo, mapping = aes(type, steplenght))+
+  geom_boxplot() +
+  labs(x = "Type of dog walking", y = "Steplenght")+
+  theme_light()  
+
+ggplot(posmo, mapping = aes(type, speed))+
+  geom_boxplot() +
+  labs(x = "Type of dog walking", y = "Speed")+
+  theme_light()
+
+ggplot(posmo_filter, mapping = aes(type, speed))+
+  geom_boxplot() +
+  labs(x = "Type of dog walking", y = "Speed")+
+  theme_light()
+
+ggplot(posmo, mapping = aes(type, distance))+
+  geom_boxplot() +
+  labs(x = "Type of dog walking", y = "Distance")+
+  theme_light()
+```
+
+#Calculation of average speed by trajectory and by type of walk
+
+```{r}
+speed <- posmo_filter |> 
+  group_by(trajectoryID) |>  
+  filter(timelag > 0)|>   
+  filter(speed > 0)|>
+  summarise(average.speed = mean(speed, na.rm = TRUE))
+
+type.walk <- posmo |> 
+  group_by(type) |>  
+  filter(timelag > 0)|>   
+  filter(speed > 0)|>
+  summarise(average.speed = mean(speed, na.rm = TRUE))
+
+
+
+
+```
+
+
+#devtools::install_github("benmarwick/wordcountaddin",  type = "source", dependencies = TRUE)
+
+```
+
+
+#S
+
+```{r}
+arealstat_csv <- read_csv("data-raw/arealstatistik/ag-b-00.03-37-nolc04/AREA_NOLC04_27_161114.csv",                          col_types = cols_only(X = col_integer(), Y = col_integer(),LC09_27 = col_integer(),LC09_6 = col_integer())) %>%  transmute(E = X + 2e6, N = Y + 1e6, hauptbereiche6 = LC09_6, grundkat27 = LC09_27) # This is not a precise transformation 21781 > 2056 but it seems this method was used on the newer data as wellarealstat_hauptbereiche <- arealstat_csv %>% dplyr::select(E,N,hauptbereiche6) %>%  rasterFromXYZ() %>%  terra::rast()
+terra::crs(arealstat_hauptbereiche) <- "EPSG: 2056" 
+arealstat_grundkategorien <- arealstat_csv %>%  dplyr::select(E,N,grundkat27) %>%  rasterFromXYZ() %>%  terra::rast()terra::crs(arealstat_grundkategorien) <- "EPSG: 2056"# usethis::use_data(arealstat_hauptbereiche, overwrite = TRUE) # usethis::use_data(arealstat_grundkategorien, overwrite = TRUE) terra::writeRaster(arealstat_grundkategorien, "inst/extdata/arealstat_boden_grundkategrien.tif", overwrite = TRUE, datatype = "INT1U") terra::writeRaster(arealstat_hauptbereiche, "inst/extdata/arealstat_boden_hauptbereiche.tif", overwrite = TRUE, datatype = "INT1U")
 ```
 
