@@ -10,7 +10,7 @@ library(ggplot2)
 library(tidyverse)
 library(lubridate)
 library(tmap)
-library("cowplot")
+library(cowplot)
 ```
 #Import data and pre-processing
 ```{r}
@@ -144,7 +144,6 @@ T1b <- ggplot(T1_filter, aes(X, Y))+
     geom_point()+
     coord_fixed()
 
-library("cowplot")
 plot_grid(T1a, T1b, 
           labels = c("A", "B"),
           ncol = 2, nrow = 1)
