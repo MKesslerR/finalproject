@@ -22,9 +22,26 @@ posmo_walk <- st_as_sf(posmo_walk,
     crs = 4326)#transforms the data frame into a sf object
 
 posmo_walk <- st_transform(posmo_walk, 2056)#convert the coordinate system to CH1903+ LV95: EPSG:2056
+
+# import Weather Data
+precip_data <- read_delim("data/weather_data.csv") |> 
+  select(-tre200s0, -sre000z0)
+
+# filter SHA weather station
+precip_SHA <- precip_data |> filter(stn == "SHA") |> rename(datetime = time)
+
+# Import Posmo data MN
+# filter walk transportmode, select only necessary columns, and transform data frame into sf object and transform it into EPSG 2056 coordinate system
+posmo_MN <- read_delim("data/posmo_MN_edited.csv", delim = ";") |> 
+  filter(transport_mode == "Walk") |> 
+  select(user_id, datetime, weekday, lon_x, lat_y, trajectoryID, Type, Shape) |> 
+  st_as_sf(coords = c("lon_x","lat_y"), crs = 4326)|>
+  st_transform(2056)
+
 ```
 
 ```{r}
+# store the coordinates into two separate columns
 posmoMK_coordinates <- st_coordinates(posmo_walk)
 
 #We can bind these coordinates back to our sf object using cbind
@@ -41,6 +58,21 @@ ggplot(posmo, aes(X, Y))+
   geom_path()+
     geom_point()+
                  coord_fixed()
+
+# the same with MN Data
+posmoMN_coordinates <- st_coordinates(posmo_MN)
+
+posmo_MN <- cbind(posmo_MN, posmoMN_coordinates) |> 
+  mutate(
+    Date = date(datetime),
+    Time = format(datetime, format = "%H:%M:%S")
+    )
+
+ggplot(posmo_MN, aes(X, Y))+
+  geom_path()+
+  geom_point()+
+  coord_fixed()
+
 ```
 
 #Speed
@@ -136,8 +168,8 @@ plot_grid(T1a, T1b,
 ```
 
 
-<<<<<<< HEAD
-=======
+
+
 How would it look like if we plot by date? It doesn't work because it connects the last location from the earlier trajectory with the first location of the following trajectory
 ```{r}
 TMay28 <- posmo %>%
@@ -210,7 +242,7 @@ plot_grid(T41a, T41b,
 #  coord_fixed()
 ```
 
->>>>>>> c78e2b3758675e1376be8a215f93a32c68ba0fab
+
 ```{r}
 
 T2 <- posmo %>%
