@@ -287,7 +287,7 @@ ggplot(posmo, mapping = aes(type, distance))+
 #  geom_point(aes(color = segment_id))+
 #  coord_fixed()
 ```
-
+Plotting more trajectories
 
 ```{r}
 
