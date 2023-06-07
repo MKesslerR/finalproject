@@ -12,7 +12,7 @@ library(lubridate)
 library(tmap)
 library(cowplot)
 ```
-#Import data and pre-processing
+
 ```{r}
 posmo_all <- read_delim("Data/posmo_join.csv")
 str(posmo_all)
@@ -23,10 +23,18 @@ posmo_walk <- st_as_sf(posmo_walk,
     coords = c("lon_x", "lat_y"),
     crs = 4326)
 
+<<<<<<< HEAD
 # Separate x and y coordinates in separate columns
 
 posmo_walk <- st_transform(posmo_walk, 2056)
+=======
+posmo_walk <- st_transform(posmo_walk, 2056)
 
+#Pre-processing.
+# Separate x and y coordinates in separate columns, separate date and time in different columns.
+>>>>>>> f4080f3aeef39c7e7e73c09fa61c986381fbf844
+
+posmo_walk <- st_transform(posmo_walk, 2056)#convert the coordinate system to CH1903+ LV95: EPSG:2056
 
 # import Weather Data
 precip_data <- read_delim("data/weather_data.csv") |> 
@@ -57,12 +65,22 @@ str(posmo)
 #posmo$Date <- date(posmo$datetime)
 #posmo$Time <- format(posmo$datetime, format = "%H:%M:%S")
 
+is.POSIXt(posmo$datetime)
+
+posmo$Date <- date(posmo$datetime)
+posmo$Time <- format(posmo$datetime, format = "%H:%M:%S")
+
+
 posmo
 ggplot(posmo, aes(X, Y))+
   geom_path()+
     geom_point()+
+
     coord_fixed()
 
+#Removal of static points
+
+coord_fixed()
 
 # the same with MN Data
 posmoMN_coordinates <- st_coordinates(posmo_MN)
@@ -82,7 +100,19 @@ ggplot(posmo_MN, aes(X, Y))+
 
 
 
+<<<<<<< HEAD
 #To remove static points from trajectories. posmo-filter contains the trajectories without static points
+=======
+duration <- duration |> 
+  rowwise() |>
+  mutate(duration = as.numeric(difftime(end, start)), units = "mins")
+
+#devtools::install_github("benmarwick/wordcountaddin",  type = "source", dependencies = TRUE)
+
+```
+
+
+>>>>>>> f4080f3aeef39c7e7e73c09fa61c986381fbf844
 
 ```{r}
 str(posmo)
