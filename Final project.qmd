@@ -94,10 +94,6 @@ posmo_MN <- posmo_MN |> mutate(
 # Join posmo data with weather data
 posmo_weather_join <- left_join(posmo_MN, precip_SHA, by = c("Datetime_round" = "datetime"))
 
-# Add new column for rain/no rain for each trajectory
-posmo_weather_join |> mutate(
-  precip = 
-)
 
 # Add new column for rain/no rain
 posmo_weather_join$precip[posmo_weather_join$rco150z0 == 0] <- "no"
