@@ -17,7 +17,6 @@ library(cowplot)
 #Import data,  handle spatial data and project the coordinates into the new Swiss CRS CH1903+ LV95. Data from two individuals:MK and MK
 ```{r}
 #Import POsmo data MK
-posmo_MK <- read_delim("data/posmo_MK_edited.csv", delim = ";")
 
 posmo_MK <- read_delim("data/posmo_MK_edited.csv", delim = ";") |> 
   filter(transport_mode == "Walk") |> 
@@ -66,7 +65,7 @@ posmo_MN <- cbind(posmo_MN, posmoMN_coordinates)
 ```
 
 
-##Join posmo data with weather data then join the two data sets
+##Join posmo data with weather data then join the two dataframes
 ```{r}
 # Create new column with time values rounded to closest 10 minutes, to be able to join with weather data
 posmo_MN <- posmo_MN |> mutate(
@@ -81,7 +80,7 @@ posmo_weather_MN <- left_join(posmo_MN, precip_SHA, by = c("Datetime_round" = "d
 
 posmo_weather_MK <- left_join(posmo_MN, precip_SHA, by = c("Datetime_round" = "datetime"))
 
-#Join the two datasets vertically
+#Join the two data frames vertically
 posmo <- rbind(posmo_weather_MN, posmo_weather_MK)
 ```
 
@@ -113,6 +112,9 @@ posmo <- posmo |>
   geom_histogram(binwidth = 5) +
   geom_vline(xintercept = mean(posmo$stepMean, na.rm = TRUE))
  
+which(posmo$stepMean> 100)
+which(posmo$stepMean> 50 )
+ 
 #Remove static points by applying threshold,  the threshold is the average step Mean. 
  
 posmo <- posmo |> 
@@ -120,9 +122,6 @@ posmo <- posmo |>
 
 posmo_filter <- posmo |>
     filter(!static)
-
-which(posmo$stepMean> 100)
-which(posmo$stepMean> 50 )
 
 
 #posmo |> mutate(steplenght_large = steplenght>60)
@@ -133,23 +132,23 @@ One from Margarita
 ```{r}
 
 
-T1 <- posmo %>%
+K1 <- posmo %>%
   filter(trajectoryID == "T1")
 
-T1_filter <- posmo_filter %>%
+K1_filter <- posmo_filter %>%
   filter(trajectoryID == "T1")
   
-T1a <- ggplot(T1, aes(X, Y))+
+K1a <- ggplot(K1, aes(X, Y))+
   geom_path()+
   geom_point(color  = "blue")+
   coord_fixed()
 
-T1b <- ggplot(T1_filter, aes(X, Y))+
+K1b <- ggplot(K1_filter, aes(X, Y))+
   geom_path()+
     geom_point()+
     coord_fixed()
 
-plot_grid(T1a, T1b, 
+plot_grid(K1a, K1b, 
           labels = c("A", "B"),
           ncol = 2, nrow = 1)
 
@@ -292,7 +291,7 @@ Plotting more trajectories
 ```{r}
 
 T2 <- posmo %>%
-  filter(Trajectory == "T2")
+  filter(trajectoryID == "T2")
 
 ggplot(T2, aes(X, Y))+
   geom_path()+
