@@ -44,7 +44,7 @@ precip_data <- read_delim("data/weather_data.csv") |>
 precip_SHA <- precip_data |> filter(stn == "SHA") |> rename(datetime = time)
 precip_SHA$datetime <- as.POSIXct(precip_SHA$datetime, tz = "UTC") # convert character into POSIXct
 
-# filter SHA weather station
+# filter EBK weather station
 precip_EBK <- precip_data |> filter(stn == "EBK") |> rename(datetime = time)
 precip_EBK$datetime <- as.POSIXct(precip_EBK$datetime, tz = "UTC") # convert character into POSIXct
 ```
@@ -263,17 +263,17 @@ ggplot(posmo, mapping = aes(Type, steplenght))+
 
 ggplot(posmo, mapping = aes(Type, speed))+
   geom_boxplot() +
-  labs(x = "Type of dog walking", y = "Speed")+
+  labs(x = "Type of dog walking", y = "Speed [m/s]")+
   theme_light()
 
 ggplot(posmo_filter, mapping = aes(Type, speed))+
   geom_boxplot() +
-  labs(x = "Type of dog walking", y = "Speed")+
+  labs(x = "Type of dog walking", y = "Speed [m/s]")+
   theme_light()
 
 ggplot(posmo, mapping = aes(Type, distance))+
   geom_boxplot() +
-  labs(x = "Type of dog walking", y = "Distance")+
+  labs(x = "Type of dog walking", y = "Distance [m]")+
   theme_light()
 ```
 
@@ -303,14 +303,14 @@ ggplot(T2, aes(X, Y))+
   geom_point()+coord_fixed()
 
 T3 <- posmo %>%
-  filter(Trajectory == "T3")
+  filter(trajectoryID == "T3")
 
 ggplot(T3, aes(X, Y))+
   geom_path()+
   geom_point()+coord_fixed()
 
 T8 <- posmo %>%
-  filter(Trajectory == "T8")
+  filter(trajectoryID == "T8")
 
 ggplot(T8, aes(X, Y))+
   geom_path()+
