@@ -251,10 +251,24 @@ posmo_filter <- posmo_filter |>
 #posmo$steplenght |> hist()
 
 which(posmo$steplenght > 30)#30 meters in 15 seconds its an average
-which(posmo$steplenght > 40)
+which(posmo$steplenght > 100)
 
 #posmo |> mutate(steplenght_large = steplenght>60)
+```
+##Visualization of the groups of points that show unreaslistic time lags 
+```{r}
+library(tmap)
+tmap_mode("view")
+posmo[3545:3550,] |> tm_shape() + tm_dots()
 
+posmo[16570:16575,] |> tm_shape() + tm_dots()
+
+#more than 500
+posmo[1698:1702,] |> tm_shape() + tm_dots()
+
+posmo[3247:3250,] |> tm_shape() + tm_dots()
+
+posmo[13020:13024,] |> tm_shape() + tm_dots()
 
 ```
 
