@@ -27,7 +27,7 @@ posmo_MK <- read_delim("data/posmo_MK_edited.csv", delim = ";") |>
 
 # Import Posmo data MN
 # filter walk transport mode, select only necessary columns, and transform data frame into sf object and transform it into EPSG 2056 coordinate system
-posmo_MN <- read_delim("data/posmo_MN_edited.csv", delim = ";") |> 
+posmo_MN <- read_delim("data/posmo_MN_edited2.csv", delim = ";") |> 
   filter(transport_mode == "Walk") |> 
   select(user_id, datetime, weekday, lon_x, lat_y, trajectoryID, Type, Shape) |> 
   st_as_sf(coords = c("lon_x","lat_y"), crs = 4326)|>
@@ -110,7 +110,7 @@ T8 <- posmo %>%
 
 ```{r}
 N13 <- posmo %>%
-  filter(trajectoryID == "13")
+  filter(trajectoryID == "57")
 N13|> tm_shape() + tm_dots()
 ```
 
