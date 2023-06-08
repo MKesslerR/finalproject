@@ -78,7 +78,7 @@ posmo_MK <- posmo_MK |> mutate(
 # Join posmo data with weather data
 posmo_weather_MN <- left_join(posmo_MN, precip_SHA, by = c("Datetime_round" = "datetime"))
 
-posmo_weather_MK <- left_join(posmo_MN, precip_SHA, by = c("Datetime_round" = "datetime"))
+posmo_weather_MK <- left_join(posmo_MK, precip_EBK, by = c("Datetime_round" = "datetime"))
 
 #Join the two data frames vertically
 posmo <- rbind(posmo_weather_MN, posmo_weather_MK)
@@ -194,21 +194,26 @@ posmo_filter <- posmo_filter |>
   geom_vline(xintercept = mean(posmo$timelag, na.rm = TRUE))
 
 which(posmo$timelag> 300)#The threshold was set at 300 (15*20), sometimes we had pauses of up to 20 minutes during the walks that recorded the same location several times
+which(posmo$timelag> 500)
 which(posmo$timelag> 1000)
+
  
 ```
 
-##Visualization of the groups of points that show time lags longer than 1000 secs
+##Visualization of the groups of points that show unreaslistic time lags 
 ```{r}
 library(tmap)
 tmap_mode("view")
-posmo[330:340,] |> tm_shape() + tm_dots()
+posmo[3545:3550,] |> tm_shape() + tm_dots()
 
-posmo[330:340,] |> tm_shape() + tm_dots()
+posmo[16570:16575,] |> tm_shape() + tm_dots()
 
-posmo[4828:4835,] |> tm_shape() + tm_dots()
+#more than 500
+posmo[1698:1702,] |> tm_shape() + tm_dots()
 
-posmo[5830:5840,] |> tm_shape() + tm_dots()
+posmo[3247:3250,] |> tm_shape() + tm_dots()
+
+posmo[13020:13024,] |> tm_shape() + tm_dots()
 
 ```
 
@@ -240,8 +245,8 @@ posmo_filter <- posmo_filter |>
  
 #posmo$steplenght |> hist()
 
-which(posmo$steplenght> 30)
-which(posmo$steplenght> 60)
+which(posmo$steplenght > 30)#30 meters in 15 seconds its an average
+which(posmo$steplenght > 40)
 
 #posmo |> mutate(steplenght_large = steplenght>60)
 
@@ -251,22 +256,22 @@ which(posmo$steplenght> 60)
 #Visualization of parameters
 
 ```{r}
-ggplot(posmo, mapping = aes(type, steplenght))+
+ggplot(posmo, mapping = aes(Type, steplenght))+
   geom_boxplot() +
   labs(x = "Type of dog walking", y = "Steplenght")+
   theme_light()  
 
-ggplot(posmo, mapping = aes(type, speed))+
+ggplot(posmo, mapping = aes(Type, speed))+
   geom_boxplot() +
   labs(x = "Type of dog walking", y = "Speed")+
   theme_light()
 
-ggplot(posmo_filter, mapping = aes(type, speed))+
+ggplot(posmo_filter, mapping = aes(Type, speed))+
   geom_boxplot() +
   labs(x = "Type of dog walking", y = "Speed")+
   theme_light()
 
-ggplot(posmo, mapping = aes(type, distance))+
+ggplot(posmo, mapping = aes(Type, distance))+
   geom_boxplot() +
   labs(x = "Type of dog walking", y = "Distance")+
   theme_light()
