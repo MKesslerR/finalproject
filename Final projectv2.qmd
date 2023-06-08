@@ -87,9 +87,35 @@ posmo <- rbind(posmo_weather_MN, posmo_weather_MK)
 posmo$wday <- ifelse(posmo$weekday %in% c("Sat", "Sun"), "weekend", "weekday") 
 ```
 
+#EDA. Plotting all the trajectories with Tmap to identify points that don't belong into the trajectores
+
+```{r}
+T1 <- posmo %>%
+  filter(trajectoryID == "T1")
+T1 |> tm_shape() + tm_dots()
+
+T1 <- posmo %>%
+  filter(trajectoryID == "T1")
+T1 |> tm_shape() + tm_dots()
+
+T27 |> tm_shape() + tm_dots()
+T27 <- posmo %>%
+  filter(trajectoryID == "T27")
+T27 |> tm_shape() + tm_dots()
+
+T8 <- posmo %>%
+  filter(Trajectory == "T8")
+
+```
+
+```{r}
+N13 <- posmo %>%
+  filter(trajectoryID == "13")
+N13|> tm_shape() + tm_dots()
+```
 
 
-#To remove static points from trajectories. posmo-filter contains the trajectories without static points
+#Remove static points from trajectories. posmo-filter contains the trajectories without static points
 
 ```{r}
 str(posmo)
@@ -255,22 +281,24 @@ posmo_filter <- posmo_filter |>
 
 which(posmo$steplenght > 30)#30 meters in 15 seconds its an average
 which(posmo$steplenght > 100)
+which(posmo$steplenght > 300)
 
 #posmo |> mutate(steplenght_large = steplenght>60)
 ```
 ##Visualization of the groups of points that show unreaslistic time lags 
 ```{r}
 library(tmap)
+#more than 300 m
 tmap_mode("view")
-posmo[3545:3550,] |> tm_shape() + tm_dots()
-
+posmo[3098:3105,] |> tm_shape() + tm_dots()
+posmo[3239:3255,] |> tm_shape() + tm_dots()
 posmo[16570:16575,] |> tm_shape() + tm_dots()
+posmo[11600:11612,] |> tm_shape() + tm_dots()
+posmo[17085:17100,] |> tm_shape() + tm_dots()
 
 #more than 500
 posmo[1698:1702,] |> tm_shape() + tm_dots()
-
 posmo[3247:3250,] |> tm_shape() + tm_dots()
-
 posmo[13020:13024,] |> tm_shape() + tm_dots()
 
 ```
@@ -323,6 +351,7 @@ ggplot(posmo_filter, mapping = aes(wday, speed))+
 #  geom_point(aes(color = segment_id))+
 #  coord_fixed()
 ```
+
 Plotting more trajectories
 
 ```{r}
@@ -348,6 +377,7 @@ ggplot(T8, aes(X, Y))+
   geom_path()+
     geom_point()+coord_fixed()
 ```
+
 
 
 ```{r}
