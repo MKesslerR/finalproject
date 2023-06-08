@@ -82,6 +82,9 @@ posmo_weather_MK <- left_join(posmo_MK, precip_EBK, by = c("Datetime_round" = "d
 
 #Join the two data frames vertically
 posmo <- rbind(posmo_weather_MN, posmo_weather_MK)
+
+# Add a new column wday for Weekday/Weekend
+posmo$wday <- ifelse(posmo$weekday %in% c("Sat", "Sun"), "weekend", "weekday") 
 ```
 
 
@@ -293,6 +296,16 @@ ggplot(posmo_filter, mapping = aes(Type, speed))+
 ggplot(posmo, mapping = aes(Type, distance))+
   geom_boxplot() +
   labs(x = "Type of dog walking", y = "Distance [m]")+
+  theme_light()
+
+ggplot(posmo, mapping = aes(wday, distance))+
+  geom_boxplot() +
+  labs(x = "Day of week", y = "Distance [m]")+
+  theme_light()
+
+ggplot(posmo_filter, mapping = aes(wday, speed))+
+  geom_boxplot() +
+  labs(x = "Day of week", y = "Speed [m/s]")+
   theme_light()
 ```
 
