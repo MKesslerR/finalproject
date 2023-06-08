@@ -156,25 +156,30 @@ plot_grid(K1a, K1b,
 One from Mirjam
 
 ```{r}
-M24 <- posmo %>%
-  filter(trajectoryID == "24")
+M26 <- posmo %>%
+  filter(trajectoryID == "26")
 
-M24_filter <- posmo_filter %>%
-  filter(trajectoryID == "24")
+M26_filter <- posmo_filter %>%
+  filter(trajectoryID == "26")
   
-M24a <- ggplot(M24, aes(X, Y))+
+M26a <- ggplot(M26, aes(X, Y))+
   geom_path()+
   geom_point(color  = "blue")+
   coord_fixed()
 
-M24b <- ggplot(M24_filter, aes(X, Y))+
+M26b <- ggplot(M26_filter, aes(X, Y))+
   geom_path()+
     geom_point()+
     coord_fixed()
 
-plot_grid(M24a, M24b, 
+plot_grid(M26a, M26b, 
           labels = c("Raw", "Static points removed"),
+          hjust = c(-5,-0.7),
+          vjust = 5,
           ncol = 2, nrow = 1)
+          
+    
+
 ```
 
 
