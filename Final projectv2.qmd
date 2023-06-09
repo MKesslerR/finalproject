@@ -3,12 +3,8 @@ title: "Final project"
 format: html
 ---
 ```{r}
-library(readr)
 library(sf)
-library(dplyr)
-library(ggplot2)
 library(tidyverse)
-library(lubridate)
 library(tmap)
 library(cowplot)
 ```
@@ -110,6 +106,7 @@ posmo$wday <- ifelse(posmo$weekday %in% c("Sat", "Sun"), "weekend", "weekday")
 #EDA. Plotting all the trajectories with Tmap to identify points that don't belong into the trajectores
 
 ```{r}
+tmap_mode("view")
 T1 <- posmo %>%
   filter(trajectoryID == "T1")
 T1 |> tm_shape() + tm_dots()
@@ -167,15 +164,11 @@ T27 |> tm_shape() + tm_dots()
 ```
 
 ```{r}
-<<<<<<< HEAD
+
 N12 <- posmo %>%
   filter(trajectoryID == "12")
 N12|> tm_shape() + tm_dots()
-=======
-N13 <- posmo %>%
-  filter(trajectoryID == "2")
-N13|> tm_shape() + tm_dots()
->>>>>>> f4b766f25effe4663b5d2cc55e9f393b5871d463
+
 ```
 
 
@@ -354,19 +347,19 @@ which(posmo$steplenght > 300)
 library(tmap)
 #more than 300 m
 tmap_mode("view")
-<<<<<<< HEAD
+
 posmo[3095:3105,] |> tm_shape() + tm_dots()
 posmo[3235:3245,] |> tm_shape() + tm_dots()
 posmo[3245:3250,] |> tm_shape() + tm_dots()
 posmo[11575:11585,] |> tm_shape() + tm_dots()
 posmo[17040:17050,] |> tm_shape() + tm_dots()
-=======
+
 posmo[2125:3105,] |> tm_shape() + tm_dots()
 posmo[3239:3255,] |> tm_shape() + tm_dots()
 posmo[16570:16575,] |> tm_shape() + tm_dots()
 posmo[11600:11612,] |> tm_shape() + tm_dots()
 posmo[17085:17100,] |> tm_shape() + tm_dots()
->>>>>>> f4b766f25effe4663b5d2cc55e9f393b5871d463
+
 
 #more than 100m
 posmo[2330:2340,] |> tm_shape() + tm_dots()
