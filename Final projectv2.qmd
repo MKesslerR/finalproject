@@ -80,8 +80,28 @@ posmo_weather_MN <- left_join(posmo_MN, precip_SHA, by = c("Datetime_round" = "d
 
 posmo_weather_MK <- left_join(posmo_MK, precip_EBK, by = c("Datetime_round" = "datetime"))
 
+# Add new column for rain/no rain
+posmo_weather_MN$precip[posmo_weather_MN$rco150z0 == 0] <- "no"
+posmo_weather_MN$precip[posmo_weather_MN$rco150z0 > 0] <- "yes"
+
+posmo_weather_MK$precip[posmo_weather_MK$rco150z0 == 0] <- "no"
+posmo_weather_MK$precip[posmo_weather_MK$rco150z0 > 0] <- "yes"
+
 #Join the two data frames vertically
 posmo <- rbind(posmo_weather_MN, posmo_weather_MK)
+
+# Get trajectories with precipitation >50% of the time 
+posmo |>
+  group_by(trajectoryID) |>
+  summarise(percent = length(which(precip == "yes")) / n()) |>
+  filter(percent >= 0.5)
+
+#create sf object from coordinates
+posmo |>
+  group_by(trajectoryID) |>
+  summarise(max_distance = max(st_distance())) #Put point in st_distance()
+
+
 
 # Add a new column wday for Weekday/Weekend
 posmo$wday <- ifelse(posmo$weekday %in% c("Sat", "Sun"), "weekend", "weekday") 
@@ -147,9 +167,15 @@ T27 |> tm_shape() + tm_dots()
 ```
 
 ```{r}
+<<<<<<< HEAD
 N12 <- posmo %>%
   filter(trajectoryID == "12")
 N12|> tm_shape() + tm_dots()
+=======
+N13 <- posmo %>%
+  filter(trajectoryID == "2")
+N13|> tm_shape() + tm_dots()
+>>>>>>> f4b766f25effe4663b5d2cc55e9f393b5871d463
 ```
 
 
@@ -328,11 +354,19 @@ which(posmo$steplenght > 300)
 library(tmap)
 #more than 300 m
 tmap_mode("view")
+<<<<<<< HEAD
 posmo[3095:3105,] |> tm_shape() + tm_dots()
 posmo[3235:3245,] |> tm_shape() + tm_dots()
 posmo[3245:3250,] |> tm_shape() + tm_dots()
 posmo[11575:11585,] |> tm_shape() + tm_dots()
 posmo[17040:17050,] |> tm_shape() + tm_dots()
+=======
+posmo[2125:3105,] |> tm_shape() + tm_dots()
+posmo[3239:3255,] |> tm_shape() + tm_dots()
+posmo[16570:16575,] |> tm_shape() + tm_dots()
+posmo[11600:11612,] |> tm_shape() + tm_dots()
+posmo[17085:17100,] |> tm_shape() + tm_dots()
+>>>>>>> f4b766f25effe4663b5d2cc55e9f393b5871d463
 
 #more than 100m
 posmo[2330:2340,] |> tm_shape() + tm_dots()
