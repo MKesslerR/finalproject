@@ -92,16 +92,18 @@ posmo |>
   summarise(percent = length(which(precip == "yes")) / n()) |>
   filter(percent >= 0.5)
 
-#create sf object from coordinates
-posmo |>
-  group_by(trajectoryID) |>
-  summarise(max_distance = max(st_distance())) #Put point in st_distance()
-
-
 
 # Add a new column wday for Weekday/Weekend
 posmo$wday <- ifelse(posmo$weekday %in% c("Sat", "Sun"), "weekend", "weekday") 
 ```
+
+```{r}
+#create sf object from coordinates to calculate distance to home
+posmo |>
+  group_by(trajectoryID) |>
+  summarise(max_distance = max(st_distance())) #Put point in st_distance()
+```
+
 
 #EDA. Plotting all the trajectories with Tmap to identify points that don't belong into the trajectores
 
@@ -115,9 +117,9 @@ T2 <- posmo %>%
   filter(trajectoryID == "T2")
 T2 |> tm_shape() + tm_dots()
 
-T3 <- posmo %>%
-  filter(trajectoryID == "T3")
-T3 |> tm_shape() + tm_dots()
+T38 <- posmo %>%
+  filter(trajectoryID == "T38")
+T38 |> tm_shape() + tm_dots()
 
 T4 <- posmo %>%
   filter(trajectoryID == "T4")
