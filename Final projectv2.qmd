@@ -18,7 +18,7 @@ library(cowplot)
 ```{r}
 #Import POsmo data MK
 
-posmo_MK <- read_delim("data/posmo_MK_edited.csv", delim = ";") |> 
+posmo_MK <- read_delim("data/posmo_MK_edited2.csv", delim = ";") |> 
   filter(transport_mode == "Walk") |> 
   select(user_id, datetime, weekday, lon_x, lat_y, trajectoryID, Type, Shape) |> 
   st_as_sf(coords = c("lon_x","lat_y"), crs = 4326)|>
@@ -80,8 +80,28 @@ posmo_weather_MN <- left_join(posmo_MN, precip_SHA, by = c("Datetime_round" = "d
 
 posmo_weather_MK <- left_join(posmo_MK, precip_EBK, by = c("Datetime_round" = "datetime"))
 
+# Add new column for rain/no rain
+posmo_weather_MN$precip[posmo_weather_MN$rco150z0 == 0] <- "no"
+posmo_weather_MN$precip[posmo_weather_MN$rco150z0 > 0] <- "yes"
+
+posmo_weather_MK$precip[posmo_weather_MK$rco150z0 == 0] <- "no"
+posmo_weather_MK$precip[posmo_weather_MK$rco150z0 > 0] <- "yes"
+
 #Join the two data frames vertically
 posmo <- rbind(posmo_weather_MN, posmo_weather_MK)
+
+# Get trajectories with precipitation >50% of the time 
+posmo |>
+  group_by(trajectoryID) |>
+  summarise(percent = length(which(precip == "yes")) / n()) |>
+  filter(percent >= 0.5)
+
+#create sf object from coordinates
+posmo |>
+  group_by(trajectoryID) |>
+  summarise(max_distance = max(st_distance())) #Put point in st_distance()
+
+
 
 # Add a new column wday for Weekday/Weekend
 posmo$wday <- ifelse(posmo$weekday %in% c("Sat", "Sun"), "weekend", "weekday") 
@@ -110,7 +130,7 @@ T8 <- posmo %>%
 
 ```{r}
 N13 <- posmo %>%
-  filter(trajectoryID == "57")
+  filter(trajectoryID == "2")
 N13|> tm_shape() + tm_dots()
 ```
 
@@ -290,7 +310,7 @@ which(posmo$steplenght > 300)
 library(tmap)
 #more than 300 m
 tmap_mode("view")
-posmo[3098:3105,] |> tm_shape() + tm_dots()
+posmo[2125:3105,] |> tm_shape() + tm_dots()
 posmo[3239:3255,] |> tm_shape() + tm_dots()
 posmo[16570:16575,] |> tm_shape() + tm_dots()
 posmo[11600:11612,] |> tm_shape() + tm_dots()
