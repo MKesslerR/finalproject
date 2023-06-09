@@ -44,7 +44,7 @@ precip_data <- read_delim("data/weather_data.csv") |>
 precip_SHA <- precip_data |> filter(stn == "SHA") |> rename(datetime = time)
 precip_SHA$datetime <- as.POSIXct(precip_SHA$datetime, tz = "UTC") # convert character into POSIXct
 
-# filter SHA weather station
+# filter EBK weather station
 precip_EBK <- precip_data |> filter(stn == "EBK") |> rename(datetime = time)
 precip_EBK$datetime <- as.POSIXct(precip_EBK$datetime, tz = "UTC") # convert character into POSIXct
 ```
@@ -82,6 +82,9 @@ posmo_weather_MK <- left_join(posmo_MK, precip_EBK, by = c("Datetime_round" = "d
 
 #Join the two data frames vertically
 posmo <- rbind(posmo_weather_MN, posmo_weather_MK)
+
+# Add a new column wday for Weekday/Weekend
+posmo$wday <- ifelse(posmo$weekday %in% c("Sat", "Sun"), "weekend", "weekday") 
 ```
 
 #EDA. Plotting all the trajectories with Tmap to identify points that don't belong into the trajectores
@@ -147,7 +150,7 @@ T8 <- posmo %>%
 
 ```{r}
 N13 <- posmo %>%
-  filter(trajectoryID == "13")
+  filter(trajectoryID == "57")
 N13|> tm_shape() + tm_dots()
 ```
 
@@ -222,25 +225,30 @@ plot_grid(K1a, K1b,
 One from Mirjam
 
 ```{r}
-M24 <- posmo %>%
-  filter(trajectoryID == "24")
+M26 <- posmo %>%
+  filter(trajectoryID == "26")
 
-M24_filter <- posmo_filter %>%
-  filter(trajectoryID == "24")
+M26_filter <- posmo_filter %>%
+  filter(trajectoryID == "26")
   
-M24a <- ggplot(M24, aes(X, Y))+
+M26a <- ggplot(M26, aes(X, Y))+
   geom_path()+
   geom_point(color  = "blue")+
   coord_fixed()
 
-M24b <- ggplot(M24_filter, aes(X, Y))+
+M26b <- ggplot(M26_filter, aes(X, Y))+
   geom_path()+
     geom_point()+
     coord_fixed()
 
-plot_grid(M24a, M24b, 
+plot_grid(M26a, M26b, 
           labels = c("Raw", "Static points removed"),
+          hjust = c(-5,-0.7),
+          vjust = 5,
           ncol = 2, nrow = 1)
+          
+    
+
 ```
 
 
@@ -345,17 +353,27 @@ ggplot(posmo, mapping = aes(Type, steplenght))+
 
 ggplot(posmo, mapping = aes(Type, speed))+
   geom_boxplot() +
-  labs(x = "Type of dog walking", y = "Speed")+
+  labs(x = "Type of dog walking", y = "Speed [m/s]")+
   theme_light()
 
 ggplot(posmo_filter, mapping = aes(Type, speed))+
   geom_boxplot() +
-  labs(x = "Type of dog walking", y = "Speed")+
+  labs(x = "Type of dog walking", y = "Speed [m/s]")+
   theme_light()
 
 ggplot(posmo, mapping = aes(Type, distance))+
   geom_boxplot() +
-  labs(x = "Type of dog walking", y = "Distance")+
+  labs(x = "Type of dog walking", y = "Distance [m]")+
+  theme_light()
+
+ggplot(posmo, mapping = aes(wday, distance))+
+  geom_boxplot() +
+  labs(x = "Day of week", y = "Distance [m]")+
+  theme_light()
+
+ggplot(posmo_filter, mapping = aes(wday, speed))+
+  geom_boxplot() +
+  labs(x = "Day of week", y = "Speed [m/s]")+
   theme_light()
 ```
 
@@ -373,6 +391,33 @@ ggplot(posmo, mapping = aes(Type, distance))+
 #  geom_point(aes(color = segment_id))+
 #  coord_fixed()
 ```
+
+Plotting more trajectories
+
+```{r}
+
+T2 <- posmo %>%
+  filter(trajectoryID == "T2")
+
+ggplot(T2, aes(X, Y))+
+  geom_path()+
+  geom_point()+coord_fixed()
+
+T3 <- posmo %>%
+  filter(trajectoryID == "T3")
+
+ggplot(T3, aes(X, Y))+
+  geom_path()+
+  geom_point()+coord_fixed()
+
+T8 <- posmo %>%
+  filter(trajectoryID == "T8")
+
+ggplot(T8, aes(X, Y))+
+  geom_path()+
+    geom_point()+coord_fixed()
+```
+
 
 
 ```{r}
