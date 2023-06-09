@@ -114,9 +114,49 @@ T1 <- posmo %>%
   filter(trajectoryID == "T1")
 T1 |> tm_shape() + tm_dots()
 
-T1 <- posmo %>%
-  filter(trajectoryID == "T1")
-T1 |> tm_shape() + tm_dots()
+T2 <- posmo %>%
+  filter(trajectoryID == "T2")
+T2 |> tm_shape() + tm_dots()
+
+T3 <- posmo %>%
+  filter(trajectoryID == "T3")
+T3 |> tm_shape() + tm_dots()
+
+T4 <- posmo %>%
+  filter(trajectoryID == "T4")
+T4 |> tm_shape() + tm_dots()
+
+T5 <- posmo %>%
+  filter(trajectoryID == "T5")
+T5 |> tm_shape() + tm_dots()
+
+T6 <- posmo %>%
+  filter(trajectoryID == "T6")
+T6 |> tm_shape() + tm_dots()
+
+T7 <- posmo %>%
+  filter(trajectoryID == "T7")
+T7 |> tm_shape() + tm_dots()
+
+T8 <- posmo %>%
+  filter(trajectoryID == "T8")
+T8 |> tm_shape() + tm_dots()
+
+T9 <- posmo %>%
+  filter(trajectoryID == "T9")
+T9 |> tm_shape() + tm_dots()
+
+T10 <- posmo %>%
+  filter(trajectoryID == "T10")
+T10 |> tm_shape() + tm_dots()
+
+T11 <- posmo %>%
+  filter(trajectoryID == "T11")
+T11 |> tm_shape() + tm_dots()
+
+T48 <- posmo %>%
+  filter(trajectoryID == "T48")
+T48 |> tm_shape() + tm_dots()
 
 T27 |> tm_shape() + tm_dots()
 T27 <- posmo %>%
