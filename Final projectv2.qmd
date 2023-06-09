@@ -18,7 +18,7 @@ library(cowplot)
 ```{r}
 #Import POsmo data MK
 
-posmo_MK <- read_delim("data/posmo_MK_edited.csv", delim = ";") |> 
+posmo_MK <- read_delim("data/posmo_MK_edited2.csv", delim = ";") |> 
   filter(transport_mode == "Walk") |> 
   select(user_id, datetime, weekday, lon_x, lat_y, trajectoryID, Type, Shape) |> 
   st_as_sf(coords = c("lon_x","lat_y"), crs = 4326)|>
@@ -27,7 +27,7 @@ posmo_MK <- read_delim("data/posmo_MK_edited.csv", delim = ";") |>
 
 # Import Posmo data MN
 # filter walk transport mode, select only necessary columns, and transform data frame into sf object and transform it into EPSG 2056 coordinate system
-posmo_MN <- read_delim("data/posmo_MN_edited.csv", delim = ";") |> 
+posmo_MN <- read_delim("data/posmo_MN_edited2.csv", delim = ";") |> 
   filter(transport_mode == "Walk") |> 
   select(user_id, datetime, weekday, lon_x, lat_y, trajectoryID, Type, Shape) |> 
   st_as_sf(coords = c("lon_x","lat_y"), crs = 4326)|>
@@ -91,9 +91,49 @@ T1 <- posmo %>%
   filter(trajectoryID == "T1")
 T1 |> tm_shape() + tm_dots()
 
-T1 <- posmo %>%
-  filter(trajectoryID == "T1")
-T1 |> tm_shape() + tm_dots()
+T2 <- posmo %>%
+  filter(trajectoryID == "T2")
+T2 |> tm_shape() + tm_dots()
+
+T3 <- posmo %>%
+  filter(trajectoryID == "T3")
+T3 |> tm_shape() + tm_dots()
+
+T4 <- posmo %>%
+  filter(trajectoryID == "T4")
+T4 |> tm_shape() + tm_dots()
+
+T5 <- posmo %>%
+  filter(trajectoryID == "T5")
+T5 |> tm_shape() + tm_dots()
+
+T6 <- posmo %>%
+  filter(trajectoryID == "T6")
+T6 |> tm_shape() + tm_dots()
+
+T7 <- posmo %>%
+  filter(trajectoryID == "T7")
+T7 |> tm_shape() + tm_dots()
+
+T8 <- posmo %>%
+  filter(trajectoryID == "T8")
+T8 |> tm_shape() + tm_dots()
+
+T9 <- posmo %>%
+  filter(trajectoryID == "T9")
+T9 |> tm_shape() + tm_dots()
+
+T10 <- posmo %>%
+  filter(trajectoryID == "T10")
+T10 |> tm_shape() + tm_dots()
+
+T11 <- posmo %>%
+  filter(trajectoryID == "T11")
+T11 |> tm_shape() + tm_dots()
+
+T48 <- posmo %>%
+  filter(trajectoryID == "T48")
+T48 |> tm_shape() + tm_dots()
 
 T27 |> tm_shape() + tm_dots()
 T27 <- posmo %>%
