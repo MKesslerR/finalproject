@@ -80,6 +80,10 @@ posmo_weather_MN <- left_join(posmo_MN, precip_SHA, by = c("Datetime_round" = "d
 
 posmo_weather_MK <- left_join(posmo_MK, precip_EBK, by = c("Datetime_round" = "datetime"))
 
+# Delete double timestamps
+posmo_weather_MN <- posmo_weather_MN |> 
+  distinct(datetime, .keep_all = TRUE)
+
 # Add new column for rain/no rain
 posmo_weather_MN$precip[posmo_weather_MN$rco150z0 == 0] <- "no"
 posmo_weather_MN$precip[posmo_weather_MN$rco150z0 > 0] <- "yes"
