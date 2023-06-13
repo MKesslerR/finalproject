@@ -111,7 +111,13 @@ posmo_weather_join$precip[posmo_weather_join$rco150z0 > 0] <- "yes"
 posmo_weather_join |>
   group_by(trajectoryID) |>
   summarise(percent = length(which(precip == "yes")) / n()) |>
-  filter(percent >= 0.7)
+  filter(percent >= 0.5)
+
+#create sf object from coordinates
+
+posmo_weather_join |>
+  group_by(trajectoryID) |>
+  summarise(max_distance = max(st_distance())) #Put point in st_distance()
 
 ggplot(posmo_MN, aes(X, Y))+
   geom_path()+
