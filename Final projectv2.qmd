@@ -23,7 +23,7 @@ posmo_MK <- read_delim("data/posmo_MK_edited2.csv", delim = ";") |>
 
 # Import Posmo data MN
 # filter walk transport mode, select only necessary columns, and transform data frame into sf object and transform it into EPSG 2056 coordinate system
-posmo_MN <- read_delim("data/posmo_MN_edited2.csv", delim = ";") |> 
+posmo_MN <- read_delim("data/posmo_MN_edited3.csv", delim = ";") |> 
   filter(transport_mode == "Walk") |> 
   select(user_id, datetime, weekday, lon_x, lat_y, trajectoryID, Type, Shape) |> 
   st_as_sf(coords = c("lon_x","lat_y"), crs = 4326)|>
@@ -172,7 +172,7 @@ T27 |> tm_shape() + tm_dots()
 ```{r}
 
 N12 <- posmo %>%
-  filter(trajectoryID == "12")
+  filter(trajectoryID == "53")
 N12|> tm_shape() + tm_dots()
 
 ```
@@ -246,6 +246,17 @@ plot_grid(K1a, K1b,
 
 ```
 One from Mirjam
+
+```{r}
+
+M1 <- posmo %>%
+  filter(trajectoryID == "15")
+
+ggplot(M1, aes(X, Y))+
+  geom_path()+
+    geom_point()+coord_fixed()
+```
+
 
 ```{r}
 M26 <- posmo %>%
@@ -336,7 +347,7 @@ posmo_filter <- posmo_filter |>
   mutate(distance = sum(steplenght, na.rm = TRUE))
 
 
- ggplot(posmo, aes(steplenght)) +
+ggplot(posmo, aes(steplenght)) +
   geom_histogram(binwidth = 5) +
   geom_vline(xintercept = mean(posmo$steplenght, na.rm = TRUE))
  
