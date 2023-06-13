@@ -3,12 +3,8 @@ title: "Final project"
 format: html
 ---
 ```{r}
-library(readr)
 library(sf)
-library(dplyr)
-library(ggplot2)
 library(tidyverse)
-library(lubridate)
 library(tmap)
 library(cowplot)
 ```
@@ -100,20 +96,23 @@ posmo |>
   summarise(percent = length(which(precip == "yes")) / n()) |>
   filter(percent >= 0.5)
 
-#create sf object from coordinates
-posmo |>
-  group_by(trajectoryID) |>
-  summarise(max_distance = max(st_distance())) #Put point in st_distance()
-
-
 
 # Add a new column wday for Weekday/Weekend
 posmo$wday <- ifelse(posmo$weekday %in% c("Sat", "Sun"), "weekend", "weekday") 
 ```
 
+```{r}
+#create sf object from coordinates to calculate distance to home
+posmo |>
+  group_by(trajectoryID) |>
+  summarise(max_distance = max(st_distance())) #Put point in st_distance()
+```
+
+
 #EDA. Plotting all the trajectories with Tmap to identify points that don't belong into the trajectores
 
 ```{r}
+tmap_mode("view")
 T1 <- posmo %>%
   filter(trajectoryID == "T1")
 T1 |> tm_shape() + tm_dots()
@@ -122,9 +121,9 @@ T2 <- posmo %>%
   filter(trajectoryID == "T2")
 T2 |> tm_shape() + tm_dots()
 
-T3 <- posmo %>%
-  filter(trajectoryID == "T3")
-T3 |> tm_shape() + tm_dots()
+T38 <- posmo %>%
+  filter(trajectoryID == "T38")
+T38 |> tm_shape() + tm_dots()
 
 T4 <- posmo %>%
   filter(trajectoryID == "T4")
@@ -158,24 +157,24 @@ T11 <- posmo %>%
   filter(trajectoryID == "T11")
 T11 |> tm_shape() + tm_dots()
 
-T48 <- posmo %>%
-  filter(trajectoryID == "T48")
-T48 |> tm_shape() + tm_dots()
+T42 <- posmo %>%
+  filter(trajectoryID == "T42")
+T42 |> tm_shape() + tm_dots()
 
 T27 |> tm_shape() + tm_dots()
 T27 <- posmo %>%
   filter(trajectoryID == "T27")
 T27 |> tm_shape() + tm_dots()
 
-T8 <- posmo %>%
-  filter(Trajectory == "T8")
 
 ```
 
 ```{r}
-N13 <- posmo %>%
-  filter(trajectoryID == "2")
-N13|> tm_shape() + tm_dots()
+
+N12 <- posmo %>%
+  filter(trajectoryID == "12")
+N12|> tm_shape() + tm_dots()
+
 ```
 
 
@@ -302,7 +301,7 @@ which(posmo$timelag> 1000)
 ```{r}
 library(tmap)
 tmap_mode("view")
-posmo[3545:3550,] |> tm_shape() + tm_dots()
+posmo[18755:18765,] |> tm_shape() + tm_dots()
 
 posmo[16570:16575,] |> tm_shape() + tm_dots()
 
@@ -354,15 +353,23 @@ which(posmo$steplenght > 300)
 library(tmap)
 #more than 300 m
 tmap_mode("view")
+
+posmo[3095:3105,] |> tm_shape() + tm_dots()
+posmo[3235:3245,] |> tm_shape() + tm_dots()
+posmo[3245:3250,] |> tm_shape() + tm_dots()
+posmo[11575:11585,] |> tm_shape() + tm_dots()
+posmo[17040:17050,] |> tm_shape() + tm_dots()
+
 posmo[2125:3105,] |> tm_shape() + tm_dots()
 posmo[3239:3255,] |> tm_shape() + tm_dots()
 posmo[16570:16575,] |> tm_shape() + tm_dots()
 posmo[11600:11612,] |> tm_shape() + tm_dots()
 posmo[17085:17100,] |> tm_shape() + tm_dots()
 
-#more than 500
-posmo[1698:1702,] |> tm_shape() + tm_dots()
-posmo[3247:3250,] |> tm_shape() + tm_dots()
+
+#more than 100m
+posmo[2330:2340,] |> tm_shape() + tm_dots()
+posmo[6277:6279,] |> tm_shape() + tm_dots()
 posmo[13020:13024,] |> tm_shape() + tm_dots()
 
 ```
