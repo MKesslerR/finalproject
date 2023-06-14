@@ -342,8 +342,6 @@ posmo_filter <- posmo_filter |>
  ggplot(posmo, aes(steplenght)) +
   geom_histogram(binwidth = 5) +
   geom_vline(xintercept = mean(posmo$steplenght, na.rm = TRUE))
- 
-#posmo$steplenght |> hist()
 
 which(posmo$steplenght > 30)#30 meters in 15 seconds its an average
 which(posmo$steplenght > 100)
