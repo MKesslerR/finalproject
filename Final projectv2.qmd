@@ -14,7 +14,7 @@ library(cowplot)
 ```{r}
 #Import POsmo data MK
 
-posmo_MK <- read_delim("data/posmo_MK_edited2.csv", delim = ";") |> 
+posmo_MK <- read_delim("data/posmo_MK_edited3.csv", delim = ";") |> 
   filter(transport_mode == "Walk") |> 
   select(user_id, datetime, weekday, lon_x, lat_y, trajectoryID, Type, Shape) |> 
   st_as_sf(coords = c("lon_x","lat_y"), crs = 4326)|>
@@ -28,6 +28,7 @@ posmo_MN <- read_delim("data/posmo_MN_edited3.csv", delim = ";") |>
   select(user_id, datetime, weekday, lon_x, lat_y, trajectoryID, Type, Shape) |> 
   st_as_sf(coords = c("lon_x","lat_y"), crs = 4326)|>
   st_transform(2056)
+
 
 str(posmo_MK)
 str(posmo_MN)
@@ -51,6 +52,7 @@ precip_EBK$datetime <- as.POSIXct(precip_EBK$datetime, tz = "UTC") # convert cha
 posmo_coordinates <- st_coordinates(posmo_MK)
 
 posmo_MK <- cbind(posmo_MK, posmo_coordinates)
+
 str(posmo_MK)
 
 # the same with MN Data
@@ -90,6 +92,7 @@ posmo_weather_MK$precip[posmo_weather_MK$rco150z0 > 0] <- "yes"
 #Join the two data frames vertically
 posmo <- rbind(posmo_weather_MN, posmo_weather_MK)
 
+
 # Get trajectories with precipitation >50% of the time 
 posmo |>
   group_by(trajectoryID) |>
@@ -99,6 +102,11 @@ posmo |>
 
 # Add a new column wday for Weekday/Weekend
 posmo$wday <- ifelse(posmo$weekday %in% c("Sat", "Sun"), "weekend", "weekday") 
+
+# Add a new column time_of_day for Morning/Afternoon/Evening
+breaks <- hour(hm("3:00", "10:00", "16:00", "21:59"))
+labels <- c("Morning", "Afternoon", "Evening")
+posmo$time_of_day <- cut(x=hour(posmo$datetime), breaks = breaks, labels = labels, include.lowest=TRUE)
 ```
 
 ```{r}
@@ -172,7 +180,7 @@ T27 |> tm_shape() + tm_dots()
 ```{r}
 
 N12 <- posmo %>%
-  filter(trajectoryID == "53")
+  filter(trajectoryID == "7")
 N12|> tm_shape() + tm_dots()
 
 ```
