@@ -425,6 +425,16 @@ ggplot(posmo_filter, mapping = aes(wday, speed))+
   geom_boxplot() +
   labs(x = "Day of week", y = "Speed [m/s]")+
   theme_light()
+
+ggplot(posmo, mapping = aes(time_of_day, distance))+
+  geom_boxplot() +
+  labs(x = "Day of week", y = "Distance [m]")+
+  theme_light()
+
+ggplot(posmo_filter, mapping = aes(time_of_day, speed))+
+  geom_boxplot() +
+  labs(x = "Day of week", y = "Speed [m/s]")+
+  theme_light()
 ```
 
 ```{r}
