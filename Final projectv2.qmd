@@ -323,7 +323,7 @@ posmo <- posmo |>
   mutate(speed = steplenght/timelag)|>
   mutate(duration = (max(datetime)- min(datetime))/60)|>
   mutate(distance = sum(steplenght, na.rm = TRUE))|>
-  mutate (start = min(datetime))
+  mutate(start = min(datetime)) |>
 
   posmo$start <- format(posmo$start, format = "%H:%M")
   
