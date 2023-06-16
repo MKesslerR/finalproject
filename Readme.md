@@ -12,38 +12,40 @@ Analysis Geo 880**
 
 | Semester:      | FS23                                     |
 |:---------------|:---------------------------------------- |
-| **Data:**      | What type of data are you focussing on?  |
-| **Title:**     | The title of your project                |
-| **Student 1:** | Name of Student 1                        |
-| **Student 2:** | Name of Student 2                        |
+| **Data:**      | Posmo Data  |
+| **Title:**     | Analysis of movement patterns of dog walking                |
+| **Student 1:** | Mirjam Nötzli                        |
+| **Student 2:** | Margarita Kessler                        |
 
 ## Abstract 
 <!-- (50-60 words) -->
 
 ## Background and Research Questions
-<!-- (50-60 words) -->
+How do recreational- differ from functional dog walks? Are dog walks influenced by weather? Do functional and recreational dog walks differ in their embedded context? How do the recreational dog walking patterns differ temporally? How are the moving behavior patterns during dog walks? 
+
 
 ## Results
-<!-- What do you expect, anticipate? -->
+
 
 ## Data and Methods
-<!-- What data will you use? Will you require additional context data? Where do you get this data from? Do you already have all the data? -->
-###Data set
-<!-- What data will you use? Will you require additional context data? Where do you get this data from? Do you already have all the data? -->
-###Pre-processing
-<!-- What data will you use? Will you require additional context data? Where do you get this data from? Do you already have all the data? -->
-###Analysis
-<!-- What data will you use? Will you require additional context data? Where do you get this data from? Do you already have all the data? -->
-<!-- Which R concepts, functions, packages will you mainly use. What additional spatial analysis methods will you be using? -->
+
+### Data set
+
+
+### Pre-processing
+
+
+### Analysis
+
 
 
 ## Results
-<!-- Which analytical concepts will you use? What conceptual movement spaces and respective modelling approaches of trajectories will you be using? What additional spatial analysis methods will you be using? -->
+
 
 ## Discussion and conclussions
-<!-- Which R concepts, functions, packages will you mainly use. What additional spatial analysis methods will you be using? -->
+
 
 ## References
-<!-- What could be the biggest challenges/problems you might face? What is your plan B? -->
+
 
 
