@@ -494,6 +494,43 @@ ggplot(T8, aes(X, Y))+
     geom_point()+coord_fixed()
 ```
 
+```{r}
+#randomly select trajectories to compare for MN
+x <- sample(1:56, 1)
+x
+#traj 6, 39
+
+#randomly select trajectories to compare for MK
+x1 <- sample(1:48, 1)
+x1
+#traj T40, T20
+
+library(SimilarityMeasures)
+#Create the matrices for the trajectories to compare from MN: 6 (morning) and 39 (afternoon), from MK T20 (morning), T40 (afternoon)
+
+Traj6MN <- posmo |> 
+  filter(trajectoryID == 6)|>
+  mutate(Datetime_int = as.integer(datetime))|>
+  select(c(X, Y, Datetime_int))
+
+Traj6MN <- as.matrix(Traj6MN)
+
+Traj39MN <- posmo |> 
+  filter(trajectoryID == 39)|>
+  mutate(Datetime_int = as.integer(datetime))|>
+  select(c(X, Y, Datetime_int))
+
+Traj39MN <- as.matrix(Traj39MN)
+
+Traj20MK <- posmo |> 
+  filter(trajectoryID == "T20")|>
+  mutate(Datetime_int = as.integer(datetime))|>
+  select(c(X, Y, Datetime_int))
+
+Traj20MK <- as.matrix(Traj20MK)
+
+
+```
 
 
 ```{r}
