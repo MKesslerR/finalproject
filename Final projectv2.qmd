@@ -462,7 +462,7 @@ ggplot(posmo, mapping = aes(precip, speed))+
 
 library(plotly)
 plot_ly(shape_summary, labels = ~Shape, values = ~percent, type = 'pie') %>%
-  layout(title = "Title",          
+  layout(title = "Trajectory Shapes",          
          xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
          yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
         
