@@ -498,37 +498,53 @@ ggplot(T8, aes(X, Y))+
 #randomly select trajectories to compare for MN
 x <- sample(1:56, 1)
 x
-#traj 6, 39
+# Functional: 4, 36, 55, 21. Recreational: 6, 39, 49, 53
 
 #randomly select trajectories to compare for MK
 x1 <- sample(1:48, 1)
 x1
-#traj T40, T20
+#Functional: T11, T35, T43, T16. Recreational: T40, T20, T27, T25
 
 library(SimilarityMeasures)
 #Create the matrices for the trajectories to compare from MN: 6 (morning) and 39 (afternoon), from MK T20 (morning), T40 (afternoon)
 
 Traj6MN <- posmo |> 
+  ungroup() |>
+  st_drop_geometry() |>
   filter(trajectoryID == 6)|>
   mutate(Datetime_int = as.integer(datetime))|>
-  select(c(X, Y, Datetime_int))
+  select(X, Y, Datetime_int)
 
 Traj6MN <- as.matrix(Traj6MN)
 
 Traj39MN <- posmo |> 
+  ungroup() |>
+  st_drop_geometry() |>
   filter(trajectoryID == 39)|>
   mutate(Datetime_int = as.integer(datetime))|>
-  select(c(X, Y, Datetime_int))
+  select(X, Y, Datetime_int)
 
 Traj39MN <- as.matrix(Traj39MN)
 
 Traj20MK <- posmo |> 
+ ungroup() |>
+  st_drop_geometry() |>
   filter(trajectoryID == "T20")|>
   mutate(Datetime_int = as.integer(datetime))|>
-  select(c(X, Y, Datetime_int))
+  select(X, Y, Datetime_int)
 
 Traj20MK <- as.matrix(Traj20MK)
 
+Traj40MK <- posmo |> 
+ ungroup() |>
+  st_drop_geometry() |>
+  filter(trajectoryID == "T40")|>
+  mutate(Datetime_int = as.integer(datetime))|>
+  select(X, Y, Datetime_int)
+
+Traj40MK <- as.matrix(Traj40MK)
+
+Frechet(Traj6MN, Traj39MN)
 
 ```
 
