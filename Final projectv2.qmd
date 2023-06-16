@@ -154,8 +154,6 @@ labels <- c("Morning", "Afternoon", "Evening")
 
 posmo$time_of_day <- cut(x=hour(posmo$start), breaks = breaks, labels = labels, include.lowest=TRUE)
 
-posmo$time_of_day <- cut(x=hour(posmo$datetime), breaks = breaks, labels = labels, include.lowest=TRUE)
-
 ```
 
 
