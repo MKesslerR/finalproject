@@ -142,18 +142,17 @@ posmo |>
 # Add a new column wday for Weekday/Weekend
 posmo$wday <- ifelse(posmo$weekday %in% c("Sat", "Sun"), "weekend", "weekday") 
 
-
-# Add a new column time_of_day for Morning/Afternoon/Evening
-breaks <- hour(hm("3:00", "10:00", "16:00", "21:59"))
-labels <- c("Morning", "Afternoon", "Evening")
-posmo$time_of_day <- cut(x=hour(posmo$datetime), breaks = breaks, labels = labels, include.lowest=TRUE)
-
 #Add a new column start with the time at which the trajectory started and separate the time with format H and M
 posmo <- posmo |>
   group_by(trajectoryID) |> 
   mutate(start = min(datetime))
 
-posmo$start <- format(posmo$start, format = "%H:%M")
+posmo$start <- format(as.POSIXct(posmo$start, format = "%H:%M"))
+
+# Add a new column time_of_day for Morning/Afternoon/Evening
+breaks <- hour(hm("3:00", "10:00", "16:00", "21:59"))
+labels <- c("Morning", "Afternoon", "Evening")
+posmo$time_of_day <- cut(x=hour(posmo$start), breaks = breaks, labels = labels, include.lowest=TRUE)
 
 ```
 
