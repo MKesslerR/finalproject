@@ -62,6 +62,42 @@ posmo_MN <- cbind(posmo_MN, posmoMN_coordinates)
 
 ```
 
+#calculate longest distance from each trajectory to home for the two data sets
+```{r}
+#Create an sf object with the house coordinates
+house_MK <- read_delim("data/MK_house.csv") |> 
+  st_as_sf(coords = c("lon_x","lat_y"), crs = 4326)|>
+  st_transform(2056)
+
+houseMK_coordinates <- st_coordinates(house_MK)
+
+house_MK <- cbind(house_MK, houseMK_coordinates)
+
+
+#The same with MN 
+house_MN <- read_delim("data/MN_house.csv") |> 
+  st_as_sf(coords = c("lon_x","lat_y"), crs = 4326)|>
+  st_transform(2056)
+
+houseMN_coordinates <- st_coordinates(house_MN)
+
+house_MN <- cbind(house_MN, houseMN_coordinates)
+
+T1 <- posmo_MK %>%
+  filter(trajectoryID == "T1")
+
+ max (st_distance(T1, house_MK, by_element = FALSE))
+ 
+ T2 <- posmo_MK %>%
+  filter(trajectoryID == "T2")
+
+ max (st_distance(T2, house_MK, by_element = FALSE))
+
+dist_home <- posmo_MK |>
+  group_by(trajectoryID) |>
+  summarise(max_distance = max(st_distance(house_MK))) #Put point in st_distance()
+```
+
 
 ##Join posmo data with weather data then join the two dataframes
 ```{r}
@@ -107,13 +143,14 @@ posmo$wday <- ifelse(posmo$weekday %in% c("Sat", "Sun"), "weekend", "weekday")
 breaks <- hour(hm("3:00", "10:00", "16:00", "21:59"))
 labels <- c("Morning", "Afternoon", "Evening")
 posmo$time_of_day <- cut(x=hour(posmo$datetime), breaks = breaks, labels = labels, include.lowest=TRUE)
-```
 
-```{r}
-#create sf object from coordinates to calculate distance to home
-posmo |>
-  group_by(trajectoryID) |>
-  summarise(max_distance = max(st_distance())) #Put point in st_distance()
+
+#Add a new column start with the time at which the trajectory started and separate the time with format H and M
+posmo <- posmo |>
+    mutate(start = min(datetime))
+
+posmo$start <- format(posmo$start, format = "%H:%M")
+
 ```
 
 
@@ -129,9 +166,9 @@ T2 <- posmo %>%
   filter(trajectoryID == "T2")
 T2 |> tm_shape() + tm_dots()
 
-T38 <- posmo %>%
-  filter(trajectoryID == "T38")
-T38 |> tm_shape() + tm_dots()
+T3 <- posmo %>%
+  filter(trajectoryID == "T3")
+T3 |> tm_shape() + tm_dots()
 
 T4 <- posmo %>%
   filter(trajectoryID == "T4")
@@ -161,18 +198,17 @@ T10 <- posmo %>%
   filter(trajectoryID == "T10")
 T10 |> tm_shape() + tm_dots()
 
-T11 <- posmo %>%
-  filter(trajectoryID == "T11")
-T11 |> tm_shape() + tm_dots()
+T29 <- posmo %>%
+  filter(trajectoryID == "T29")
+T29 |> tm_shape() + tm_dots()
 
-T42 <- posmo %>%
-  filter(trajectoryID == "T42")
-T42 |> tm_shape() + tm_dots()
+T48 <- posmo %>%
+  filter(trajectoryID == "T48")
+T48 |> tm_shape() + tm_dots()
 
-T27 |> tm_shape() + tm_dots()
-T27 <- posmo %>%
-  filter(trajectoryID == "T27")
-T27 |> tm_shape() + tm_dots()
+T39 <- posmo %>%
+  filter(trajectoryID == "T39")
+T39 |> tm_shape() + tm_dots()
 
 
 ```
@@ -256,6 +292,10 @@ plot_grid(K1a, K1b,
 One from Mirjam
 
 ```{r}
+<<<<<<< HEAD
+M12 <- posmo %>%
+  filter(trajectoryID == "12")
+=======
 
 M1 <- posmo %>%
   filter(trajectoryID == "15")
@@ -269,9 +309,11 @@ ggplot(M1, aes(X, Y))+
 ```{r}
 M26 <- posmo %>%
   filter(trajectoryID == "26")
+>>>>>>> a1f114bfe5d6f06604f1908aad9b5c9c7c898b2e
 
 M26_filter <- posmo_filter %>%
   filter(trajectoryID == "26")
+T8 |> tm_shape() + tm_dots()
   
 M26a <- ggplot(M26, aes(X, Y))+
   geom_path()+
@@ -339,12 +381,14 @@ posmo[13020:13024,] |> tm_shape() + tm_dots()
 
 ```{r}
 #calculation with the whole trajectories 
+
 posmo <- posmo |>
   group_by(trajectoryID) |> 
   mutate(steplenght = sqrt ((X-lead(X))^2 + (Y-lead(Y))^2))|>
   mutate(speed = steplenght/timelag)|>
   mutate(duration = (max(datetime)- min(datetime))/60)|>
-  mutate(distance = sum(steplenght, na.rm = TRUE))
+  mutate(distance = sum(steplenght, na.rm = TRUE))|>
+
 
 #calculation with the trajectories without static points
 posmo_filter <- posmo_filter |>
@@ -358,14 +402,11 @@ posmo_filter <- posmo_filter |>
 ggplot(posmo, aes(steplenght)) +
   geom_histogram(binwidth = 5) +
   geom_vline(xintercept = mean(posmo$steplenght, na.rm = TRUE))
- 
-#posmo$steplenght |> hist()
 
 which(posmo$steplenght > 30)#30 meters in 15 seconds its an average
 which(posmo$steplenght > 100)
 which(posmo$steplenght > 300)
 
-#posmo |> mutate(steplenght_large = steplenght>60)
 ```
 ##Visualization of the groups of points that show unreaslistic time lags 
 ```{r}
@@ -373,21 +414,10 @@ library(tmap)
 #more than 300 m
 tmap_mode("view")
 
-posmo[3095:3105,] |> tm_shape() + tm_dots()
-posmo[3235:3245,] |> tm_shape() + tm_dots()
-posmo[3245:3250,] |> tm_shape() + tm_dots()
-posmo[11575:11585,] |> tm_shape() + tm_dots()
-posmo[17040:17050,] |> tm_shape() + tm_dots()
-
-posmo[2125:3105,] |> tm_shape() + tm_dots()
-posmo[3239:3255,] |> tm_shape() + tm_dots()
-posmo[16570:16575,] |> tm_shape() + tm_dots()
-posmo[11600:11612,] |> tm_shape() + tm_dots()
-posmo[17085:17100,] |> tm_shape() + tm_dots()
-
+posmo[3090:3095,] |> tm_shape() + tm_dots()
 
 #more than 100m
-posmo[2330:2340,] |> tm_shape() + tm_dots()
+posmo[14885:14895,] |> tm_shape() + tm_dots()
 posmo[6277:6279,] |> tm_shape() + tm_dots()
 posmo[13020:13024,] |> tm_shape() + tm_dots()
 
@@ -396,6 +426,8 @@ posmo[13020:13024,] |> tm_shape() + tm_dots()
 #Visualization of parameters
 
 ```{r}
+
+
 ggplot(posmo, mapping = aes(Type, steplenght))+
   geom_boxplot() +
   labs(x = "Type of dog walking", y = "Steplenght")+
@@ -409,7 +441,7 @@ ggplot(posmo, mapping = aes(Type, speed))+
 ggplot(posmo_filter, mapping = aes(Type, speed))+
   geom_boxplot() +
   labs(x = "Type of dog walking", y = "Speed [m/s]")+
-  theme_light()
+  theme_light()#use this one for the report
 
 ggplot(posmo, mapping = aes(Type, distance))+
   geom_boxplot() +
