@@ -98,7 +98,6 @@ posmo_MN$distance_home <- as.numeric(st_distance(posmo_MN, house_MN)[,1])
 posmo_MN <- posmo_MN |>
   group_by(trajectoryID) |>
   mutate(max_distance = max(distance_home))
-
 ```
 
 
@@ -152,7 +151,18 @@ posmo$start <- format(as.POSIXct(posmo$start, format = "%H:%M"))
 # Add a new column time_of_day for Morning/Afternoon/Evening
 breaks <- hour(hm("3:00", "10:00", "16:00", "21:59"))
 labels <- c("Morning", "Afternoon", "Evening")
+
 posmo$time_of_day <- cut(x=hour(posmo$start), breaks = breaks, labels = labels, include.lowest=TRUE)
+
+posmo$time_of_day <- cut(x=hour(posmo$datetime), breaks = breaks, labels = labels, include.lowest=TRUE)
+
+#Add a new column start with the time at which the trajectory started and separate the time with format H and M
+str(posmo)
+posmo <- posmo |>
+  group_by(trajectoryID)
+    mutate(start = min(datetime))
+
+posmo$start <- format(posmo$start, format = "%H:%M")
 
 ```
 
@@ -263,8 +273,6 @@ posmo_filter <- posmo |>
     filter(!static)
 
 
-#posmo |> mutate(steplenght_large = steplenght>60)
-
 ```
 ##Trajectories visualization with and without static points 
 One from Margarita
@@ -332,8 +340,6 @@ plot_grid(M26a, M26b,
           hjust = c(-5,-0.7),
           vjust = 5,
           ncol = 2, nrow = 1)
-          
-    
 
 ```
 
@@ -379,7 +385,7 @@ posmo[13020:13024,] |> tm_shape() + tm_dots()
 
 
 
-#Steplenght and speed calculation
+#Steplenght, distance covered and speed calculation
 
 ```{r}
 #calculation with the whole trajectories 
