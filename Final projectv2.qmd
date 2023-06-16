@@ -7,6 +7,7 @@ library(sf)
 library(tidyverse)
 library(tmap)
 library(cowplot)
+library(lubridate)
 ```
 
 
@@ -292,10 +293,9 @@ plot_grid(K1a, K1b,
 One from Mirjam
 
 ```{r}
-<<<<<<< HEAD
 M12 <- posmo %>%
   filter(trajectoryID == "12")
-=======
+
 
 M1 <- posmo %>%
   filter(trajectoryID == "15")
@@ -309,7 +309,7 @@ ggplot(M1, aes(X, Y))+
 ```{r}
 M26 <- posmo %>%
   filter(trajectoryID == "26")
->>>>>>> a1f114bfe5d6f06604f1908aad9b5c9c7c898b2e
+
 
 M26_filter <- posmo_filter %>%
   filter(trajectoryID == "26")
@@ -387,7 +387,7 @@ posmo <- posmo |>
   mutate(steplenght = sqrt ((X-lead(X))^2 + (Y-lead(Y))^2))|>
   mutate(speed = steplenght/timelag)|>
   mutate(duration = (max(datetime)- min(datetime))/60)|>
-  mutate(distance = sum(steplenght, na.rm = TRUE))|>
+  mutate(distance = sum(steplenght, na.rm = TRUE))
 
 
 #calculation with the trajectories without static points
