@@ -90,7 +90,6 @@ posmo_MK$distance_home <- as.numeric(st_distance(posmo_MK, house_MK)[,1])
  
 posmo_MK <- posmo_MK |>
   group_by(trajectoryID) |>
-  summarise(max_distance = max(st_distance(house_MK))) |>  #Put point in st_distance()
   mutate(max_distance = max(distance_home))
 
 #the same for MN
@@ -151,8 +150,8 @@ posmo$time_of_day <- cut(x=hour(posmo$datetime), breaks = breaks, labels = label
 
 #Add a new column start with the time at which the trajectory started and separate the time with format H and M
 posmo <- posmo |>
-  group_by(trajectoryID)
-    mutate(start = min(datetime))
+  group_by(trajectoryID) |> 
+  mutate(start = min(datetime))
 
 posmo$start <- format(posmo$start, format = "%H:%M")
 
