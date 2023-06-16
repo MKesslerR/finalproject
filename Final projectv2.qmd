@@ -156,14 +156,6 @@ posmo$time_of_day <- cut(x=hour(posmo$start), breaks = breaks, labels = labels, 
 
 posmo$time_of_day <- cut(x=hour(posmo$datetime), breaks = breaks, labels = labels, include.lowest=TRUE)
 
-#Add a new column start with the time at which the trajectory started and separate the time with format H and M
-str(posmo)
-posmo <- posmo |>
-  group_by(trajectoryID)
-    mutate(start = min(datetime))
-
-posmo$start <- format(posmo$start, format = "%H:%M")
-
 ```
 
 
@@ -372,15 +364,6 @@ library(tmap)
 tmap_mode("view")
 posmo[18755:18765,] |> tm_shape() + tm_dots()
 
-posmo[16570:16575,] |> tm_shape() + tm_dots()
-
-#more than 500
-posmo[1698:1702,] |> tm_shape() + tm_dots()
-
-posmo[3247:3250,] |> tm_shape() + tm_dots()
-
-posmo[13020:13024,] |> tm_shape() + tm_dots()
-
 ```
 
 
@@ -413,7 +396,7 @@ ggplot(posmo, aes(steplenght)) +
 
 which(posmo$steplenght > 30)#30 meters in 15 seconds its an average
 which(posmo$steplenght > 100)
-which(posmo$steplenght > 300)
+
 
 ```
 ##Visualization of the groups of points that show unreaslistic time lags 
@@ -421,13 +404,7 @@ which(posmo$steplenght > 300)
 library(tmap)
 #more than 300 m
 tmap_mode("view")
-
 posmo[3090:3095,] |> tm_shape() + tm_dots()
-
-#more than 100m
-posmo[14885:14895,] |> tm_shape() + tm_dots()
-posmo[6277:6279,] |> tm_shape() + tm_dots()
-posmo[13020:13024,] |> tm_shape() + tm_dots()
 
 ```
 
@@ -475,21 +452,6 @@ ggplot(posmo, mapping = aes(precip, speed))+
   geom_boxplot() +
   labs(x = "Precipitation", y = "Speed [m/s]")+
   theme_light()
-```
-
-```{r}
-#function to create a unique ID for each segment
-#rle_id <- function(vec) {
-#    x <- rle(vec)$lengths
-#    as.factor(rep(seq_along(x), times = x))
-#}
-#T41_filter <- T41_filter |>
-#    mutate(segment_id = rle_id(static))
-
-#ggplot(T41_filter, aes(X, Y))+
-#  geom_path()+
-#  geom_point(aes(color = segment_id))+
-#  coord_fixed()
 ```
 
 Plotting more trajectories
