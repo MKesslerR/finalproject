@@ -154,6 +154,15 @@ labels <- c("Morning", "Afternoon", "Evening")
 
 posmo$time_of_day <- cut(x=hour(posmo$start), breaks = breaks, labels = labels, include.lowest=TRUE)
 
+# Summarise the trajectory shapes
+shape_summary <- posmo |>
+  group_by(trajectoryID, Shape) |> 
+  summarise() |>
+  ungroup() |>
+  group_by(Shape) |>
+  summarise(count = n()) |>
+  st_drop_geometry() |>
+  mutate(percent = round(count / sum(count) * 100, 2))
 ```
 
 
@@ -450,6 +459,13 @@ ggplot(posmo, mapping = aes(precip, speed))+
   geom_boxplot() +
   labs(x = "Precipitation", y = "Speed [m/s]")+
   theme_light()
+
+library(plotly)
+plot_ly(shape_summary, labels = ~Shape, values = ~percent, type = 'pie') %>%
+  layout(title = "Title",          
+         xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
+         yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
+        
 ```
 
 Plotting more trajectories
