@@ -84,19 +84,24 @@ houseMN_coordinates <- st_coordinates(house_MN)
 
 house_MN <- cbind(house_MN, houseMN_coordinates)
 
-T1 <- posmo_MK %>%
-  filter(trajectoryID == "T1")
-
- max (st_distance(T1, house_MK, by_element = FALSE))
+#Calculate the max distance from the house for each trajectory
+posmo_MK$distance_home <- as.numeric(st_distance(posmo_MK, house_MK)[,1])
  
- T2 <- posmo_MK %>%
-  filter(trajectoryID == "T2")
-
- max (st_distance(T2, house_MK, by_element = FALSE))
-
-dist_home <- posmo_MK |>
+posmo_MK <- posmo_MK |>
   group_by(trajectoryID) |>
+<<<<<<< HEAD
   summarise(max_distance = max(st_distance(house_MN))) #Put point in st_distance()
+=======
+  mutate(max_distance = max(distance_home))
+
+#the same for MN
+posmo_MN$distance_home <- as.numeric(st_distance(posmo_MN, house_MN)[,1])
+ 
+posmo_MN <- posmo_MN |>
+  group_by(trajectoryID) |>
+  mutate(max_distance = max(distance_home))
+
+>>>>>>> 968735164d6112139a591321e2d858f8af113c56
 ```
 
 
@@ -140,14 +145,15 @@ posmo |>
 # Add a new column wday for Weekday/Weekend
 posmo$wday <- ifelse(posmo$weekday %in% c("Sat", "Sun"), "weekend", "weekday") 
 
+
 # Add a new column time_of_day for Morning/Afternoon/Evening
 breaks <- hour(hm("3:00", "10:00", "16:00", "21:59"))
 labels <- c("Morning", "Afternoon", "Evening")
 posmo$time_of_day <- cut(x=hour(posmo$datetime), breaks = breaks, labels = labels, include.lowest=TRUE)
 
-
 #Add a new column start with the time at which the trajectory started and separate the time with format H and M
 posmo <- posmo |>
+  group_by(trajectoryID)
     mutate(start = min(datetime))
 
 posmo$start <- format(posmo$start, format = "%H:%M")
