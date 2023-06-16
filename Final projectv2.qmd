@@ -148,6 +148,7 @@ labels <- c("Morning", "Afternoon", "Evening")
 posmo$time_of_day <- cut(x=hour(posmo$datetime), breaks = breaks, labels = labels, include.lowest=TRUE)
 
 #Add a new column start with the time at which the trajectory started and separate the time with format H and M
+str(posmo)
 posmo <- posmo |>
   group_by(trajectoryID)
     mutate(start = min(datetime))
