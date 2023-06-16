@@ -96,7 +96,7 @@ T1 <- posmo_MK %>%
 
 dist_home <- posmo_MK |>
   group_by(trajectoryID) |>
-  summarise(max_distance = max(st_distance(house_MK))) #Put point in st_distance()
+  summarise(max_distance = max(st_distance(house_MN))) #Put point in st_distance()
 ```
 
 
@@ -458,14 +458,14 @@ ggplot(posmo_filter, mapping = aes(wday, speed))+
   labs(x = "Day of week", y = "Speed [m/s]")+
   theme_light()
 
-ggplot(posmo, mapping = aes(time_of_day, distance))+
+ggplot(posmo, mapping = aes(precip, distance))+
   geom_boxplot() +
-  labs(x = "Day of week", y = "Distance [m]")+
-  theme_light()
+  labs(x = "Precipitation", y = "Distance [m]")+
+  theme_light()  
 
-ggplot(posmo_filter, mapping = aes(time_of_day, speed))+
+ggplot(posmo, mapping = aes(precip, speed))+
   geom_boxplot() +
-  labs(x = "Day of week", y = "Speed [m/s]")+
+  labs(x = "Precipitation", y = "Speed [m/s]")+
   theme_light()
 ```
 
