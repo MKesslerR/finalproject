@@ -23,16 +23,16 @@ posmo_walk <- st_as_sf(posmo_walk,
     coords = c("lon_x", "lat_y"),
     crs = 4326)
 
-<<<<<<< HEAD
+
 # Separate x and y coordinates in separate columns
 
 posmo_walk <- st_transform(posmo_walk, 2056)
-=======
+
 posmo_walk <- st_transform(posmo_walk, 2056)
 
 #Pre-processing.
 # Separate x and y coordinates in separate columns, separate date and time in different columns.
->>>>>>> f4080f3aeef39c7e7e73c09fa61c986381fbf844
+
 
 posmo_walk <- st_transform(posmo_walk, 2056)#convert the coordinate system to CH1903+ LV95: EPSG:2056
 
@@ -108,6 +108,7 @@ posmo_weather_join$precip[posmo_weather_join$rco150z0 > 0] <- "yes"
 # now need to have it based on the unique id (in my datset it would be yes for trajectoryIDs 45, 21, 17, 23, 16, 15, 20), not sure right now how to do that.
 
 
+
 posmo_weather_join |>
   group_by(trajectoryID) |>
   summarise(percent = length(which(precip == "yes")) / n()) |>
@@ -119,6 +120,7 @@ posmo_weather_join |>
   group_by(trajectoryID) |>
   summarise(max_distance = max(st_distance())) #Put point in st_distance()
 
+
 ggplot(posmo_MN, aes(X, Y))+
   geom_path()+
   geom_point()+
@@ -128,9 +130,9 @@ ggplot(posmo_MN, aes(X, Y))+
 
 
 
-<<<<<<< HEAD
+
 #To remove static points from trajectories. posmo-filter contains the trajectories without static points
-=======
+```{r}
 duration <- duration |> 
   rowwise() |>
   mutate(duration = as.numeric(difftime(end, start)), units = "mins")
@@ -140,7 +142,6 @@ duration <- duration |>
 ```
 
 
->>>>>>> f4080f3aeef39c7e7e73c09fa61c986381fbf844
 
 ```{r}
 str(posmo)
