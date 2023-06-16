@@ -8,6 +8,7 @@ library(tidyverse)
 library(tmap)
 library(cowplot)
 library(lubridate)
+library(dplyr)
 ```
 
 
@@ -89,9 +90,7 @@ posmo_MK$distance_home <- as.numeric(st_distance(posmo_MK, house_MK)[,1])
  
 posmo_MK <- posmo_MK |>
   group_by(trajectoryID) |>
-<<<<<<< HEAD
-  summarise(max_distance = max(st_distance(house_MN))) #Put point in st_distance()
-=======
+  summarise(max_distance = max(st_distance(house_MK))) |>  #Put point in st_distance()
   mutate(max_distance = max(distance_home))
 
 #the same for MN
@@ -101,7 +100,6 @@ posmo_MN <- posmo_MN |>
   group_by(trajectoryID) |>
   mutate(max_distance = max(distance_home))
 
->>>>>>> 968735164d6112139a591321e2d858f8af113c56
 ```
 
 
