@@ -279,9 +279,43 @@ posmo_filter <- posmo |>
 # Visualization of all trajectories for both users
 ```{r}
 tmap_mode("view") 
-posmo |> filter(user_id == "Margarita") |> tm_shape() + tm_dots()
+posmo |> tm_shape() + tm_dots()# both users
 
-posmo |> filter(user_id == "Mirjam") |> tm_shape() + tm_dots()
+posmo |> filter(user_id == "Margarita") |> tm_shape() + tm_dots()# Margarita
+
+posmo |> filter(user_id == "Mirjam") |> tm_shape() + tm_dots()# Mirjam
+
+# Visualization of all trajectories of MN
+posmo_MN |> 
+  ggplot(aes(X, Y, group = trajectoryID)) +
+  geom_path(col = "black", alpha = 0.3, size = 0.6) +
+  coord_equal(ratio = 1) +
+  theme(legend.position = "none") +
+  theme_minimal()+
+  theme(panel.grid = element_blank(), 
+    axis.ticks = element_line(),
+    axis.text.y = element_text(angle = 90, hjust = 0.5),
+    axis.title.x = element_text(margin = margin(t = 10,r = 0,b=0,l=0)),
+    axis.title.y = element_text(margin = margin(t = 0,r = 10,b=0,l=0))) +
+  labs(title = "", x = "X-Coordinates", y = "Y-Coordinates")
+
+# MK home trajectories (excluding two trajectories in Kanton of Graubünden)
+posmoMK_home <- filter(posmo_MK, !trajectoryID %in% c("T2", "T3"))
+
+# Visualization of all home trajectories of MK
+posmoMK_home |> 
+  ggplot(aes(X, Y, group = trajectoryID)) +
+  geom_path(col = "black", alpha = 0.3, size = 0.6) +
+  coord_equal(ratio = 1) +
+  theme(legend.position = "none") +
+  theme_minimal()+
+  theme(panel.grid = element_blank(), 
+    axis.ticks = element_line(),
+    axis.text.y = element_text(angle = 90, hjust = 0.5),
+    axis.title.x = element_text(margin = margin(t = 10,r = 0,b=0,l=0)),
+    axis.title.y = element_text(margin = margin(t = 0,r = 10,b=0,l=0))) +
+  labs(title = "", x = "X-Coordinates", y = "Y-Coordinates")
+
 
 ```
 
@@ -557,7 +591,10 @@ Traj40MK <- posmo |>
 
 Traj40MK <- as.matrix(Traj40MK)
 
-Frechet(Traj6MN, Traj39MN)
+frechet_MN <- Frechet(Traj6MN, Traj39MN)
+frechet_MK <- Frechet(Traj20MK, Traj40MK)
+
+frechet_all <- rbind(frechet_MN, frechet_MK)
 
 ```
 
