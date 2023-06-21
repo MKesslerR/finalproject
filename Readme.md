@@ -23,6 +23,11 @@ Analysis Geo 880**
 ## Background and Research Questions
 How do recreational- differ from functional dog walks? Are dog walks influenced by weather? Do functional and recreational dog walks differ in their embedded context? How do the recreational dog walking patterns differ temporally? How are the moving behavior patterns during dog walks? 
 
+Research questions:
+How do recreational- differ from functional dog walks?
+Are dog walks influenced by weather (precipitation)? 
+How do the recreational dog walking patterns differ through the day? weekdays and weekends?
+How are the moving behavior patterns during dog walks?
 
 ## Results
 
