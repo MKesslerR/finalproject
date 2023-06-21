@@ -39,13 +39,15 @@ str(posmo_MN)
 precip_data <- read_delim("data/weather_data.csv") |> 
   select(-tre200s0, -sre000z0)
 
+precip_hinwil <- read_delim("data/weather_hinwil.csv")
+
 # filter SHA weather station
 precip_SHA <- precip_data |> filter(stn == "SHA") |> rename(datetime = time)
 precip_SHA$datetime <- as.POSIXct(precip_SHA$datetime, tz = "UTC") # convert character into POSIXct
 
-# filter EBK weather station
-precip_EBK <- precip_data |> filter(stn == "EBK") |> rename(datetime = time)
-precip_EBK$datetime <- as.POSIXct(precip_EBK$datetime, tz = "UTC") # convert character into POSIXct
+# HIW weather station
+precip_HIW <- precip_hinwil |> rename(datetime = time) |> rename(rco150z0 = rre150z0)
+precip_HIW$datetime <- as.POSIXct(precip_HIW$datetime, tz = "UTC") # convert character into POSIXct
 ```
 
 #Pre-processing
@@ -114,7 +116,7 @@ posmo_MK <- posmo_MK |> mutate(
 # Join posmo data with weather data
 posmo_weather_MN <- left_join(posmo_MN, precip_SHA, by = c("Datetime_round" = "datetime"))
 
-posmo_weather_MK <- left_join(posmo_MK, precip_EBK, by = c("Datetime_round" = "datetime"))
+posmo_weather_MK <- left_join(posmo_MK, precip_HIW, by = c("Datetime_round" = "datetime"))
 
 # Delete double timestamps
 posmo_weather_MN <- posmo_weather_MN |> 
