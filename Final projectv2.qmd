@@ -275,6 +275,17 @@ posmo_filter <- posmo |>
 
 
 ```
+
+# Visualization of all trajectories for both users
+```{r}
+tmap_mode("view") 
+posmo |> filter(user_id == "Margarita") |> tm_shape() + tm_dots()
+
+posmo |> filter(user_id == "Mirjam") |> tm_shape() + tm_dots()
+
+```
+
+
 ##Trajectories visualization with and without static points 
 One from Margarita
 ```{r}
