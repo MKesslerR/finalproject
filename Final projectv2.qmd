@@ -9,13 +9,17 @@ library(tmap)
 library(cowplot)
 library(lubridate)
 library(dplyr)
+library(plotly)
+library(tmap)
 ```
 
 
-#Import data,  handle spatial data and project the coordinates into the new Swiss CRS CH1903+ LV95. Data from two individuals:MK and MK
+#Import data,  handle spatial data and project the coordinates into the new Swiss CRS CH1903+ LV95. Data from two individuals: MK and MM
 ```{r}
-#Import POsmo data MK
+# Import data
+# filter walk transport mode, select only necessary columns, and transform data frame into sf object and transform it into EPSG 2056 coordinate system
 
+#Import Posmo data MK
 posmo_MK <- read_delim("data/posmo_MK_edited3.csv", delim = ";") |> 
   filter(transport_mode == "Walk") |> 
   select(user_id, datetime, weekday, lon_x, lat_y, trajectoryID, Type, Shape) |> 
@@ -24,7 +28,6 @@ posmo_MK <- read_delim("data/posmo_MK_edited3.csv", delim = ";") |>
 
 
 # Import Posmo data MN
-# filter walk transport mode, select only necessary columns, and transform data frame into sf object and transform it into EPSG 2056 coordinate system
 posmo_MN <- read_delim("data/posmo_MN_edited3.csv", delim = ";") |> 
   filter(transport_mode == "Walk") |> 
   select(user_id, datetime, weekday, lon_x, lat_y, trajectoryID, Type, Shape) |> 
@@ -35,7 +38,7 @@ posmo_MN <- read_delim("data/posmo_MN_edited3.csv", delim = ";") |>
 str(posmo_MK)
 str(posmo_MN)
 
-# import Weather Data
+# import Weather Data with only the relevant columns
 precip_data <- read_delim("data/weather_data.csv") |> 
   select(-tre200s0, -sre000z0)
 
@@ -100,6 +103,7 @@ posmo_MN$distance_home <- as.numeric(st_distance(posmo_MN, house_MN)[,1])
 posmo_MN <- posmo_MN |>
   group_by(trajectoryID) |>
   mutate(max_distance = max(distance_home))
+
 ```
 
 
@@ -165,11 +169,44 @@ shape_summary <- posmo |>
   summarise(count = n()) |>
   st_drop_geometry() |>
   mutate(percent = round(count / sum(count) * 100, 2))
+
+
+# Summarise the walk types (recreational/functional)
+Type_summary <- posmo |>
+  group_by(trajectoryID, Type) |> 
+  summarise() |>
+  ungroup() |>
+  group_by(Type) |>
+  summarise(count = n()) |>
+  st_drop_geometry() |>
+  mutate(percent = round(count / sum(count) * 100, 2))
+
+
+# Summarise the walks with precipitation/no Precipitation
+precip_summary <- posmo |>
+  group_by(trajectoryID, precip) |> 
+  summarise() |>
+  ungroup() |>
+  group_by(precip) |>
+  summarise(count = n()) |>
+  st_drop_geometry() |>
+  mutate(percent = round(count / sum(count) * 100, 2))
+
+# calculate average distance for recreational/functional walks
+dist_summary <- posmo |>
+  group_by(Type, distance) |> 
+  summarise() |> 
+  st_drop_geometry()
+ 
+mean(dist_summary$distance[1:33]) # average distance of functional walks 1322.05 m
+mean(dist_summary$distance[34:103]) # average distance of recreational walks 4472.65 m
+  
+  
+
 ```
 
 
 #EDA. Plotting all the trajectories with Tmap to identify points that don't belong into the trajectores
-
 ```{r}
 tmap_mode("view")
 T1 <- posmo %>%
@@ -235,9 +272,7 @@ N12|> tm_shape() + tm_dots()
 
 ```
 
-
 #Remove static points from trajectories. posmo-filter contains the trajectories without static points
-
 ```{r}
 str(posmo)
 
@@ -266,8 +301,7 @@ which(posmo$stepMean> 100)
 which(posmo$stepMean> 50 )
  
 #Remove static points by applying threshold,  the threshold is the average step Mean. 
- 
-posmo <- posmo |> 
+ posmo <- posmo |> 
   mutate(static = stepMean < mean(stepMean, na.rm = TRUE))
 
 posmo_filter <- posmo |>
@@ -297,7 +331,7 @@ posmo_MN |>
     axis.text.y = element_text(angle = 90, hjust = 0.5),
     axis.title.x = element_text(margin = margin(t = 10,r = 0,b=0,l=0)),
     axis.title.y = element_text(margin = margin(t = 0,r = 10,b=0,l=0))) +
-  labs(title = "", x = "X-Coordinates", y = "Y-Coordinates")
+  labs(title = "", x = "X", y = "Y")
 
 # MK home trajectories (excluding two trajectories in Kanton of Graubünden)
 posmoMK_home <- filter(posmo_MK, !trajectoryID %in% c("T2", "T3"))
@@ -314,17 +348,13 @@ posmoMK_home |>
     axis.text.y = element_text(angle = 90, hjust = 0.5),
     axis.title.x = element_text(margin = margin(t = 10,r = 0,b=0,l=0)),
     axis.title.y = element_text(margin = margin(t = 0,r = 10,b=0,l=0))) +
-  labs(title = "", x = "X-Coordinates", y = "Y-Coordinates")
-
+  labs(title = "", x = "X", y = "Y")
 
 ```
 
-
 ##Trajectories visualization with and without static points 
-One from Margarita
 ```{r}
-
-
+## Two from Margarita
 K1 <- posmo %>%
   filter(trajectoryID == "T1")
 
@@ -342,34 +372,63 @@ K1b <- ggplot(K1_filter, aes(X, Y))+
     coord_fixed()
 
 plot_grid(K1a, K1b, 
-          labels = c("A", "B"),
+         labels = c("Raw", "Static points removed"),
+          hjust = c(-2,-0.4),
+          vjust = 2.5,
           ncol = 2, nrow = 1)
 
-```
-One from Mirjam
+K14 <- posmo %>%
+  filter(trajectoryID == "T14")
 
-```{r}
-M12 <- posmo %>%
+K14_filter <- posmo_filter %>%
+  filter(trajectoryID == "T14")
+  
+K14a <- ggplot(K5, aes(X, Y))+
+  geom_path()+
+  geom_point(color  = "blue")+
+  coord_fixed()
+
+K14b <- ggplot(K5_filter, aes(X, Y))+
+  geom_path()+
+    geom_point()+
+    coord_fixed()
+
+plot_grid(K14a, K14b, 
+         labels = c("Raw", "Static points removed"),
+          hjust = c(-2,-0.4),
+          vjust = 6,
+          ncol = 2, nrow = 1)
+
+## Two from Mirjam
+M1 <- posmo %>%
   filter(trajectoryID == "12")
 
 
-M1 <- posmo %>%
-  filter(trajectoryID == "15")
+M1_filer <- posmo_filter %>%
+  filter(trajectoryID == "12")
 
-ggplot(M1, aes(X, Y))+
+M1a <- ggplot(M1, aes(X, Y))+
   geom_path()+
-    geom_point()+coord_fixed()
-```
+  geom_point(color  = "blue")+
+  coord_fixed()
 
+M1b <- ggplot(M1_filer, aes(X, Y))+
+  geom_path()+
+    geom_point()+
+    coord_fixed()
 
-```{r}
+plot_grid(M1a, M1b, 
+          labels = c("Raw", "Static points removed"),
+          hjust = c(-2,-0.4),
+          vjust = 4,
+          ncol = 2, nrow = 1)
+
 M26 <- posmo %>%
   filter(trajectoryID == "26")
 
 
 M26_filter <- posmo_filter %>%
   filter(trajectoryID == "26")
-T8 |> tm_shape() + tm_dots()
   
 M26a <- ggplot(M26, aes(X, Y))+
   geom_path()+
@@ -383,12 +442,11 @@ M26b <- ggplot(M26_filter, aes(X, Y))+
 
 plot_grid(M26a, M26b, 
           labels = c("Raw", "Static points removed"),
-          hjust = c(-5,-0.7),
-          vjust = 5,
+          hjust = c(-5.1,-1),
+          vjust = 1,
           ncol = 2, nrow = 1)
 
 ```
-
 
 #Timelag. 
 How often was the position recorded. Calculated for the trajectories with and without (posmo_filter) static points
@@ -420,10 +478,7 @@ posmo[18755:18765,] |> tm_shape() + tm_dots()
 
 ```
 
-
-
 #Steplenght, distance covered and speed calculation
-
 ```{r}
 #calculation with the whole trajectories 
 
@@ -453,9 +508,9 @@ which(posmo$steplenght > 100)
 
 
 ```
+
 ##Visualization of the groups of points that show unreaslistic time lags 
 ```{r}
-library(tmap)
 #more than 300 m
 tmap_mode("view")
 posmo[3090:3095,] |> tm_shape() + tm_dots()
@@ -463,10 +518,7 @@ posmo[3090:3095,] |> tm_shape() + tm_dots()
 ```
 
 #Visualization of parameters
-
 ```{r}
-
-
 ggplot(posmo, mapping = aes(Type, steplenght))+
   geom_boxplot() +
   labs(x = "Type of dog walking", y = "Steplenght")+
@@ -507,16 +559,28 @@ ggplot(posmo, mapping = aes(precip, speed))+
   labs(x = "Precipitation", y = "Speed [m/s]")+
   theme_light()
 
-library(plotly)
+
+# Pie chart of trajectory shapes
 plot_ly(shape_summary, labels = ~Shape, values = ~percent, type = 'pie') %>%
   layout(title = "Trajectory Shapes",          
+         xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
+         yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
+
+# Pie chart of type of walk (recreational/functional)
+plot_ly(Type_summary, labels = ~Type, values = ~percent, type = 'pie') %>%
+  layout(title = "Type of walk",          
+         xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
+         yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
+
+# Pie chart of walks in precipitation/no precipitation
+plot_ly(precip_summary, labels = ~precip, values = ~percent, type = 'pie') %>%
+  layout(title = "Precipitation",          
          xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
          yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
         
 ```
 
-Plotting more trajectories
-
+## Plotting more trajectories
 ```{r}
 
 T2 <- posmo %>%
@@ -541,6 +605,7 @@ ggplot(T8, aes(X, Y))+
     geom_point()+coord_fixed()
 ```
 
+## Frechet Distance
 ```{r}
 #randomly select trajectories to compare for MN
 x <- sample(1:56, 1)
