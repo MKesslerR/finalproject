@@ -1,8 +1,14 @@
 ---
-title: "Final project"
-format: html
+title: "Analysis of movement patterns of dog walking"
+subtitle: "Final Project Patterns and Trends in Environmental Data - Computational Movement Analysis"
+author: "Margarita Kessler Rios & Mirjam Nötzli"
+format:
+  html:
+    code-fold: true
 ---
 ```{r}
+#| warning: false
+#| message: false
 library(sf)
 library(tidyverse)
 library(tmap)
@@ -15,6 +21,8 @@ library(tmap)
 
 #Import data,  handle spatial data and project the coordinates into the new Swiss CRS CH1903+ LV95. Data from two individuals: MK and MM
 ```{r}
+#| warning: false
+#| message: false
 # Import data
 # filter walk transport mode, select only necessary columns, and transform data frame into sf object and transform it into EPSG 2056 coordinate system
 
@@ -54,6 +62,8 @@ precip_HIW$datetime <- as.POSIXct(precip_HIW$datetime, tz = "UTC") # convert cha
 
 #Pre-processing
 ```{r}
+#| warning: false
+#| message: false
 # store the coordinates into two separate columns
 posmo_coordinates <- st_coordinates(posmo_MK)
 
@@ -70,6 +80,8 @@ posmo_MN <- cbind(posmo_MN, posmoMN_coordinates)
 
 #calculate longest distance from each trajectory to home for the two data sets
 ```{r}
+#| warning: false
+#| message: false
 #Create an sf object with the house coordinates
 house_MK <- read_delim("data/MK_house.csv") |> 
   st_as_sf(coords = c("lon_x","lat_y"), crs = 4326)|>
@@ -107,6 +119,8 @@ posmo_MN <- posmo_MN |>
 
 ##Join posmo data with weather data then join the two dataframes
 ```{r}
+#| warning: false
+#| message: false
 # Create new column with time values rounded to closest 10 minutes, to be able to join with weather data
 posmo_MN <- posmo_MN |> mutate(
   Datetime_round = lubridate::round_date(datetime,"10 minutes")
@@ -194,6 +208,9 @@ precip_summary <- posmo |>
 
 #EDA. Plotting all the trajectories with Tmap to identify points that don't belong into the trajectores
 ```{r}
+#| echo: false
+#| warning: false
+#| message: false
 tmap_mode("view")
 T1 <- posmo %>%
   filter(trajectoryID == "T1")
@@ -257,6 +274,8 @@ N12|> tm_shape() + tm_dots()
 
 #Remove static points from trajectories. posmo-filter contains the trajectories without static points
 ```{r}
+#| warning: false
+#| message: false
 str(posmo)
 
 #To calculate distance among  Time-stamp 1 and 2 back and forward.
@@ -295,6 +314,8 @@ posmo_filter <- posmo |>
 
 # Visualization of all trajectories for both users
 ```{r}
+#| warning: false
+#| message: false
 tmap_mode("view") 
 posmo |> tm_shape() + tm_dots()# both users
 
@@ -338,14 +359,14 @@ plot_grid(plotMK, plotMN,
          labels = c("MK Trajectories", "MN Trajectories"),
          hjust = c(-0.3, -0.3),
          vjust = 2,
-         scale_x_continuous(breaks = equal_breaks(n = 4)),
-         scale_y_continuous(breaks = equal_breaks(n = 4)),
          ncol = 2, nrow = 1)
 
 ```
 
 ##Trajectories visualization with and without static points 
 ```{r}
+#| warning: false
+#| message: false
 ## Two from Margarita
 K1 <- posmo %>%
   filter(trajectoryID == "T1")
@@ -443,6 +464,8 @@ plot_grid(M26a, M26b,
 #Timelag. 
 How often was the position recorded. Calculated for the trajectories with and without (posmo_filter) static points
 ```{r}
+#| warning: false
+#| message: false
 posmo <- posmo |> 
     group_by(trajectoryID)|> 
     mutate(timelag = as.numeric(difftime(lead(datetime), datetime, units = "secs")))
@@ -464,6 +487,8 @@ which(posmo$timelag> 1000)
 
 ##Visualization of the groups of points that show unreaslistic time lags 
 ```{r}
+#| warning: false
+#| message: false
 tmap_mode("view")
 posmo[18755:18765,] |> tm_shape() + tm_dots()
 
@@ -471,6 +496,8 @@ posmo[18755:18765,] |> tm_shape() + tm_dots()
 
 #Steplenght, distance covered and speed calculation
 ```{r}
+#| warning: false
+#| message: false
 #calculation with the whole trajectories 
 
 posmo <- posmo |>
@@ -510,6 +537,8 @@ mean(dist_summary$distance[34:103]) # average distance of recreational walks 447
 
 ##Visualization of the groups of points that show unreaslistic time lags 
 ```{r}
+#| warning: false
+#| message: false
 #more than 300 m
 tmap_mode("view")
 posmo[3090:3095,] |> tm_shape() + tm_dots()
@@ -518,6 +547,8 @@ posmo[3090:3095,] |> tm_shape() + tm_dots()
 
 #Visualization of parameters
 ```{r}
+#| warning: false
+#| message: false
 ggplot(posmo, mapping = aes(Type, steplenght))+
   geom_boxplot() +
   labs(x = "Type of dog walking", y = "Steplenght")+
@@ -581,7 +612,8 @@ plot_ly(precip_summary, labels = ~precip, values = ~percent, type = 'pie') %>%
 
 ## Plotting more trajectories
 ```{r}
-
+#| warning: false
+#| message: false
 T2 <- posmo %>%
   filter(trajectoryID == "T2")
 
@@ -604,8 +636,10 @@ ggplot(T8, aes(X, Y))+
     geom_point()+coord_fixed()
 ```
 
-## Frechet Distance
+# Frechet Distance
 ```{r}
+#| warning: false
+#| message: false
 #randomly select trajectories to compare for MN
 x <- sample(1:56, 1)
 x
