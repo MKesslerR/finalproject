@@ -190,15 +190,6 @@ precip_summary <- posmo |>
   st_drop_geometry() |>
   mutate(percent = round(count / sum(count) * 100, 2))
 
-# calculate average distance for recreational/functional walks
-dist_summary <- posmo |>
-  group_by(Type, distance) |> 
-  summarise() |> 
-  st_drop_geometry()
- 
-mean(dist_summary$distance[1:33]) # average distance of functional walks 1322.05 m
-mean(dist_summary$distance[34:103]) # average distance of recreational walks 4472.65 m
-  
 ```
 
 #EDA. Plotting all the trajectories with Tmap to identify points that don't belong into the trajectores
@@ -257,9 +248,6 @@ T39 <- posmo %>%
 T39 |> tm_shape() + tm_dots()
 
 
-```
-
-```{r}
 
 N12 <- posmo %>%
   filter(trajectoryID == "7")
@@ -315,7 +303,7 @@ posmo |> filter(user_id == "Margarita") |> tm_shape() + tm_dots()# Margarita
 posmo |> filter(user_id == "Mirjam") |> tm_shape() + tm_dots()# Mirjam
 
 # Visualization of all trajectories of MN
-posmo_MN |> 
+plotMN <- posmo_MN |> 
   ggplot(aes(X, Y, group = trajectoryID)) +
   geom_path(col = "black", alpha = 0.3, size = 0.6) +
   coord_equal(ratio = 1) +
@@ -332,7 +320,7 @@ posmo_MN |>
 posmoMK_home <- filter(posmo_MK, !trajectoryID %in% c("T2", "T3"))
 
 # Visualization of all home trajectories of MK
-posmoMK_home |> 
+plotMK <- posmoMK_home |> 
   ggplot(aes(X, Y, group = trajectoryID)) +
   geom_path(col = "black", alpha = 0.3, size = 0.6) +
   coord_equal(ratio = 1) +
@@ -344,6 +332,15 @@ posmoMK_home |>
     axis.title.x = element_text(margin = margin(t = 10,r = 0,b=0,l=0)),
     axis.title.y = element_text(margin = margin(t = 0,r = 10,b=0,l=0))) +
   labs(title = "", x = "X", y = "Y")
+
+
+plot_grid(plotMK, plotMN, 
+         labels = c("MK Trajectories", "MN Trajectories"),
+         hjust = c(-0.3, -0.3),
+         vjust = 2,
+         scale_x_continuous(breaks = equal_breaks(n = 4)),
+         scale_y_continuous(breaks = equal_breaks(n = 4)),
+         ncol = 2, nrow = 1)
 
 ```
 
@@ -378,12 +375,12 @@ K14 <- posmo %>%
 K14_filter <- posmo_filter %>%
   filter(trajectoryID == "T14")
   
-K14a <- ggplot(K5, aes(X, Y))+
+K14a <- ggplot(K14, aes(X, Y))+
   geom_path()+
   geom_point(color  = "blue")+
   coord_fixed()
 
-K14b <- ggplot(K5_filter, aes(X, Y))+
+K14b <- ggplot(K14_filter, aes(X, Y))+
   geom_path()+
     geom_point()+
     coord_fixed()
@@ -500,7 +497,15 @@ ggplot(posmo, aes(steplenght)) +
 which(posmo$steplenght > 30)#30 meters in 15 seconds its an average
 which(posmo$steplenght > 100)
 
-
+# calculate average distance for recreational/functional walks
+dist_summary <- posmo |>
+  group_by(Type, distance) |> 
+  summarise() |> 
+  st_drop_geometry()
+ 
+mean(dist_summary$distance[1:33]) # average distance of functional walks 1322.05 m
+mean(dist_summary$distance[34:103]) # average distance of recreational walks 4472.65 m
+  
 ```
 
 ##Visualization of the groups of points that show unreaslistic time lags 
