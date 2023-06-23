@@ -13,7 +13,6 @@ library(plotly)
 library(tmap)
 ```
 
-
 #Import data,  handle spatial data and project the coordinates into the new Swiss CRS CH1903+ LV95. Data from two individuals: MK and MM
 ```{r}
 # Import data
@@ -105,7 +104,6 @@ posmo_MN <- posmo_MN |>
   mutate(max_distance = max(distance_home))
 
 ```
-
 
 ##Join posmo data with weather data then join the two dataframes
 ```{r}
@@ -201,10 +199,7 @@ dist_summary <- posmo |>
 mean(dist_summary$distance[1:33]) # average distance of functional walks 1322.05 m
 mean(dist_summary$distance[34:103]) # average distance of recreational walks 4472.65 m
   
-  
-
 ```
-
 
 #EDA. Plotting all the trajectories with Tmap to identify points that don't belong into the trajectores
 ```{r}
@@ -472,7 +467,6 @@ which(posmo$timelag> 1000)
 
 ##Visualization of the groups of points that show unreaslistic time lags 
 ```{r}
-library(tmap)
 tmap_mode("view")
 posmo[18755:18765,] |> tm_shape() + tm_dots()
 
@@ -662,12 +656,3 @@ frechet_MK <- Frechet(Traj20MK, Traj40MK)
 frechet_all <- rbind(frechet_MN, frechet_MK)
 
 ```
-
-
-```{r}
-arealstat_csv <- read_csv("data-raw/arealstatistik/ag-b-00.03-37-nolc04/AREA_NOLC04_27_161114.csv",                          col_types = cols_only(X = col_integer(), Y = col_integer(),LC09_27 = col_integer(),LC09_6 = col_integer())) %>%  transmute(E = X + 2e6, N = Y + 1e6, hauptbereiche6 = LC09_6, grundkat27 = LC09_27) # This is not a precise transformation 21781 > 2056 but it seems this method was used on the newer data as wellarealstat_hauptbereiche <- arealstat_csv %>% dplyr::select(E,N,hauptbereiche6) %>%  rasterFromXYZ() %>%  terra::rast()
-terra::crs(arealstat_hauptbereiche) <- "EPSG: 2056" 
-arealstat_grundkategorien <- arealstat_csv %>%  dplyr::select(E,N,grundkat27) %>%  rasterFromXYZ() %>%  terra::rast()terra::crs(arealstat_grundkategorien) <- "EPSG: 2056"# usethis::use_data(arealstat_hauptbereiche, overwrite = TRUE) # usethis::use_data(arealstat_grundkategorien, overwrite = TRUE) terra::writeRaster(arealstat_grundkategorien, "inst/extdata/arealstat_boden_grundkategrien.tif", overwrite = TRUE, datatype = "INT1U") terra::writeRaster(arealstat_hauptbereiche, "inst/extdata/arealstat_boden_hauptbereiche.tif", overwrite = TRUE, datatype = "INT1U")
-```
-
-
