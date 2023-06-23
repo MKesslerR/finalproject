@@ -17,6 +17,7 @@ library(lubridate)
 library(dplyr)
 library(plotly)
 library(tmap)
+library(SimilarityMeasures)
 ```
 
 #Import data,  handle spatial data and project the coordinates into the new Swiss CRS CH1903+ LV95. Data from two individuals: MK and MM
@@ -650,7 +651,7 @@ x1 <- sample(1:48, 1)
 x1
 #Functional: T11, T35, T43, T16. Recreational: T40, T20, T27, T25
 
-library(SimilarityMeasures)
+
 #Create the matrices for the trajectories to compare 
 
 #Four recreational walks for MN
