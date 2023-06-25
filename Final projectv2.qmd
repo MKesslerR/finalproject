@@ -18,6 +18,7 @@ library(dplyr)
 library(plotly)
 library(tmap)
 library(SimilarityMeasures)
+library(data.table)
 ```
 
 #Import data,  handle spatial data and project the coordinates into the new Swiss CRS CH1903+ LV95. Data from two individuals: MK and MM
@@ -149,13 +150,30 @@ posmo_weather_MK$precip[posmo_weather_MK$rco150z0 > 0] <- "yes"
 #Join the two data frames vertically
 posmo <- rbind(posmo_weather_MN, posmo_weather_MK)
 
-
 # Get trajectories with precipitation >50% of the time 
-posmo |>
+precip50 <- posmo |>
   group_by(trajectoryID) |>
   summarise(percent = length(which(precip == "yes")) / n()) |>
-  filter(percent >= 0.5)
+  filter(percent >= 0.5) # trajectories 15, 16, 23, 45, T8, T9, T16, T20
 
+# Create new column "precip_50 for trajectories with >= 50% of the time with rain
+posmo <- posmo |> 
+  group_by(trajectoryID, precip) |>
+  mutate(
+     precip_50 = case_when(
+         trajectoryID=="15" ~ "yes",
+         trajectoryID=="16" ~ "yes",
+         trajectoryID=="23" ~ "yes",
+         trajectoryID=="45" ~ "yes",
+         trajectoryID=="T8" ~ "yes",
+         trajectoryID=="T9" ~ "yes",
+         trajectoryID=="T16" ~ "yes",
+         trajectoryID=="T20" ~ "yes",
+     )
+)
+
+# assign all other values "no"
+posmo$precip_50 <- posmo$precip_50 |> replace_na("no")
 
 # Add a new column wday for Weekday/Weekend
 posmo$wday <- ifelse(posmo$weekday %in% c("Sat", "Sun"), "weekend", "weekday") 
@@ -197,10 +215,10 @@ Type_summary <- posmo |>
 
 # Summarise the walks with precipitation/no Precipitation
 precip_summary <- posmo |>
-  group_by(trajectoryID, precip) |> 
+  group_by(trajectoryID, precip_50) |> 
   summarise() |>
   ungroup() |>
-  group_by(precip) |>
+  group_by(precip_50) |>
   summarise(count = n()) |>
   st_drop_geometry() |>
   mutate(percent = round(count / sum(count) * 100, 2))
@@ -504,7 +522,7 @@ posmo[18755:18765,] |> tm_shape() + tm_dots()
 posmo <- posmo |>
   group_by(trajectoryID) |> 
   mutate(steplenght = sqrt ((X-lead(X))^2 + (Y-lead(Y))^2))|>
-  mutate(speed = steplenght/timelag)|>
+  mutate(speed = mean(steplenght/timelag, na.rm = TRUE))|>
   mutate(duration = (max(datetime)- min(datetime))/60)|>
   mutate(distance = sum(steplenght, na.rm = TRUE))
 
@@ -513,7 +531,7 @@ posmo <- posmo |>
 posmo_filter <- posmo_filter |>
   group_by(trajectoryID) |> 
   mutate(steplenght = sqrt ((X-lead(X))^2 + (Y-lead(Y))^2))|>
-  mutate(speed = sum(steplenght/timelag))|>
+  mutate(speed = mean(steplenght/timelag, na.rm = TRUE))|>
   mutate(duration = (max(datetime)- min(datetime))/60)|>
   mutate(distance = sum(steplenght, na.rm = TRUE))
 
@@ -532,19 +550,20 @@ dist_summary <- posmo |>
   summarise() |> 
   st_drop_geometry()
  
+ 
 mean(dist_summary$distance[1:33]) # average distance of functional walks 1322.05 m
 mean(dist_summary$distance[34:103]) # average distance of recreational walks 4472.65 m
 
 # calculate average distance for recreational/functional walks with and without precipitation
-dist_precip_summary <- posmo |>
-  group_by(Type, precip, distance) |> 
+precip_dist_summary <- posmo |>
+  group_by(Type, precip_50, distance) |> 
   summarise() |> 
   st_drop_geometry()  
 
-mean(dist_precip_summary$distance[1:32]) # average distance of functional walks without rain 1341.88 m
-mean(dist_precip_summary$distance[33:35]) # average distance of functional walks with rain 1474.13 m
-mean(dist_precip_summary$distance[36:103]) # average distance of recreational walks without rain 4481.83 m
-mean(dist_precip_summary$distance[104:112]) # average distance of recreational walks with rain 4538.88 m
+mean(precip_dist_summary$distance[1:31]) # average distance of functional walks without rain 1335.13 m
+mean(precip_dist_summary$distance[32:33]) # average distance of functional walks with rain 1119.34 m
+mean(precip_dist_summary$distance[34:97]) # average distance of recreational walks without rain 4479.78 m
+mean(precip_dist_summary$distance[98:103]) # average distance of recreational walks with rain 4396.58 m
 
 # calculate average distance for recreational/functional walks for 3 time of day categories (morning/afternoon/evening)
 dist_type_tofday_summary <- posmo |>
@@ -554,7 +573,7 @@ dist_type_tofday_summary <- posmo |>
 
 mean(dist_type_tofday_summary$distance[1:9]) # average distance of functional morning walks 1387.88 m
 mean(dist_type_tofday_summary$distance[10:21]) # average distance of functional afternoon walks 1340.87 m
-mean(dist_type_tofday_summary$distance[22:33]) # average distance of functional morning walks 1253.86 m
+mean(dist_type_tofday_summary$distance[22:33]) # average distance of functional evening walks 1253.86 m
 mean(dist_type_tofday_summary$distance[34:67]) # average distance of recreational morning walks 5226.97 m
 mean(dist_type_tofday_summary$distance[68:90]) # average distance of recreational afternoon walks 4063.88 m
 mean(dist_type_tofday_summary$distance[91:103]) # average distance of recreational evening walks 3223.01 m
@@ -577,6 +596,62 @@ dist_wday_summary <- posmo |>
 
 mean(dist_wday_summary$distance[1:71]) # average distance of weekday walks 3565.24 m
 mean(dist_wday_summary$distance[72:103]) # average distance of weekend walks 3236.91 m
+
+
+# Speed calculations
+# calculate average speed for recreational/functional walks
+speed_summary <- posmo |>
+  group_by(Type, speed) |> 
+  summarise() |> 
+  st_drop_geometry()
+ 
+mean(speed_summary$speed[1:33]) # average speed of functional walks 1.20 m/s
+mean(speed_summary$speed[34:103]) # average speed of recreational walks 1.22 m/s
+
+# calculate average speed for recreational/functional walks with and without precipitation
+speed_precip_summary <- posmo |>
+  group_by(Type, precip_50, speed) |> 
+  summarise() |> 
+  st_drop_geometry()  
+
+mean(speed_precip_summary$speed[1:31]) # average speed of functional walks without rain 1.19 m/s
+mean(speed_precip_summary$speed[32:33]) # average speed of functional walks with rain 1.31 m/s
+mean(speed_precip_summary$speed[34:97]) # average speed of recreational walks without rain 1.22 m/s
+mean(speed_precip_summary$speed[98:103]) # average speed of recreational walks with rain 1.30 m/s
+
+# calculate average speed for recreational/functional walks for 3 time of day categories (morning/afternoon/evening)
+speed_type_tofday_summary <- posmo |>
+  group_by(Type, time_of_day, speed) |> 
+  summarise() |> 
+  st_drop_geometry()  
+
+mean(speed_type_tofday_summary$speed[1:9]) # average speed of functional morning walks 1.29 m/s
+mean(speed_type_tofday_summary$speed[10:21]) # average speed of functional afternoon walks 1.18 m/s
+mean(speed_type_tofday_summary$speed[22:33]) # average speed of functional evening walks 1.16 m/s
+mean(speed_type_tofday_summary$speed[34:67]) # average speed of recreational morning walks 1.21 m/s
+mean(speed_type_tofday_summary$speed[68:90]) # average speed of recreational afternoon walks 1.23 m/s
+mean(speed_type_tofday_summary$speed[91:103]) # average speed of recreational evening walks 1.24 m/s
+
+# calculate average speed for morning/afternoon/evening walks
+speen_timeofday_summary <- posmo |>
+  group_by(time_of_day, speed) |> 
+  summarise() |> 
+  st_drop_geometry()
+
+mean(speen_timeofday_summary$speed[1:43]) # average speed of morning walks 1.23 m/s
+mean(speen_timeofday_summary$speed[44:78]) # average speed of afternoon walks 1.21 m/s
+mean(speen_timeofday_summary$speed[79:103]) # average speed of evening walks 1.20 m/s
+
+# calculate average speed for weekday/weekend walks
+speed_wday_summary <- posmo |>
+  group_by(wday, speed) |> 
+  summarise() |> 
+  st_drop_geometry()
+
+mean(speed_wday_summary$speed[1:71]) # average speed of weekday walks 1.23 m/s
+mean(speed_wday_summary$speed[72:103]) # average speed of weekend walks 1.18 m/s
+
+
 ```
 
 ##Visualization of the groups of points that show unreaslistic time lags 
@@ -623,12 +698,22 @@ ggplot(posmo_filter, mapping = aes(wday, speed))+
   labs(x = "Day of week", y = "Speed [m/s]")+
   theme_light()
 
-ggplot(posmo, mapping = aes(precip, distance))+
+ggplot(posmo, mapping = aes(time_of_day, distance))+
+  geom_boxplot() +
+  labs(x = "Time of day", y = "Distance [m]")+
+  theme_light()
+
+ggplot(posmo_filter, mapping = aes(time_of_day, speed))+
+  geom_boxplot() +
+  labs(x = "Time of day", y = "Speed [m/s]")+
+  theme_light()
+
+ggplot(posmo, mapping = aes(precip_50, distance))+
   geom_boxplot() +
   labs(x = "Precipitation", y = "Distance [m]")+
   theme_light()  
 
-ggplot(posmo, mapping = aes(precip, speed))+
+ggplot(posmo, mapping = aes(precip_50, speed))+
   geom_boxplot() +
   labs(x = "Precipitation", y = "Speed [m/s]")+
   theme_light()
@@ -647,11 +732,18 @@ plot_ly(Type_summary, labels = ~Type, values = ~percent, type = 'pie') %>%
          yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
 
 # Pie chart of walks in precipitation/no precipitation
-plot_ly(precip_summary, labels = ~precip, values = ~percent, type = 'pie') %>%
+plot_ly(precip_summary, labels = ~precip_50, values = ~percent, type = 'pie') %>%
   layout(title = "Precipitation",          
          xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
          yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
-        
+
+
+# Scatterplot distance vs speed --> use for report
+ggplot(posmo, mapping = aes(distance, speed))+
+  geom_point() +
+  geom_smooth(method=lm, se=FALSE)+
+  labs(x = "Distance [m]", y = "Speed [m/s]")+
+  theme_light()     
 ```
 
 ## Plotting more trajectories
