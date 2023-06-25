@@ -343,7 +343,7 @@ posmoMK_home <- filter(posmo_MK, !trajectoryID %in% c("T2", "T3"))
 
 # Visualization of all home trajectories of MK
 plotMK <- posmoMK_home |> 
-  ggplot(aes(X, Y, group = trajectoryID)) +
+   ggplot(aes(X, Y, group = trajectoryID)) +
   geom_path(col = "black", alpha = 0.3, size = 0.6) +
   coord_equal(ratio = 1) +
   theme(legend.position = "none") +
@@ -356,7 +356,7 @@ plotMK <- posmoMK_home |>
   labs(title = "", x = "X", y = "Y")
 
 
-plot_grid(plotMK, plotMN, 
+plot_grid(plotMK, plotMN,
          labels = c("MK Trajectories", "MN Trajectories"),
          hjust = c(-0.3, -0.3),
          vjust = 2,
@@ -525,6 +525,7 @@ ggplot(posmo, aes(steplenght)) +
 which(posmo$steplenght > 30)#30 meters in 15 seconds its an average
 which(posmo$steplenght > 100)
 
+# Distance calculations
 # calculate average distance for recreational/functional walks
 dist_summary <- posmo |>
   group_by(Type, distance) |> 
@@ -533,7 +534,49 @@ dist_summary <- posmo |>
  
 mean(dist_summary$distance[1:33]) # average distance of functional walks 1322.05 m
 mean(dist_summary$distance[34:103]) # average distance of recreational walks 4472.65 m
-  
+
+# calculate average distance for recreational/functional walks with and without precipitation
+dist_precip_summary <- posmo |>
+  group_by(Type, precip, distance) |> 
+  summarise() |> 
+  st_drop_geometry()  
+
+mean(dist_precip_summary$distance[1:32]) # average distance of functional walks without rain 1341.88 m
+mean(dist_precip_summary$distance[33:35]) # average distance of functional walks with rain 1474.13 m
+mean(dist_precip_summary$distance[36:103]) # average distance of recreational walks without rain 4481.83 m
+mean(dist_precip_summary$distance[104:112]) # average distance of recreational walks with rain 4538.88 m
+
+# calculate average distance for recreational/functional walks for 3 time of day categories (morning/afternoon/evening)
+dist_type_tofday_summary <- posmo |>
+  group_by(Type, time_of_day, distance) |> 
+  summarise() |> 
+  st_drop_geometry()  
+
+mean(dist_type_tofday_summary$distance[1:9]) # average distance of functional morning walks 1387.88 m
+mean(dist_type_tofday_summary$distance[10:21]) # average distance of functional afternoon walks 1340.87 m
+mean(dist_type_tofday_summary$distance[22:33]) # average distance of functional morning walks 1253.86 m
+mean(dist_type_tofday_summary$distance[34:67]) # average distance of recreational morning walks 5226.97 m
+mean(dist_type_tofday_summary$distance[68:90]) # average distance of recreational afternoon walks 4063.88 m
+mean(dist_type_tofday_summary$distance[91:103]) # average distance of recreational evening walks 3223.01 m
+
+# calculate average distance for morning/afternoon/evening walks
+dist_timeofday_summary <- posmo |>
+  group_by(time_of_day, distance) |> 
+  summarise() |> 
+  st_drop_geometry()
+
+mean(dist_timeofday_summary$distance[1:43]) # average distance of morning walks 4423.44 m
+mean(dist_timeofday_summary$distance[44:78]) # average distance of afternoon walks 3130.28 m
+mean(dist_timeofday_summary$distance[79:103]) # average distance of evening walks 2277.82 m
+
+# calculate average distance for weekday/weekend walks
+dist_wday_summary <- posmo |>
+  group_by(wday, distance) |> 
+  summarise() |> 
+  st_drop_geometry()
+
+mean(dist_wday_summary$distance[1:71]) # average distance of weekday walks 3565.24 m
+mean(dist_wday_summary$distance[72:103]) # average distance of weekend walks 3236.91 m
 ```
 
 ##Visualization of the groups of points that show unreaslistic time lags 
