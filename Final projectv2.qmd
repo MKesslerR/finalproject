@@ -342,8 +342,24 @@ posmo |> filter(user_id == "Margarita") |> tm_shape() + tm_dots()# Margarita
 
 posmo |> filter(user_id == "Mirjam") |> tm_shape() + tm_dots()# Mirjam
 
-# Visualization of all trajectories of MN
-plotMN <- posmo_MN |> 
+# Visualization of all functional trajectories of MN
+plotMN_functional <- posmo_MN |> 
+  filter(Type == "functional") |> 
+  ggplot(aes(X, Y, group = trajectoryID)) +
+  geom_path(col = "black", alpha = 0.3, size = 0.6) +
+  coord_equal(ratio = 1) +
+  theme(legend.position = "none") +
+  theme_minimal()+
+  theme(panel.grid = element_blank(), 
+    axis.ticks = element_line(),
+    axis.text.y = element_text(angle = 90, hjust = 0.5),
+    axis.title.x = element_text(margin = margin(t = 10,r = 0,b=0,l=0)),
+    axis.title.y = element_text(margin = margin(t = 0,r = 10,b=0,l=0))) +
+  labs(title = "", x = "X", y = "Y")
+
+# Visualization of all functional trajectories of MN
+plotMN_recreational <- posmo_MN |> 
+  filter(Type == "recreational") |> 
   ggplot(aes(X, Y, group = trajectoryID)) +
   geom_path(col = "black", alpha = 0.3, size = 0.6) +
   coord_equal(ratio = 1) +
@@ -359,8 +375,9 @@ plotMN <- posmo_MN |>
 # MK home trajectories (excluding two trajectories in Kanton of Graubünden)
 posmoMK_home <- filter(posmo_MK, !trajectoryID %in% c("T2", "T3"))
 
-# Visualization of all home trajectories of MK
-plotMK <- posmoMK_home |> 
+# Visualization of all functional home trajectories of MK
+plotMK_functional <- posmoMK_home |> 
+  filter(Type == "functional") |> 
    ggplot(aes(X, Y, group = trajectoryID)) +
   geom_path(col = "black", alpha = 0.3, size = 0.6) +
   coord_equal(ratio = 1) +
@@ -373,12 +390,27 @@ plotMK <- posmoMK_home |>
     axis.title.y = element_text(margin = margin(t = 0,r = 10,b=0,l=0))) +
   labs(title = "", x = "X", y = "Y")
 
+# Visualization of all recreational home trajectories of MK
+plotMK_recreational <- posmoMK_home |> 
+  filter(Type == "recreational") |> 
+   ggplot(aes(X, Y, group = trajectoryID)) +
+  geom_path(col = "black", alpha = 0.3, size = 0.6) +
+  coord_equal(ratio = 1) +
+  theme(legend.position = "none") +
+  theme_minimal()+
+  theme(panel.grid = element_blank(), 
+    axis.ticks = element_line(),
+    axis.text.y = element_text(angle = 90, hjust = 0.5),
+    axis.title.x = element_text(margin = margin(t = 10,r = 0,b=0,l=0)),
+    axis.title.y = element_text(margin = margin(t = 0,r = 10,b=0,l=0))) +
+  labs(title = "", x = "X", y = "Y")
 
-plot_grid(plotMK, plotMN,
-         labels = c("MK Trajectories", "MN Trajectories"),
+# Breaks need to get adjusted to be equal
+plot_grid(plotMN_functional, plotMN_recreational, plotMK_functional, plotMK_recreational,
+         labels = c("Functional Trajectories", "Recreational Trajectories"),
          hjust = c(-0.3, -0.3),
          vjust = 2,
-         ncol = 2, nrow = 1)
+         ncol = 2, nrow = 2)
 
 ```
 
