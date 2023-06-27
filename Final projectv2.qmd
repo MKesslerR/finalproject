@@ -388,28 +388,44 @@ which(posmo$timelag> 500)
   mutate(steplenght = sqrt ((X-lead(X))^2 + (Y-lead(Y))^2))|>
   mutate(duration = (max(datetime)- min(datetime))/60)|>
   mutate(distance = sum(steplenght, na.rm = TRUE))
+ 
+ which(posmo$steplenght > 30) #30 meters in 15 seconds its an average
 
- #to filter out trackings with steplenght longer than 50 and timelags longer than 300
+ #to filter out outlayers (trackings with steplenght longer than 50 and timelags longer than 300)
 posmo_speed <- posmo |>
-  filter(timelag > 300  || steplenght >50)
+  filter(timelag < 300 | steplenght >50,)
 
-#posmo <- posmo |>
-#  group_by(trajectoryID) |> 
-#  mutate(steplenght = sqrt ((X-lead(X))^2 + (Y-lead(Y))^2))|>
-#  filter(steplenght<50) |> 
-#  mutate(speed = mean(steplenght/timelag, na.rm = TRUE))|>
-#  mutate(duration = (max(datetime)- min(datetime))/60)|>
-#  mutate(distance = sum(steplenght, na.rm = TRUE))
+posmo_speed <- posmo_speed|>
+   group_by(trajectoryID) |> 
+   mutate(speed = mean(steplenght/timelag, na.rm = TRUE))
+
+posmo_speed <- posmo_speed|>
+  filter(speed < 1.8)
+
+#Speed calculation without outlayers
+speed_summary <- posmo_speed |>
+  group_by(Type) |> 
+  summarise(mean(speed)) |> 
+  st_drop_geometry()
+# functional            1.22
+# recreational          1.23
+
+# t-Test to evaluate differences in speed between the two types of walks 
+t.test(speed~Type, posmo_speed, var.equal = TRUE)
+
+ggplot(posmo_speed, mapping = aes(Type, speed))+
+  geom_boxplot() +
+  labs(x = "Type of dog walking", y = "Speed [m/s]")+
+  theme_light() #use this one for the report
 
 #calculation with the trajectories without static points
 posmo_filter <- posmo_filter |>
   group_by(trajectoryID) |> 
   mutate(steplenght = sqrt ((X-lead(X))^2 + (Y-lead(Y))^2))|>
-  mutate(speed = mean(steplenght/timelag, na.rm = TRUE))|>
   mutate(duration = (max(datetime)- min(datetime))/60)|>
   mutate(distance = sum(steplenght, na.rm = TRUE))
 
-which(posmo$steplenght > 30) #30 meters in 15 seconds its an average
+
 
 # Distance calculations
 # calculate average distance for recreational/functional walks
