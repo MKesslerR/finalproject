@@ -116,7 +116,7 @@ precip_SHA <- precip_data |> filter(stn == "SHA") |> rename(datetime = time)
 precip_SHA$datetime <- as.POSIXct(precip_SHA$datetime, tz = "UTC") # convert character into POSIXct
 
 # HIW weather station
-precip_HIW <- precip_hinwil |> rename(datetime = time) |> rename(rco150z0 = rre150z0)
+precip_HIW <- precip_hinwil |> filter(stn == "HIW")|> rename(datetime = time) |> rename(rco150z0 = rre150z0)
 precip_HIW$datetime <- as.POSIXct(precip_HIW$datetime, tz = "UTC") # convert character into POSIXct
 
 
@@ -232,7 +232,7 @@ posmo <- posmo |>
   group_by(trajectoryID) |> 
   mutate(start = min(datetime))
 
-posmo$start <- format(as.POSIXct(posmo$start, format = "%H:%M"))
+posmo$start <- format(as.POSIXct(posmo$start, format = "%H:%M"))#this part of the code is not running
 
 # Add a new column time_of_day for Morning/Afternoon/Evening
 breaks <- lubridate::hour(hm("3:00", "10:00", "16:00", "21:59"))
@@ -240,6 +240,9 @@ labels <- c("Morning", "Afternoon", "Evening")
 
 posmo$time_of_day <- cut(x=hour(posmo$start), breaks = breaks, labels = labels, include.lowest=TRUE)
 
+```
+
+```{r}
 # Summarise the trajectory shapes
 shape_summary <- posmo |>
   group_by(trajectoryID, Shape) |> 
@@ -249,8 +252,8 @@ shape_summary <- posmo |>
   summarise(count = n()) |>
   st_drop_geometry() |>
   mutate(percent = round(count / sum(count) * 100, 2))
-
 ```
+
 
 ```{r results = 'hide'}
 
@@ -378,7 +381,17 @@ which(posmo$timelag> 300)#The threshold was set at 300 (15*20), sometimes we had
 which(posmo$timelag> 500)
 
 #Steplenght, distance covered and speed calculation
-#calculation with the whole trajectories 
+#calculation for the whole trajectories 
+
+ posmo <- posmo |>
+  group_by(trajectoryID) |> 
+  mutate(steplenght = sqrt ((X-lead(X))^2 + (Y-lead(Y))^2))|>
+  mutate(duration = (max(datetime)- min(datetime))/60)|>
+  mutate(distance = sum(steplenght, na.rm = TRUE))
+
+ #to filter out trackings with steplenght longer than 50 and timelags longer than 300
+posmo_speed <- posmo |>
+  filter(timelag > 300  || steplenght >50)
 
 posmo <- posmo |>
   group_by(trajectoryID) |> 
