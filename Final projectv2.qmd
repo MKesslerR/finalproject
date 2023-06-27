@@ -380,7 +380,7 @@ posmo_filter <- posmo_filter |>
 which(posmo$timelag> 300)#The threshold was set at 300 (15*20), sometimes we had pauses of up to 20 minutes during the walks that recorded the same location several times
 which(posmo$timelag> 500)
 
-#Steplenght, distance covered and speed calculation
+#Step-length, distance covered and speed calculation
 #calculation for the whole trajectories 
 
  posmo <- posmo |>
@@ -404,26 +404,22 @@ posmo_speed <- posmo_speed|>
 
 #Speed calculation without outlayers
 speed_summary <- posmo_speed |>
-  group_by(Type) |> 
-  summarise(mean(speed)) |> 
+  group_by(Type, speed) |> 
+  summarise() |> 
   st_drop_geometry()
-# functional            1.22
-# recreational          1.23
+
 
 # t-Test to evaluate differences in speed between the two types of walks 
-t.test(speed~Type, posmo_speed, var.equal = TRUE)
-
-ggplot(posmo_speed, mapping = aes(Type, speed))+
-  geom_boxplot() +
-  labs(x = "Type of dog walking", y = "Speed [m/s]")+
-  theme_light() #use this one for the report
+t.test(speed~Type, speed_summary, var.equal = TRUE)
+#mean in group functional mean in group recreational 
+#                  1.202219                   1.214331 
 
 #calculation with the trajectories without static points
-posmo_filter <- posmo_filter |>
-  group_by(trajectoryID) |> 
-  mutate(steplenght = sqrt ((X-lead(X))^2 + (Y-lead(Y))^2))|>
-  mutate(duration = (max(datetime)- min(datetime))/60)|>
-  mutate(distance = sum(steplenght, na.rm = TRUE))
+#posmo_filter <- posmo_filter |>
+#  group_by(trajectoryID) |> 
+#  mutate(steplenght = sqrt ((X-lead(X))^2 + (Y-lead(Y))^2))|>
+#  mutate(duration = (max(datetime)- min(datetime))/60)|>
+#  mutate(distance = sum(steplenght, na.rm = TRUE))
 
 
 
@@ -433,21 +429,33 @@ dist_summary <- posmo |>
   group_by(Type, distance) |> 
   summarise() |> 
   st_drop_geometry()
- 
- 
+
 mean(dist_summary$distance[1:33]) # average distance of functional walks 1272.11 m
 mean(dist_summary$distance[34:103]) # average distance of recreational walks 4389.43 m
 
 # calculate average distance for recreational/functional walks with and without precipitation
 precip_dist_summary <- posmo |>
-  group_by(Type, precip_50, distance) |> 
+  group_by(precip_50, distance) |> 
   summarise() |> 
   st_drop_geometry()  
 
-mean(precip_dist_summary$distance[1:31]) # average distance of functional walks without rain 1282.68 m
-mean(precip_dist_summary$distance[32:33]) # average distance of functional walks with rain 1108.17 m
-mean(precip_dist_summary$distance[34:97]) # average distance of recreational walks without rain 44395.09 m
-mean(precip_dist_summary$distance[98:103]) # average distance of recreational walks with rain 4395.09 m
+# calculate average speed for recreational/functional walks with and without precipitation
+speed_precip_summary <- posmo |>
+  group_by(Type, precip_50, speed) |> 
+  summarise() |> 
+  st_drop_geometry()
+
+ggplot(speed_precip_summary, mapping = aes(precip_50, speed))+
+  geom_boxplot() +
+  labs(x = "Precipitation", y = "Speed [m/s]")+
+  theme_light() #Fig. 2
+
+t.test(speed~precip_50, speed_precip_summary)
+
+mean(precip_dist_summary$distance[1:31]) # average distance of functional walks without rain 1251.38 m
+mean(precip_dist_summary$distance[32:33]) # average distance of functional walks with rain 2015.86 m
+mean(precip_dist_summary$distance[34:97]) # average distance of recreational walks without rain 4492.32 m
+mean(precip_dist_summary$distance[98:103]) # average distance of recreational walks with rain 4396.58 m
 
 # calculate average distance for recreational/functional walks for 3 time of day categories (morning/afternoon/evening)
 dist_type_tofday_summary <- posmo |>
@@ -484,33 +492,33 @@ mean(dist_wday_summary$distance[72:103]) # average distance of weekend walks 316
 
 # Speed calculations
 # calculate average speed for recreational/functional walks
-speed_summary <- posmo_speed |>
+speed_summary <- posmo |>
  group_by(Type, speed) |> 
   summarise() |> 
   st_drop_geometry()
  
-mean(speed_summary$speed[1:33]) # average speed of functional walks 1.20 m/s
-mean(speed_summary$speed[34:102]) # average speed of recreational walks 1.21 m/s
+mean(speed_summary$speed[1:33]) # average speed of functional walks 1.18 m/s
+mean(speed_summary$speed[34:103]) # average speed of recreational walks 1.22 m/s
 
 # calculate average speed for recreational/functional walks with and without precipitation
-speed_precip_summary <- posmo_speed |>
+speed_precip_summary <- posmo |>
   group_by(Type, precip_50, speed) |> 
   summarise() |> 
   st_drop_geometry()  
 
-mean(speed_precip_summary$speed[1:31]) # average speed of functional walks without rain 1.20 m/s
+mean(speed_precip_summary$speed[1:31]) # average speed of functional walks without rain 1.17 m/s
 mean(speed_precip_summary$speed[32:33]) # average speed of functional walks with rain 1.31 m/s
-mean(speed_precip_summary$speed[34:96]) # average speed of recreational walks without rain 1.21 m/s
-mean(speed_precip_summary$speed[97:102]) # average speed of recreational walks with rain 1.30 m/s
+mean(speed_precip_summary$speed[34:97]) # average speed of recreational walks without rain 1.21 m/s
+mean(speed_precip_summary$speed[98:103]) # average speed of recreational walks with rain 1.30 m/s
 
 # calculate average speed for weekday/weekend walks
-speed_wday_summary <- posmo_speed |>
+speed_wday_summary <- posmo |>
   group_by(wday, speed) |> 
   summarise() |> 
   st_drop_geometry()
 
-mean(speed_wday_summary$speed[1:70]) # average speed of weekday walks 1.22 m/s
-mean(speed_wday_summary$speed[71:102]) # average speed of weekend walks 1.18 m/s
+mean(speed_wday_summary$speed[1:71]) # average speed of weekday walks 1.22 m/s
+mean(speed_wday_summary$speed[72:103]) # average speed of weekend walks 1.18 m/s
 
 ```
 
@@ -518,22 +526,29 @@ mean(speed_wday_summary$speed[71:102]) # average speed of weekend walks 1.18 m/s
 ```{r}
 #Visualization of parameters
 
+ggplot(speed_summary, mapping = aes(Type, speed))+
+  geom_boxplot() +
+  labs(x = "Type of dog walking", y = "Speed [m/s]")+
+  theme_light() #use this one for the report. Fig 1A
+
 ggplot(posmo, mapping = aes(Type, distance))+
   geom_boxplot() +
   labs(x = "Type of dog walking", y = "Distance [m]")+
-  theme_light()
+  theme_light()#Figure 1B
 
-ggplot(posmo, mapping = aes(time_of_day, distance))+
+ggplot(precip_dist_summary, mapping = aes(precip_50, distance))+
+  geom_boxplot() +
+  labs(x = "Precipitation", y = "Distance [m]")+
+  theme_light() 
+
+ggplot(dist_type_tofday_summary, mapping = aes(time_of_day, distance))+
   geom_boxplot() +
   labs(x = "Time of day", y = "Distance [m]")+
   theme_light()
 
-ggplot(posmo, mapping = aes(precip_50, distance))+
-  geom_boxplot() +
-  labs(x = "Precipitation", y = "Distance [m]")+
-  theme_light()  
+ 
 
-ggplot(posmo_speed, mapping = aes(precip_50, speed))+
+ggplot(posmo, mapping = aes(precip_50, speed))+
   geom_boxplot() +
   labs(x = "Precipitation", y = "Speed [m/s]")+
   theme_light()
