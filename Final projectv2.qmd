@@ -459,4 +459,220 @@ ggplot(posmo, mapping = aes(Type, max_distance))+
   theme_light()+
   scale_y_continuous(limits = c(0, 1000))
 
+# Pie chart of trajectory shapes
+plot_ly(shape_summary, labels = ~Shape, values = ~percent, type = 'pie') %>%
+  layout(title = "Trajectory Shapes",          
+         xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
+         yaxis = list(showgrid = FALSE))
+
+```
+
+```{r results = 'hide'}
+
+# Frechet Distance
+
+#Visualization of parameters
+#randomly select trajectories to compare for MN
+x <- sample(1:56, 1)
+x
+# Functional: 4, 36, 55 Recreational: 6, 39, 49
+
+#randomly select trajectories to compare for MK
+x1 <- sample(1:48, 1)
+x1
+#Functional: T11, T35, T43 Recreational: T40, T20, T27
+
+#Create the matrices for the trajectories to compare 
+
+#Four recreational walks for MN
+Traj6MN <- posmo |> 
+  ungroup() |>
+  st_drop_geometry() |>
+  filter(trajectoryID == 6)|>
+  mutate(Datetime_int = as.integer(datetime))|>
+  select(X, Y, Datetime_int)
+
+Traj6MN <- as.matrix(Traj6MN)
+
+Traj39MN <- posmo |> 
+  ungroup() |>
+  st_drop_geometry() |>
+  filter(trajectoryID == 39)|>
+  mutate(Datetime_int = as.integer(datetime))|>
+  select(X, Y, Datetime_int)
+
+Traj39MN <- as.matrix(Traj39MN)
+
+Traj49MN <- posmo |> 
+  ungroup() |>
+  st_drop_geometry() |>
+  filter(trajectoryID == 49)|>
+  mutate(Datetime_int = as.integer(datetime))|>
+  select(X, Y, Datetime_int)
+
+Traj49MN <- as.matrix(Traj49MN)
+
+#Four functional walks for MN
+
+Traj4MN <- posmo |> 
+  ungroup() |>
+  st_drop_geometry() |>
+  filter(trajectoryID == 4)|>
+  mutate(Datetime_int = as.integer(datetime))|>
+  select(X, Y, Datetime_int)
+
+Traj4MN <- as.matrix(Traj4MN)
+
+Traj36MN <- posmo |> 
+  ungroup() |>
+  st_drop_geometry() |>
+  filter(trajectoryID == 36)|>
+  mutate(Datetime_int = as.integer(datetime))|>
+  select(X, Y, Datetime_int)
+
+Traj36MN <- as.matrix(Traj36MN)
+
+Traj55MN <- posmo |> 
+  ungroup() |>
+  st_drop_geometry() |>
+  filter(trajectoryID == 55)|>
+  mutate(Datetime_int = as.integer(datetime))|>
+  select(X, Y, Datetime_int)
+
+Traj55MN <- as.matrix(Traj55MN)
+  
+#Four recreational walks for MK
+
+Traj20MK <- posmo |> 
+ ungroup() |>
+  st_drop_geometry() |>
+  filter(trajectoryID == "T20")|>
+  mutate(Datetime_int = as.integer(datetime))|>
+  select(X, Y, Datetime_int)
+
+Traj20MK <- as.matrix(Traj20MK)
+
+Traj40MK <- posmo |> 
+ ungroup() |>
+  st_drop_geometry() |>
+  filter(trajectoryID == "T40")|>
+  mutate(Datetime_int = as.integer(datetime))|>
+  select(X, Y, Datetime_int)
+
+Traj40MK <- as.matrix(Traj40MK)
+
+Traj27MK <- posmo |> 
+ ungroup() |>
+  st_drop_geometry() |>
+  filter(trajectoryID == "T27")|>
+  mutate(Datetime_int = as.integer(datetime))|>
+  select(X, Y, Datetime_int)
+
+Traj27MK <- as.matrix(Traj27MK)
+
+#Four functional walks for MK
+
+Traj11MK <- posmo |> 
+ ungroup() |>
+  st_drop_geometry() |>
+  filter(trajectoryID == "T11")|>
+  mutate(Datetime_int = as.integer(datetime))|>
+  select(X, Y, Datetime_int)
+
+Traj11MK <- as.matrix(Traj11MK)
+
+Traj35MK <- posmo |> 
+ ungroup() |>
+  st_drop_geometry() |>
+  filter(trajectoryID == "T35")|>
+  mutate(Datetime_int = as.integer(datetime))|>
+  select(X, Y, Datetime_int)
+
+Traj35MK <- as.matrix(Traj35MK)
+
+Traj43MK <- posmo |> 
+ ungroup() |>
+  st_drop_geometry() |>
+  filter(trajectoryID == "T43")|>
+  mutate(Datetime_int = as.integer(datetime))|>
+  select(X, Y, Datetime_int)
+
+Traj43MK <- as.matrix(Traj43MK)
+
+```
+
+```{r}
+#Similarity measures: Calculate Frechet distance for 4 randomly selected functional and 4 recreational walks within the same walker. 
+run_full <- FALSE
+if(run_full){
+
+# MN Functional: 4, 36, 55
+A<- Frechet(Traj4MN, Traj36MN, testLeash=-1)# 1291697
+B <- Frechet(Traj4MN, Traj55MN)# 1898412
+D <- Frechet(Traj36MN, Traj55MN)# 606863 
+
+SM1 <- data.frame (
+  Frechet = c(A, B, D),
+  Trajpair = c("T4-T36", "T4-55", "T36-T55"),
+  Walker = c ("MN", "MN", "MN"), 
+  Type = c("Functional", "Functional", "Functional")
+)
+
+# Recreational: 6, 39, 49
+G <- Frechet(Traj6MN, Traj39MN) #1355605 
+H <- Frechet(Traj6MN, Traj49MN) #1641793
+J <- Frechet(Traj39MN, Traj49MN) #286763
+
+SM2 <- data.frame (
+  Frechet = c(G, H, J),
+  Trajpair = c("T6-T39", "T6-49", "T39-T49"),
+  Walker = c ("MN", "MN", "MN"), 
+  Type = c("Recreational", "Recreational", "Recreational")
+)
+
+# MK Functional: T11, T35, T43 
+  M <- Frechet(Traj11MK, Traj35MK) #106106.4 
+  N <- Frechet(Traj11MK, Traj43MK) #1997576
+  P <- Frechet(Traj35MK, Traj43MK) #530645 
+
+SM3 <- data.frame (
+  Frechet = c(M, N, P),
+  Trajpair = c("T11-T35", "T11-43", "T35-T43"),
+  Walker = c ("MK", "MK", "MK"), 
+  Type = c("Functional", "Functional", "Functional")
+)
+
+# Recreational: T40, T20, T27
+S <- Frechet(Traj40MK, Traj20MK) #1106042 
+Z <- Frechet(Traj40MK, Traj27MK) #786486 
+V <- Frechet(Traj20MK, Traj27MK) #319621.3
+
+SM4 <- data.frame(
+    Frechet = c(S, Z, V),
+    Trajpair = c("T40-T20", "T40-27", "T20-T27"),
+    Walker = c ("MK", "MK", "MK"), 
+    Type = c("Recreational", "Recreational", "Recreational")
+)
+
+Frechet <- rbind(SM1, SM2, SM3, SM4) 
+
+ write_csv(Frechet, "data-temp/Frechet.csv")
+} else{
+  Frechet <- read_csv("data-temp/Frechet.csv")
+} 
+
+
+ggplot(Frechet, mapping = aes(Type, Frechet))+
+  geom_boxplot() +
+  labs(x = "Type of dog walking", y = "Frechet Distance")+
+  theme_light()  
+
+ggplot(Frechet, aes(Trajpair, Frechet))+
+  geom_col(aes(fill = Walker))+
+  facet_wrap(~ Type, nrow = 2, scales = "free")+
+    theme_light()+
+  labs(x = "Trajectory pairs", y = "Frechet Distance")+
+  theme(axis.text.x = element_text(angle = 90))
+
+
 ```
