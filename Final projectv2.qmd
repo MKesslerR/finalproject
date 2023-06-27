@@ -484,33 +484,33 @@ mean(dist_wday_summary$distance[72:103]) # average distance of weekend walks 316
 
 # Speed calculations
 # calculate average speed for recreational/functional walks
-speed_summary <- posmo |>
+speed_summary <- posmo_speed |>
  group_by(Type, speed) |> 
   summarise() |> 
   st_drop_geometry()
  
-mean(speed_summary$speed[1:33]) # average speed of functional walks 1.18 m/s
-mean(speed_summary$speed[34:103]) # average speed of recreational walks 1.22 m/s
+mean(speed_summary$speed[1:33]) # average speed of functional walks 1.20 m/s
+mean(speed_summary$speed[34:102]) # average speed of recreational walks 1.21 m/s
 
 # calculate average speed for recreational/functional walks with and without precipitation
-speed_precip_summary <- posmo |>
+speed_precip_summary <- posmo_speed |>
   group_by(Type, precip_50, speed) |> 
   summarise() |> 
   st_drop_geometry()  
 
-mean(speed_precip_summary$speed[1:31]) # average speed of functional walks without rain 1.17 m/s
+mean(speed_precip_summary$speed[1:31]) # average speed of functional walks without rain 1.20 m/s
 mean(speed_precip_summary$speed[32:33]) # average speed of functional walks with rain 1.31 m/s
-mean(speed_precip_summary$speed[34:97]) # average speed of recreational walks without rain 1.21 m/s
-mean(speed_precip_summary$speed[98:103]) # average speed of recreational walks with rain 1.30 m/s
+mean(speed_precip_summary$speed[34:96]) # average speed of recreational walks without rain 1.21 m/s
+mean(speed_precip_summary$speed[97:102]) # average speed of recreational walks with rain 1.30 m/s
 
 # calculate average speed for weekday/weekend walks
-speed_wday_summary <- posmo |>
+speed_wday_summary <- posmo_speed |>
   group_by(wday, speed) |> 
   summarise() |> 
   st_drop_geometry()
 
-mean(speed_wday_summary$speed[1:71]) # average speed of weekday walks 1.22 m/s
-mean(speed_wday_summary$speed[72:103]) # average speed of weekend walks 1.18 m/s
+mean(speed_wday_summary$speed[1:70]) # average speed of weekday walks 1.22 m/s
+mean(speed_wday_summary$speed[71:102]) # average speed of weekend walks 1.18 m/s
 
 ```
 
@@ -533,7 +533,7 @@ ggplot(posmo, mapping = aes(precip_50, distance))+
   labs(x = "Precipitation", y = "Distance [m]")+
   theme_light()  
 
-ggplot(posmo, mapping = aes(precip_50, speed))+
+ggplot(posmo_speed, mapping = aes(precip_50, speed))+
   geom_boxplot() +
   labs(x = "Precipitation", y = "Speed [m/s]")+
   theme_light()
