@@ -393,13 +393,13 @@ which(posmo$timelag> 500)
 posmo_speed <- posmo |>
   filter(timelag > 300  || steplenght >50)
 
-posmo <- posmo |>
-  group_by(trajectoryID) |> 
-  mutate(steplenght = sqrt ((X-lead(X))^2 + (Y-lead(Y))^2))|>
-  filter(steplenght<50) |> 
-  mutate(speed = mean(steplenght/timelag, na.rm = TRUE))|>
-  mutate(duration = (max(datetime)- min(datetime))/60)|>
-  mutate(distance = sum(steplenght, na.rm = TRUE))
+#posmo <- posmo |>
+#  group_by(trajectoryID) |> 
+#  mutate(steplenght = sqrt ((X-lead(X))^2 + (Y-lead(Y))^2))|>
+#  filter(steplenght<50) |> 
+#  mutate(speed = mean(steplenght/timelag, na.rm = TRUE))|>
+#  mutate(duration = (max(datetime)- min(datetime))/60)|>
+#  mutate(distance = sum(steplenght, na.rm = TRUE))
 
 #calculation with the trajectories without static points
 posmo_filter <- posmo_filter |>
