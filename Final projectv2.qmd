@@ -5,10 +5,11 @@ author: "Margarita Kessler Rios & Mirjam Nötzli"
 format:
   html:
     code-fold: true
+execute: 
+  warning: false
+  message: false
 ---
 ```{r}
-#| warning: false
-#| message: false
 library(sf)
 library(tidyverse)
 library(tmap)
@@ -21,10 +22,11 @@ library(SimilarityMeasures)
 library(data.table)
 ```
 
+
+```{r results = 'hide'}
+
 #Import data,  handle spatial data and project the coordinates into the new Swiss CRS CH1903+ LV95. Data from two individuals: MK and MM
-```{r}
-#| warning: false
-#| message: false
+
 # Import data
 # filter walk transport mode, select only necessary columns, and transform data frame into sf object and transform it into EPSG 2056 coordinate system
 
@@ -60,12 +62,9 @@ precip_SHA$datetime <- as.POSIXct(precip_SHA$datetime, tz = "UTC") # convert cha
 # HIW weather station
 precip_HIW <- precip_hinwil |> rename(datetime = time) |> rename(rco150z0 = rre150z0)
 precip_HIW$datetime <- as.POSIXct(precip_HIW$datetime, tz = "UTC") # convert character into POSIXct
-```
 
-#Pre-processing
-```{r}
-#| warning: false
-#| message: false
+
+# Pre-processing
 # store the coordinates into two separate columns
 posmo_coordinates <- st_coordinates(posmo_MK)
 
@@ -80,10 +79,8 @@ posmo_MN <- cbind(posmo_MN, posmoMN_coordinates)
 
 ```
 
-#calculate longest distance from each trajectory to home for the two data sets
 ```{r}
-#| warning: false
-#| message: false
+#calculate longest distance from each trajectory to home for the two data sets
 #Create an sf object with the house coordinates
 house_MK <- read_delim("data/MK_house.csv") |> 
   st_as_sf(coords = c("lon_x","lat_y"), crs = 4326)|>
@@ -117,12 +114,8 @@ posmo_MN <- posmo_MN |>
   group_by(trajectoryID) |>
   mutate(max_distance = max(distance_home))
 
-```
 
-##Join posmo data with weather data then join the two dataframes
-```{r}
-#| warning: false
-#| message: false
+## Join posmo data with weather data then join the two dataframes
 # Create new column with time values rounded to closest 10 minutes, to be able to join with weather data
 posmo_MN <- posmo_MN |> mutate(
   Datetime_round = lubridate::round_date(datetime,"10 minutes")
@@ -186,7 +179,7 @@ posmo <- posmo |>
 posmo$start <- format(as.POSIXct(posmo$start, format = "%H:%M"))
 
 # Add a new column time_of_day for Morning/Afternoon/Evening
-breaks <- hour(hm("3:00", "10:00", "16:00", "21:59"))
+breaks <- lubridate::hour(hm("3:00", "10:00", "16:00", "21:59"))
 labels <- c("Morning", "Afternoon", "Evening")
 
 posmo$time_of_day <- cut(x=hour(posmo$start), breaks = breaks, labels = labels, include.lowest=TRUE)
@@ -201,100 +194,11 @@ shape_summary <- posmo |>
   st_drop_geometry() |>
   mutate(percent = round(count / sum(count) * 100, 2))
 
-
-# Summarise the walk types (recreational/functional)
-Type_summary <- posmo |>
-  group_by(trajectoryID, Type) |> 
-  summarise() |>
-  ungroup() |>
-  group_by(Type) |>
-  summarise(count = n()) |>
-  st_drop_geometry() |>
-  mutate(percent = round(count / sum(count) * 100, 2))
-
-
-# Summarise the walks with precipitation/no Precipitation
-precip_summary <- posmo |>
-  group_by(trajectoryID, precip_50) |> 
-  summarise() |>
-  ungroup() |>
-  group_by(precip_50) |>
-  summarise(count = n()) |>
-  st_drop_geometry() |>
-  mutate(percent = round(count / sum(count) * 100, 2))
-
 ```
 
-#EDA. Plotting all the trajectories with Tmap to identify points that don't belong into the trajectores
-```{r}
-#| echo: false
-#| warning: false
-#| message: false
-tmap_mode("view")
-T1 <- posmo %>%
-  filter(trajectoryID == "T1")
-T1 |> tm_shape() + tm_dots()
-
-T2 <- posmo %>%
-  filter(trajectoryID == "T2")
-T2 |> tm_shape() + tm_dots()
-
-T3 <- posmo %>%
-  filter(trajectoryID == "T3")
-T3 |> tm_shape() + tm_dots()
-
-T4 <- posmo %>%
-  filter(trajectoryID == "T4")
-T4 |> tm_shape() + tm_dots()
-
-T5 <- posmo %>%
-  filter(trajectoryID == "T5")
-T5 |> tm_shape() + tm_dots()
-
-T6 <- posmo %>%
-  filter(trajectoryID == "T6")
-T6 |> tm_shape() + tm_dots()
-
-T7 <- posmo %>%
-  filter(trajectoryID == "T7")
-T7 |> tm_shape() + tm_dots()
-
-T8 <- posmo %>%
-  filter(trajectoryID == "T8")
-T8 |> tm_shape() + tm_dots()
-
-T9 <- posmo %>%
-  filter(trajectoryID == "T9")
-T9 |> tm_shape() + tm_dots()
-
-T10 <- posmo %>%
-  filter(trajectoryID == "T10")
-T10 |> tm_shape() + tm_dots()
-
-T29 <- posmo %>%
-  filter(trajectoryID == "T29")
-T29 |> tm_shape() + tm_dots()
-
-T48 <- posmo %>%
-  filter(trajectoryID == "T48")
-T48 |> tm_shape() + tm_dots()
-
-T39 <- posmo %>%
-  filter(trajectoryID == "T39")
-T39 |> tm_shape() + tm_dots()
-
-
-
-N12 <- posmo %>%
-  filter(trajectoryID == "7")
-N12|> tm_shape() + tm_dots()
-
-```
+```{r results = 'hide'}
 
 #Remove static points from trajectories. posmo-filter contains the trajectories without static points
-```{r}
-#| warning: false
-#| message: false
 str(posmo)
 
 #To calculate distance among  Time-stamp 1 and 2 back and forward.
@@ -314,11 +218,6 @@ posmo <- posmo |>
     ) |>
     ungroup()
  
- ggplot(posmo, aes(stepMean)) +
-  geom_histogram(binwidth = 5) +
-  geom_vline(xintercept = mean(posmo$stepMean, na.rm = TRUE))
- 
-which(posmo$stepMean> 100)
 which(posmo$stepMean> 50 )
  
 #Remove static points by applying threshold,  the threshold is the average step Mean. 
@@ -331,20 +230,13 @@ posmo_filter <- posmo |>
 
 ```
 
-# Visualization of all trajectories for both users
+
 ```{r}
-#| warning: false
-#| message: false
-tmap_mode("view") 
-posmo |> tm_shape() + tm_dots()# both users
 
-posmo |> filter(user_id == "Margarita") |> tm_shape() + tm_dots()# Margarita
+# Visualization of trajectories for both users
 
-posmo |> filter(user_id == "Mirjam") |> tm_shape() + tm_dots()# Mirjam
-
-# Visualization of all functional trajectories of MN
-plotMN_functional <- posmo_MN |> 
-  filter(Type == "functional") |> 
+# Visualization of all trajectories of MN
+plotMN <- posmo_MN |> 
   ggplot(aes(X, Y, group = trajectoryID)) +
   geom_path(col = "black", alpha = 0.3, size = 0.6) +
   coord_equal(ratio = 1) +
@@ -353,31 +245,16 @@ plotMN_functional <- posmo_MN |>
   theme(panel.grid = element_blank(), 
     axis.ticks = element_line(),
     axis.text.y = element_text(angle = 90, hjust = 0.5),
-    axis.title.x = element_text(margin = margin(t = 10,r = 0,b=0,l=0)),
-    axis.title.y = element_text(margin = margin(t = 0,r = 10,b=0,l=0))) +
-  labs(title = "", x = "X", y = "Y")
+    axis.title.x = element_text(margin = margin(t = 5,r = 0,b=0,l=0)),
+    axis.title.y = element_text(margin = margin(t = 0,r = 5,b=0,l=0))) +
+  labs(x = "X", y = "Y")
 
-# Visualization of all functional trajectories of MN
-plotMN_recreational <- posmo_MN |> 
-  filter(Type == "recreational") |> 
-  ggplot(aes(X, Y, group = trajectoryID)) +
-  geom_path(col = "black", alpha = 0.3, size = 0.6) +
-  coord_equal(ratio = 1) +
-  theme(legend.position = "none") +
-  theme_minimal()+
-  theme(panel.grid = element_blank(), 
-    axis.ticks = element_line(),
-    axis.text.y = element_text(angle = 90, hjust = 0.5),
-    axis.title.x = element_text(margin = margin(t = 10,r = 0,b=0,l=0)),
-    axis.title.y = element_text(margin = margin(t = 0,r = 10,b=0,l=0))) +
-  labs(title = "", x = "X", y = "Y")
 
 # MK home trajectories (excluding two trajectories in Kanton of Graubünden)
 posmoMK_home <- filter(posmo_MK, !trajectoryID %in% c("T2", "T3"))
 
-# Visualization of all functional home trajectories of MK
-plotMK_functional <- posmoMK_home |> 
-  filter(Type == "functional") |> 
+# Visualization of all home trajectories of MK
+plotMK <- posmoMK_home |> 
    ggplot(aes(X, Y, group = trajectoryID)) +
   geom_path(col = "black", alpha = 0.3, size = 0.6) +
   coord_equal(ratio = 1) +
@@ -386,39 +263,24 @@ plotMK_functional <- posmoMK_home |>
   theme(panel.grid = element_blank(), 
     axis.ticks = element_line(),
     axis.text.y = element_text(angle = 90, hjust = 0.5),
-    axis.title.x = element_text(margin = margin(t = 10,r = 0,b=0,l=0)),
-    axis.title.y = element_text(margin = margin(t = 0,r = 10,b=0,l=0))) +
-  labs(title = "", x = "X", y = "Y")
-
-# Visualization of all recreational home trajectories of MK
-plotMK_recreational <- posmoMK_home |> 
-  filter(Type == "recreational") |> 
-   ggplot(aes(X, Y, group = trajectoryID)) +
-  geom_path(col = "black", alpha = 0.3, size = 0.6) +
-  coord_equal(ratio = 1) +
-  theme(legend.position = "none") +
-  theme_minimal()+
-  theme(panel.grid = element_blank(), 
-    axis.ticks = element_line(),
-    axis.text.y = element_text(angle = 90, hjust = 0.5),
-    axis.title.x = element_text(margin = margin(t = 10,r = 0,b=0,l=0)),
-    axis.title.y = element_text(margin = margin(t = 0,r = 10,b=0,l=0))) +
-  labs(title = "", x = "X", y = "Y")
+    axis.title.x = element_text(margin = margin(t = 5,r = 0,b=0,l=0)),
+    axis.title.y = element_text(margin = margin(t = 0,r = 5,b=0,l=0))) +
+  labs(x = "X", y = "Y")
 
 # Breaks need to get adjusted to be equal
-plot_grid(plotMN_functional, plotMN_recreational, plotMK_functional, plotMK_recreational,
-         labels = c("Functional Trajectories", "Recreational Trajectories"),
+plot_grid(plotMN, plotMK,
+         labels = c("MNl Trajectories", "MK Trajectories"),
          hjust = c(-0.3, -0.3),
-         vjust = 2,
-         ncol = 2, nrow = 2)
+         vjust = 5,
+         ncol = 2, nrow = 1)
 
 ```
 
-##Trajectories visualization with and without static points 
+
 ```{r}
-#| warning: false
-#| message: false
-## Two from Margarita
+
+##Trajectories visualization with and without static points 
+## One of MK
 K1 <- posmo %>%
   filter(trajectoryID == "T1")
 
@@ -440,83 +302,13 @@ plot_grid(K1a, K1b,
           hjust = c(-2,-0.4),
           vjust = 2.5,
           ncol = 2, nrow = 1)
-
-K14 <- posmo %>%
-  filter(trajectoryID == "T14")
-
-K14_filter <- posmo_filter %>%
-  filter(trajectoryID == "T14")
-  
-K14a <- ggplot(K14, aes(X, Y))+
-  geom_path()+
-  geom_point(color  = "blue")+
-  coord_fixed()
-
-K14b <- ggplot(K14_filter, aes(X, Y))+
-  geom_path()+
-    geom_point()+
-    coord_fixed()
-
-plot_grid(K14a, K14b, 
-         labels = c("Raw", "Static points removed"),
-          hjust = c(-2,-0.4),
-          vjust = 6,
-          ncol = 2, nrow = 1)
-
-## Two from Mirjam
-M1 <- posmo %>%
-  filter(trajectoryID == "12")
-
-
-M1_filer <- posmo_filter %>%
-  filter(trajectoryID == "12")
-
-M1a <- ggplot(M1, aes(X, Y))+
-  geom_path()+
-  geom_point(color  = "blue")+
-  coord_fixed()
-
-M1b <- ggplot(M1_filer, aes(X, Y))+
-  geom_path()+
-    geom_point()+
-    coord_fixed()
-
-plot_grid(M1a, M1b, 
-          labels = c("Raw", "Static points removed"),
-          hjust = c(-2,-0.4),
-          vjust = 4,
-          ncol = 2, nrow = 1)
-
-M26 <- posmo %>%
-  filter(trajectoryID == "26")
-
-
-M26_filter <- posmo_filter %>%
-  filter(trajectoryID == "26")
-  
-M26a <- ggplot(M26, aes(X, Y))+
-  geom_path()+
-  geom_point(color  = "blue")+
-  coord_fixed()
-
-M26b <- ggplot(M26_filter, aes(X, Y))+
-  geom_path()+
-    geom_point()+
-    coord_fixed()
-
-plot_grid(M26a, M26b, 
-          labels = c("Raw", "Static points removed"),
-          hjust = c(-5.1,-1),
-          vjust = 1,
-          ncol = 2, nrow = 1)
-
 ```
 
+
+```{r results = 'hide'}
+
 #Timelag. 
-How often was the position recorded. Calculated for the trajectories with and without (posmo_filter) static points
-```{r}
-#| warning: false
-#| message: false
+#How often was the position recorded. Calculated for the trajectories with and without (posmo_filter) static points
 posmo <- posmo |> 
     group_by(trajectoryID)|> 
     mutate(timelag = as.numeric(difftime(lead(datetime), datetime, units = "secs")))
@@ -525,39 +317,20 @@ posmo_filter <- posmo_filter |>
     group_by(trajectoryID)|> 
     mutate(timelag = as.numeric(difftime(lead(datetime), datetime, units = "secs")))
 
- ggplot(posmo, aes(timelag)) +
-  geom_histogram(binwidth = 5) +
-  geom_vline(xintercept = mean(posmo$timelag, na.rm = TRUE))
-
+ 
 which(posmo$timelag> 300)#The threshold was set at 300 (15*20), sometimes we had pauses of up to 20 minutes during the walks that recorded the same location several times
 which(posmo$timelag> 500)
-which(posmo$timelag> 1000)
-
- 
-```
-
-##Visualization of the groups of points that show unreaslistic time lags 
-```{r}
-#| warning: false
-#| message: false
-tmap_mode("view")
-posmo[18755:18765,] |> tm_shape() + tm_dots()
-
-```
 
 #Steplenght, distance covered and speed calculation
-```{r}
-#| warning: false
-#| message: false
 #calculation with the whole trajectories 
 
 posmo <- posmo |>
   group_by(trajectoryID) |> 
   mutate(steplenght = sqrt ((X-lead(X))^2 + (Y-lead(Y))^2))|>
+  filter(steplenght<50) |> 
   mutate(speed = mean(steplenght/timelag, na.rm = TRUE))|>
   mutate(duration = (max(datetime)- min(datetime))/60)|>
   mutate(distance = sum(steplenght, na.rm = TRUE))
-
 
 #calculation with the trajectories without static points
 posmo_filter <- posmo_filter |>
@@ -567,13 +340,7 @@ posmo_filter <- posmo_filter |>
   mutate(duration = (max(datetime)- min(datetime))/60)|>
   mutate(distance = sum(steplenght, na.rm = TRUE))
 
-
-ggplot(posmo, aes(steplenght)) +
-  geom_histogram(binwidth = 5) +
-  geom_vline(xintercept = mean(posmo$steplenght, na.rm = TRUE))
-
-which(posmo$steplenght > 30)#30 meters in 15 seconds its an average
-which(posmo$steplenght > 100)
+which(posmo$steplenght > 30) #30 meters in 15 seconds its an average
 
 # Distance calculations
 # calculate average distance for recreational/functional walks
@@ -583,8 +350,8 @@ dist_summary <- posmo |>
   st_drop_geometry()
  
  
-mean(dist_summary$distance[1:33]) # average distance of functional walks 1322.05 m
-mean(dist_summary$distance[34:103]) # average distance of recreational walks 4472.65 m
+mean(dist_summary$distance[1:33]) # average distance of functional walks 1272.11 m
+mean(dist_summary$distance[34:103]) # average distance of recreational walks 4389.43 m
 
 # calculate average distance for recreational/functional walks with and without precipitation
 precip_dist_summary <- posmo |>
@@ -592,10 +359,10 @@ precip_dist_summary <- posmo |>
   summarise() |> 
   st_drop_geometry()  
 
-mean(precip_dist_summary$distance[1:31]) # average distance of functional walks without rain 1335.13 m
-mean(precip_dist_summary$distance[32:33]) # average distance of functional walks with rain 1119.34 m
-mean(precip_dist_summary$distance[34:97]) # average distance of recreational walks without rain 4479.78 m
-mean(precip_dist_summary$distance[98:103]) # average distance of recreational walks with rain 4396.58 m
+mean(precip_dist_summary$distance[1:31]) # average distance of functional walks without rain 1282.68 m
+mean(precip_dist_summary$distance[32:33]) # average distance of functional walks with rain 1108.17 m
+mean(precip_dist_summary$distance[34:97]) # average distance of recreational walks without rain 44395.09 m
+mean(precip_dist_summary$distance[98:103]) # average distance of recreational walks with rain 4395.09 m
 
 # calculate average distance for recreational/functional walks for 3 time of day categories (morning/afternoon/evening)
 dist_type_tofday_summary <- posmo |>
@@ -603,12 +370,12 @@ dist_type_tofday_summary <- posmo |>
   summarise() |> 
   st_drop_geometry()  
 
-mean(dist_type_tofday_summary$distance[1:9]) # average distance of functional morning walks 1387.88 m
-mean(dist_type_tofday_summary$distance[10:21]) # average distance of functional afternoon walks 1340.87 m
-mean(dist_type_tofday_summary$distance[22:33]) # average distance of functional evening walks 1253.86 m
-mean(dist_type_tofday_summary$distance[34:67]) # average distance of recreational morning walks 5226.97 m
-mean(dist_type_tofday_summary$distance[68:90]) # average distance of recreational afternoon walks 4063.88 m
-mean(dist_type_tofday_summary$distance[91:103]) # average distance of recreational evening walks 3223.01 m
+mean(dist_type_tofday_summary$distance[1:9]) # average distance of functional morning walks 1330.23 m
+mean(dist_type_tofday_summary$distance[10:21]) # average distance of functional afternoon walks 1304.13 m
+mean(dist_type_tofday_summary$distance[22:33]) # average distance of functional evening walks 1196.49 m
+mean(dist_type_tofday_summary$distance[34:67]) # average distance of recreational morning walks 5154.33 m
+mean(dist_type_tofday_summary$distance[68:90]) # average distance of recreational afternoon walks 3973.71 m
+mean(dist_type_tofday_summary$distance[91:103]) # average distance of recreational evening walks 3124.44 m
 
 # calculate average distance for morning/afternoon/evening walks
 dist_timeofday_summary <- posmo |>
@@ -616,9 +383,9 @@ dist_timeofday_summary <- posmo |>
   summarise() |> 
   st_drop_geometry()
 
-mean(dist_timeofday_summary$distance[1:43]) # average distance of morning walks 4423.44 m
-mean(dist_timeofday_summary$distance[44:78]) # average distance of afternoon walks 3130.28 m
-mean(dist_timeofday_summary$distance[79:103]) # average distance of evening walks 2277.82 m
+mean(dist_timeofday_summary$distance[1:43]) # average distance of morning walks 4353.93 m
+mean(dist_timeofday_summary$distance[44:78]) # average distance of afternoon walks 3058.42 m
+mean(dist_timeofday_summary$distance[79:103]) # average distance of evening walks 2199.02 m
 
 # calculate average distance for weekday/weekend walks
 dist_wday_summary <- posmo |>
@@ -626,18 +393,18 @@ dist_wday_summary <- posmo |>
   summarise() |> 
   st_drop_geometry()
 
-mean(dist_wday_summary$distance[1:71]) # average distance of weekday walks 3565.24 m
-mean(dist_wday_summary$distance[72:103]) # average distance of weekend walks 3236.91 m
+mean(dist_wday_summary$distance[1:71]) # average distance of weekday walks 3491.19 m
+mean(dist_wday_summary$distance[72:103]) # average distance of weekend walks 3167.67 m
 
 
 # Speed calculations
 # calculate average speed for recreational/functional walks
 speed_summary <- posmo |>
-  group_by(Type, speed) |> 
+ group_by(Type, speed) |> 
   summarise() |> 
   st_drop_geometry()
  
-mean(speed_summary$speed[1:33]) # average speed of functional walks 1.20 m/s
+mean(speed_summary$speed[1:33]) # average speed of functional walks 1.18 m/s
 mean(speed_summary$speed[34:103]) # average speed of recreational walks 1.22 m/s
 
 # calculate average speed for recreational/functional walks with and without precipitation
@@ -646,33 +413,10 @@ speed_precip_summary <- posmo |>
   summarise() |> 
   st_drop_geometry()  
 
-mean(speed_precip_summary$speed[1:31]) # average speed of functional walks without rain 1.19 m/s
+mean(speed_precip_summary$speed[1:31]) # average speed of functional walks without rain 1.17 m/s
 mean(speed_precip_summary$speed[32:33]) # average speed of functional walks with rain 1.31 m/s
-mean(speed_precip_summary$speed[34:97]) # average speed of recreational walks without rain 1.22 m/s
+mean(speed_precip_summary$speed[34:97]) # average speed of recreational walks without rain 1.21 m/s
 mean(speed_precip_summary$speed[98:103]) # average speed of recreational walks with rain 1.30 m/s
-
-# calculate average speed for recreational/functional walks for 3 time of day categories (morning/afternoon/evening)
-speed_type_tofday_summary <- posmo |>
-  group_by(Type, time_of_day, speed) |> 
-  summarise() |> 
-  st_drop_geometry()  
-
-mean(speed_type_tofday_summary$speed[1:9]) # average speed of functional morning walks 1.29 m/s
-mean(speed_type_tofday_summary$speed[10:21]) # average speed of functional afternoon walks 1.18 m/s
-mean(speed_type_tofday_summary$speed[22:33]) # average speed of functional evening walks 1.16 m/s
-mean(speed_type_tofday_summary$speed[34:67]) # average speed of recreational morning walks 1.21 m/s
-mean(speed_type_tofday_summary$speed[68:90]) # average speed of recreational afternoon walks 1.23 m/s
-mean(speed_type_tofday_summary$speed[91:103]) # average speed of recreational evening walks 1.24 m/s
-
-# calculate average speed for morning/afternoon/evening walks
-speen_timeofday_summary <- posmo |>
-  group_by(time_of_day, speed) |> 
-  summarise() |> 
-  st_drop_geometry()
-
-mean(speen_timeofday_summary$speed[1:43]) # average speed of morning walks 1.23 m/s
-mean(speen_timeofday_summary$speed[44:78]) # average speed of afternoon walks 1.21 m/s
-mean(speen_timeofday_summary$speed[79:103]) # average speed of evening walks 1.20 m/s
 
 # calculate average speed for weekday/weekend walks
 speed_wday_summary <- posmo |>
@@ -680,64 +424,23 @@ speed_wday_summary <- posmo |>
   summarise() |> 
   st_drop_geometry()
 
-mean(speed_wday_summary$speed[1:71]) # average speed of weekday walks 1.23 m/s
+mean(speed_wday_summary$speed[1:71]) # average speed of weekday walks 1.22 m/s
 mean(speed_wday_summary$speed[72:103]) # average speed of weekend walks 1.18 m/s
 
-
 ```
 
-##Visualization of the groups of points that show unreaslistic time lags 
+
 ```{r}
-#| warning: false
-#| message: false
-#more than 300 m
-tmap_mode("view")
-posmo[3090:3095,] |> tm_shape() + tm_dots()
-
-```
-
 #Visualization of parameters
-```{r}
-#| warning: false
-#| message: false
-ggplot(posmo, mapping = aes(Type, steplenght))+
-  geom_boxplot() +
-  labs(x = "Type of dog walking", y = "Steplenght")+
-  theme_light()  
-
-ggplot(posmo, mapping = aes(Type, speed))+
-  geom_boxplot() +
-  labs(x = "Type of dog walking", y = "Speed [m/s]")+
-  theme_light()
-
-ggplot(posmo_filter, mapping = aes(Type, speed))+
-  geom_boxplot() +
-  labs(x = "Type of dog walking", y = "Speed [m/s]")+
-  theme_light()#use this one for the report
 
 ggplot(posmo, mapping = aes(Type, distance))+
   geom_boxplot() +
   labs(x = "Type of dog walking", y = "Distance [m]")+
   theme_light()
 
-ggplot(posmo, mapping = aes(wday, distance))+
-  geom_boxplot() +
-  labs(x = "Day of week", y = "Distance [m]")+
-  theme_light()
-
-ggplot(posmo_filter, mapping = aes(wday, speed))+
-  geom_boxplot() +
-  labs(x = "Day of week", y = "Speed [m/s]")+
-  theme_light()
-
 ggplot(posmo, mapping = aes(time_of_day, distance))+
   geom_boxplot() +
   labs(x = "Time of day", y = "Distance [m]")+
-  theme_light()
-
-ggplot(posmo_filter, mapping = aes(time_of_day, speed))+
-  geom_boxplot() +
-  labs(x = "Time of day", y = "Speed [m/s]")+
   theme_light()
 
 ggplot(posmo, mapping = aes(precip_50, distance))+
@@ -750,306 +453,10 @@ ggplot(posmo, mapping = aes(precip_50, speed))+
   labs(x = "Precipitation", y = "Speed [m/s]")+
   theme_light()
 
-
-# Pie chart of trajectory shapes
-plot_ly(shape_summary, labels = ~Shape, values = ~percent, type = 'pie') %>%
-  layout(title = "Trajectory Shapes",          
-         xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
-         yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
-
-# Pie chart of type of walk (recreational/functional)
-plot_ly(Type_summary, labels = ~Type, values = ~percent, type = 'pie') %>%
-  layout(title = "Type of walk",          
-         xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
-         yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
-
-# Pie chart of walks in precipitation/no precipitation
-plot_ly(precip_summary, labels = ~precip_50, values = ~percent, type = 'pie') %>%
-  layout(title = "Precipitation",          
-         xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
-         yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
-
-
-# Scatterplot distance vs speed --> use for report
-ggplot(posmo, mapping = aes(distance, speed))+
-  geom_point() +
-  geom_smooth(method=lm, se=FALSE)+
-  labs(x = "Distance [m]", y = "Speed [m/s]")+
-  theme_light()     
-```
-
-## Plotting more trajectories
-```{r}
-#| warning: false
-#| message: false
-T2 <- posmo %>%
-  filter(trajectoryID == "T2")
-
-ggplot(T2, aes(X, Y))+
-  geom_path()+
-  geom_point()+coord_fixed()
-
-T3 <- posmo %>%
-  filter(trajectoryID == "T3")
-
-ggplot(T3, aes(X, Y))+
-  geom_path()+
-  geom_point()+coord_fixed()
-
-T8 <- posmo %>%
-  filter(trajectoryID == "T8")
-
-ggplot(T8, aes(X, Y))+
-  geom_path()+
-    geom_point()+coord_fixed()
-```
-
-# Frechet Distance
-```{r}
-#| warning: false
-#| message: false
-#randomly select trajectories to compare for MN
-x <- sample(1:56, 1)
-x
-# Functional: 4, 36, 55, 21. Recreational: 6, 39, 49, 53
-
-#randomly select trajectories to compare for MK
-x1 <- sample(1:48, 1)
-x1
-#Functional: T11, T35, T43, T16. Recreational: T40, T20, T27, T25
-
-
-#Create the matrices for the trajectories to compare 
-
-#Four recreational walks for MN
-Traj6MN <- posmo |> 
-  ungroup() |>
-  st_drop_geometry() |>
-  filter(trajectoryID == 6)|>
-  mutate(Datetime_int = as.integer(datetime))|>
-  select(X, Y, Datetime_int)
-
-Traj6MN <- as.matrix(Traj6MN)
-
-Traj39MN <- posmo |> 
-  ungroup() |>
-  st_drop_geometry() |>
-  filter(trajectoryID == 39)|>
-  mutate(Datetime_int = as.integer(datetime))|>
-  select(X, Y, Datetime_int)
-
-Traj39MN <- as.matrix(Traj39MN)
-
-Traj49MN <- posmo |> 
-  ungroup() |>
-  st_drop_geometry() |>
-  filter(trajectoryID == 49)|>
-  mutate(Datetime_int = as.integer(datetime))|>
-  select(X, Y, Datetime_int)
-
-Traj49MN <- as.matrix(Traj49MN)
-
-Traj53MN <- posmo |> 
-  ungroup() |>
-  st_drop_geometry() |>
-  filter(trajectoryID == 53)|>
-  mutate(Datetime_int = as.integer(datetime))|>
-  select(X, Y, Datetime_int)
-
-Traj53MN <- as.matrix(Traj53MN)
-#Four functional walks for MN
-
-Traj4MN <- posmo |> 
-  ungroup() |>
-  st_drop_geometry() |>
-  filter(trajectoryID == 4)|>
-  mutate(Datetime_int = as.integer(datetime))|>
-  select(X, Y, Datetime_int)
-
-Traj4MN <- as.matrix(Traj4MN)
-
-Traj36MN <- posmo |> 
-  ungroup() |>
-  st_drop_geometry() |>
-  filter(trajectoryID == 36)|>
-  mutate(Datetime_int = as.integer(datetime))|>
-  select(X, Y, Datetime_int)
-
-Traj36MN <- as.matrix(Traj36MN)
-
-Traj55MN <- posmo |> 
-  ungroup() |>
-  st_drop_geometry() |>
-  filter(trajectoryID == 55)|>
-  mutate(Datetime_int = as.integer(datetime))|>
-  select(X, Y, Datetime_int)
-
-Traj55MN <- as.matrix(Traj55MN)
-
-Traj21MN <- posmo |> 
-  ungroup() |>
-  st_drop_geometry() |>
-  filter(trajectoryID == 21)|>
-  mutate(Datetime_int = as.integer(datetime))|>
-  select(X, Y, Datetime_int)
-
-Traj21MN <- as.matrix(Traj21MN) 
-  
-#Four recreational walks for MK
-
-Traj20MK <- posmo |> 
- ungroup() |>
-  st_drop_geometry() |>
-  filter(trajectoryID == "T20")|>
-  mutate(Datetime_int = as.integer(datetime))|>
-  select(X, Y, Datetime_int)
-
-Traj20MK <- as.matrix(Traj20MK)
-
-Traj40MK <- posmo |> 
- ungroup() |>
-  st_drop_geometry() |>
-  filter(trajectoryID == "T40")|>
-  mutate(Datetime_int = as.integer(datetime))|>
-  select(X, Y, Datetime_int)
-
-Traj40MK <- as.matrix(Traj40MK)
-
-Traj27MK <- posmo |> 
- ungroup() |>
-  st_drop_geometry() |>
-  filter(trajectoryID == "T27")|>
-  mutate(Datetime_int = as.integer(datetime))|>
-  select(X, Y, Datetime_int)
-
-Traj27MK <- as.matrix(Traj27MK)
-
-Traj25MK <- posmo |> 
- ungroup() |>
-  st_drop_geometry() |>
-  filter(trajectoryID == "T25")|>
-  mutate(Datetime_int = as.integer(datetime))|>
-  select(X, Y, Datetime_int)
-
-Traj25MK <- as.matrix(Traj25MK)
-
-#Four functional walks for MK
-
-Traj11MK <- posmo |> 
- ungroup() |>
-  st_drop_geometry() |>
-  filter(trajectoryID == "T11")|>
-  mutate(Datetime_int = as.integer(datetime))|>
-  select(X, Y, Datetime_int)
-
-Traj11MK <- as.matrix(Traj11MK)
-
-Traj35MK <- posmo |> 
- ungroup() |>
-  st_drop_geometry() |>
-  filter(trajectoryID == "T35")|>
-  mutate(Datetime_int = as.integer(datetime))|>
-  select(X, Y, Datetime_int)
-
-Traj35MK <- as.matrix(Traj35MK)
-
-Traj43MK <- posmo |> 
- ungroup() |>
-  st_drop_geometry() |>
-  filter(trajectoryID == "T43")|>
-  mutate(Datetime_int = as.integer(datetime))|>
-  select(X, Y, Datetime_int)
-
-Traj43MK <- as.matrix(Traj43MK)
-
-Traj16MK <- posmo |> 
- ungroup() |>
-  st_drop_geometry() |>
-  filter(trajectoryID == "T16")|>
-  mutate(Datetime_int = as.integer(datetime))|>
-  select(X, Y, Datetime_int)
-
-Traj16MK <- as.matrix(Traj16MK)
-
-```
-#Similarity measures: Calculate Frechet distance for 4 randomly selected functional and 4 recreational walks within the same walker. 
-```{r}
-# MN Functional: 4, 36, 55, 21. Recreational: 6, 39, 49, 53
-
-A<- Frechet(Traj4MN, Traj36MN, testLeash=-1)# 1291697
-B <- Frechet(Traj4MN, Traj55MN)# 1898412
-C <- Frechet(Traj4MN, Traj21MN)# 752445
-D <- Frechet(Traj36MN, Traj55MN)# 606863 
-E <- Frechet(Traj36MN, Traj21MN) #539354.1
-Y <- Frechet(Traj55MN, Traj21MN) #1146218 
-
-SM1 <- data.frame (
-  Frechet = c(A, B, C, D, E, Y),
-  Trajpair = c("T4-T36", "T4-55", "T4-T21", "T36-T55", "T36-T21", "T55-T21"),
-  Walker = c ("MN", "MN", "MN", "MN", "MN", "MN"), 
-  Type = c("Functional", "Functional", "Functional", "Functional", "Functional", "Functional")
-)
-
-G <- Frechet(Traj6MN, Traj39MN) #1355605 
-H <- Frechet(Traj6MN, Traj49MN) #1641793
-I <- Frechet(Traj6MN, Traj53MN) #1747899
-J <- Frechet(Traj39MN, Traj49MN) #286763
-K <- Frechet(Traj39MN, Traj53MN) #392869.1
-L <- Frechet(Traj49MN, Traj53MN)# 106106.4 
-
-
-SM2 <- data.frame (
-  Frechet = c(G, H, I, J, K, L),
-  Trajpair = c("T6-T39", "T6-49", "T6-T53", "T39-T49", "T39-T53", "T49-T53"),
-  Walker = c ("MN", "MN", "MN", "MN", "MN", "MN"), 
-  Type = c("Recreational", "Recreational", "Recreational", "Recreational", "Recreational", "Recreational" )
-)
-
-#MK Functional: T11, T35, T43, T16. Recreational: T40, T20, T27, T25
-M <- Frechet(Traj11MK, Traj35MK) #106106.4 
-N <- Frechet(Traj11MK, Traj43MK) #1997576
-O <- Frechet(Traj11MK, Traj16MK) #409705
-P <- Frechet(Traj35MK, Traj43MK) #530645 
-Q <- Frechet(Traj35MK, Traj16MK) #1057419 
-R <- Frechet(Traj43MK, Traj16MK) # 1587871 
-
-SM3 <- data.frame (
-  Frechet = c(M, N, O, P, Q, R),
-  Trajpair = c("T11-T35", "T11-43", "T11-T16", "T35-T43", "T35-T16", "T43-T16"),
-  Walker = c ("MK", "MK", "MK", "MK", "MK", "MK"), 
-  Type = c("Functional", "Functional", "Functional", "Functional", "Functional", "Functional")
-)
-
-S <- Frechet(Traj40MK, Traj20MK) #1106042 
-Z <- Frechet(Traj40MK, Traj27MK) #786486 
-U <- Frechet(Traj40MK, Traj25MK) #870824.5
-V <- Frechet(Traj20MK, Traj27MK) #319621.3
-W <- Frechet(Traj20MK, Traj25MK) #236536
-X <- Frechet(Traj27MK, Traj25MK) #85015.44
-
-#T40, T20, T27, T25
-SM4 <- data.frame (
-  Frechet = c(M, N, O, P, Q, R),
-  Trajpair = c("T40-T20", "T40-27", "T40-T25", "T20-T27", "T20-T25", "T27-T25"),
-  Walker = c ("MK", "MK", "MK", "MK", "MK", "MK"), 
-  Type = c("Recreational", "Recreational", "Recreational", "Recreational", "Recreational", "Recreational" )
-)
-
-Frechet <- rbind(SM1, SM2, SM3, SM4)
-
-ggplot(Frechet, mapping = aes(Type, Frechet))+
+ggplot(posmo, mapping = aes(Type, max_distance))+
   geom_boxplot() +
-  labs(x = "Type of dog walking", y = "Frechet Distance")+
-  theme_light()  
-
-ggplot(Frechet, aes(Trajpair, Frechet))+
-  geom_col(aes(fill = Walker))+
-  facet_wrap(~ Type, nrow = 2, scales = "free")+
-    theme_light()+
-  labs(x = "Trajectory pairs", y = "Frechet Distance")+
-  theme(axis.text.x = element_text(angle = 90))
-
+  labs(x = "Type of dog walkint", y = "Max distance home [m]")+
+  theme_light()+
+  scale_y_continuous(limits = c(0, 1000))
 
 ```
-
-
