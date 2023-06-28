@@ -232,7 +232,7 @@ posmo <- posmo |>
   group_by(trajectoryID) |> 
   mutate(start = min(datetime))
 
-posmo$start <- format(as.POSIXct(posmo$start, format = "%H:%M"))#this part of the code is not running
+posmo$start <- strftime(posmo$start, format="%H:%M:%S")
 
 # Add a new column time_of_day for Morning/Afternoon/Evening
 breaks <- lubridate::hour(hm("3:00", "10:00", "16:00", "21:59"))
@@ -305,8 +305,10 @@ plotMN <- posmo_MN |>
     axis.text.y = element_text(angle = 90, hjust = 0.5),
     axis.title.x = element_text(margin = margin(t = 5,r = 0,b=0,l=0)),
     axis.title.y = element_text(margin = margin(t = 0,r = 5,b=0,l=0))) +
-  labs(x = "X", y = "Y")
-
+  labs(x = "X", y = "Y")+
+  scale_x_continuous(limits = c(2688500, 2694000), breaks = c(2690000, 2691000, 2692000, 2693000))+
+  scale_y_continuous(limits = c(1272500, 1278000), breaks = c(1273000, 1274000, 1275000, 1277000))
+  
 
 # MK home trajectories (excluding two trajectories in Kanton of Graubünden)
 posmoMK_home <- filter(posmo_MK, !trajectoryID %in% c("T2", "T3"))
@@ -323,13 +325,14 @@ plotMK <- posmoMK_home |>
     axis.text.y = element_text(angle = 90, hjust = 0.5),
     axis.title.x = element_text(margin = margin(t = 5,r = 0,b=0,l=0)),
     axis.title.y = element_text(margin = margin(t = 0,r = 5,b=0,l=0))) +
-  labs(x = "X", y = "Y")
+  labs(x = "X", y = "Y")+
+  scale_x_continuous(limits = c(2703000, 2711000), breaks = c(2704000, 2706000, 2708000, 2710000))+
+  scale_y_continuous(limits = c(1233000, 1240000), breaks = c(1233000, 1235000, 1237000, 1239000))
+  
 
 # Breaks need to get adjusted to be equal
 plot_grid(plotMN, plotMK,
          labels = c("MNl Trajectories", "MK Trajectories"),
-         hjust = c(-0.3, -0.3),
-         vjust = 5,
          ncol = 2, nrow = 1)
 
 ```
