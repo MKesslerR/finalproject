@@ -54,8 +54,8 @@ We adjusted the data types for further analysis and calculations. Further parame
 The average distance of functional walks is 1322.05 m, compared to an average distance of 4472.65 m for recreational walks.
 
 ### **Analysis**
-
-
+We evaluated differences between functional and recreational dog walks in speed, distance and maximum distance from the house. T-test were used to test the hypothesis that the difference in means of the two groups was 0. We chose randomly four functional and four recreational trajectories for each of the two subjects to evaluate similarity. For that purpose we calculated Frechet distance among the trajectories within trajectory type and within subject. 
+The effect of weather, specifically rain, on the dog walking behavior was assessed by comparing the length and speed of dog walks during rain and with no rain with a t-test or the equivalent Welch's test when the variances weren't homogeneous. The effect of the time of the day on the length of dog walks was evaluated with an ANOVA. Differences in duration and the length of the walk between weekdays and weekends were examined with a t-test. 
 
 ## **Results**
 **Comparison of Functional and Recreational Dog-walks**
@@ -460,7 +460,7 @@ mean(dist_summary$distance[34:103]) # average distance of recreational walks 438
 #The effect of the weather on the dog-walking behavior
 
 # calculate average speed for dog walks with and without precipitation
-speed_precip_summary <- posmo |>
+speed_precip_summary <- posmo_speed |>
   group_by(Type, precip_50, speed) |> 
   summarise() |> 
   st_drop_geometry()
@@ -474,7 +474,7 @@ t.test(speed~precip_50, speed_precip_summary)
 
 
 # calculate average speed for recreational/functional walks with and without precipitation
-speed_precip_summary <- posmo |>
+speed_precip_summary <- posmo_speed |>
   group_by(Type, precip_50, speed) |> 
   summarise() |> 
   st_drop_geometry()  
