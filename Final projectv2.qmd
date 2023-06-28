@@ -232,7 +232,7 @@ posmo <- posmo |>
   group_by(trajectoryID) |> 
   mutate(start = min(datetime))
 
-posmo$start <- format(as.POSIXct(posmo$start, format = "%H:%M"))#this part of the code is not running
+posmo$start <- strftime(posmo$start, format="%H:%M:%S")
 
 # Add a new column time_of_day for Morning/Afternoon/Evening
 breaks <- lubridate::hour(hm("3:00", "10:00", "16:00", "21:59"))
