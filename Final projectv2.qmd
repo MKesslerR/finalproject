@@ -232,13 +232,13 @@ posmo <- posmo |>
   group_by(trajectoryID) |> 
   mutate(start = min(datetime))
 
-posmo$start <- strftime(posmo$start, format="%H:%M:%S")
-
 # Add a new column time_of_day for Morning/Afternoon/Evening
 breaks <- lubridate::hour(hm("3:00", "10:00", "16:00", "21:59"))
 labels <- c("Morning", "Afternoon", "Evening")
 
 posmo$time_of_day <- cut(x=hour(posmo$start), breaks = breaks, labels = labels, include.lowest=TRUE)
+
+posmo$start <- strftime(posmo$start, format="%H:%M:%S")
 
 ```
 
@@ -436,6 +436,12 @@ dist_summary <- posmo |>
 mean(dist_summary$distance[1:33]) # average distance of functional walks 1272.11 m
 mean(dist_summary$distance[34:103]) # average distance of recreational walks 4389.43 m
 
+#Differences in max distance to the house
+Maxdist_summary <- posmo |>
+  group_by(Type, max_distance) |> 
+  summarise() |> 
+  st_drop_geometry()
+
 #Evaluating differences in distance covered during dog walks 
 
 # calculate average distance with and without precipitation
@@ -512,13 +518,29 @@ mean(speed_precip_summary$speed[34:97]) # average speed of recreational walks wi
 mean(speed_precip_summary$speed[98:103]) # average speed of recreational walks with rain 1.30 m/s
 
 # calculate average speed for weekday/weekend walks
-speed_wday_summary <- posmo |>
+speed_wday_summary <- posmo_speed |>
   group_by(wday, speed) |> 
   summarise() |> 
   st_drop_geometry()
 
-mean(speed_wday_summary$speed[1:71]) # average speed of weekday walks 1.22 m/s
-mean(speed_wday_summary$speed[72:103]) # average speed of weekend walks 1.18 m/s
+mean(speed_wday_summary$speed[1:70]) # average speed of weekday walks 1.22 m/s
+mean(speed_wday_summary$speed[71:102]) # average speed of weekend walks 1.18 m/s
+
+#Differences in the start time of the morning walk on weekdays vs weekends
+ starttime_wday_summary <- posmo |>
+  filter(time_of_day == "Morning")|>
+  group_by(wday, start) |> 
+  summarise() |> 
+  st_drop_geometry()
+
+
+#Differences in duration of the walk on weekdays vs weekends
+
+duration_wday_summary <- posmo |>
+  group_by (wday, duration) |> 
+  summarise() |> 
+  st_drop_geometry()
+
 
 ```
 
@@ -531,10 +553,17 @@ ggplot(speed_summary, mapping = aes(Type, speed))+
   labs(x = "Type of dog walking", y = "Speed [m/s]")+
   theme_light() #use this one for the report. Fig 1A
 
-ggplot(posmo, mapping = aes(Type, distance))+
+ggplot(dist_summary, mapping = aes(Type, distance))+
   geom_boxplot() +
   labs(x = "Type of dog walking", y = "Distance [m]")+
   theme_light()#Figure 1B
+
+ggplot(Maxdist_summary, mapping = aes(Type, max_distance))+
+  geom_boxplot() +
+  labs(x = "Type of dog walking", y = "Max distance home [m]")+
+  theme_light()+
+  scale_y_continuous(limits = c(0, 1000))#Fig 1C
+
 
 ggplot(speed_precip_summary, mapping = aes(precip_50, speed))+
   geom_boxplot() +
@@ -551,18 +580,21 @@ ggplot(dist_type_tofday_summary, mapping = aes(time_of_day, distance))+
   labs(x = "Time of day", y = "Distance [m]")+
   theme_light()
 
- 
-
-ggplot(posmo, mapping = aes(precip_50, speed))+
+ggplot(speed_precip_summary, mapping = aes(precip_50, speed))+
   geom_boxplot() +
   labs(x = "Precipitation", y = "Speed [m/s]")+
   theme_light()
 
-ggplot(posmo, mapping = aes(Type, max_distance))+
+ggplot(duration_wday_summary, mapping = aes(wday, duration))+
   geom_boxplot() +
-  labs(x = "Type of dog walkint", y = "Max distance home [m]")+
-  theme_light()+
-  scale_y_continuous(limits = c(0, 1000))
+  labs(x = "Day", y = "Duration [mins]")+
+  theme_light()
+
+#ggplot(starttime_wday_summary, mapping = aes(wday, start))+
+#  geom_point() +
+#  labs(x = "Day", y = "Time at the start of morning walk")+
+#  theme_light()
+
 
 # Pie chart of trajectory shapes
 plot_ly(shape_summary, labels = ~Shape, values = ~percent, type = 'pie') %>%
