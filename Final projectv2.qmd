@@ -247,7 +247,7 @@ posmo_filter <- posmo |>
 
 ```
 
-```{r}
+```{r fig.cap= "Figure 1: Vizualization of a trajectory with and without static points."}
 
 ##Trajectories visualization with and without static points 
 ## One of MK
@@ -273,7 +273,7 @@ plot_grid(K1a, K1b,
           vjust = 2.5,
           ncol = 2, nrow = 1)
 ```
-Plot 1: Vizualization of a trajectory with and without static points
+
 ```{r results = 'hide'}
 
 #Timelag. 
@@ -393,10 +393,7 @@ dist_wday_summary <- posmo |>
 mean(dist_wday_summary$distance[1:71]) # average distance of weekday walks 3565.237 m
 mean(dist_wday_summary$distance[72:103]) # average distance of weekend walks 3236.906 m
 
-
 t.test(distance~wday, dist_wday_summary)
-
-
 
 # calculate average speed for weekday/weekend walks
 speed_wday_summary <- posmo_speed |>
@@ -413,7 +410,6 @@ mean(speed_wday_summary$speed[71:102]) # average speed of weekend walks 1.18 m/s
   group_by(wday, start) |> 
   summarise() |> 
   st_drop_geometry()
-
 
 #Differences in duration of the walk on weekdays vs weekends
 
@@ -432,7 +428,7 @@ The effect of weather, specifically rain, on the dog walking behavior was assess
 ## **Results**
 **Comparison of Functional and Recreational Dog-walks**
 Functional dog walks took place at a speed of 1.20 m/s while the average for recreational dog walks was 1.21 m/s., and there weren’t significant differences between them (t = -0.38, df = 100, p-value = 0.70) 
-```{r}
+```{r results = 'hide'}
 #Comparing functional and recreational dog walks
 
 #Speed calculation  for the two type of walks excluding out-layers
@@ -446,30 +442,31 @@ speed_summary <- posmo_speed |>
 t.test(speed~Type, speed_summary, var.equal = TRUE)
 #mean in group functional mean in group recreational 
 #                  1.202219                   1.214331 
+```
 
-
+```{r fig.cap= "Figure 2: Boxplot displaying speed for the two types of walks."}
 ggplot(speed_summary, mapping = aes(Type, speed))+
   geom_boxplot() +
   labs(x = "Type of dog walking", y = "Speed [m/s]")+
-  theme_light() #use this one for the report. Fig 2
+  theme_light() 
 ```
-Figure 2: Boxplot displaying speed for the two types of walks
 
-Functional walks covered shorter distances (Fig. 3) and took place at closer distances from the house than recreational dog walks (Fig. 4).
-```{r}
+```{r fig.cap= "Figure 3: Functional walks covered shorter distances than recreational walks."}
 ggplot(dist_summary, mapping = aes(Type, distance))+
   geom_boxplot() +
   labs(x = "Type of dog walking", y = "Distance [m]")+
-  theme_light()#Figure 3
+  theme_light()
+```
 
+```{r fig.cap= "Figure 4: Functional walks took place at closer distances from the house than recreational dog walks."}
 ggplot(Maxdist_summary, mapping = aes(Type, max_distance))+
   geom_boxplot() +
   labs(x = "Type of dog walking", y = "Max distance home [m]")+
   theme_light()+
-  scale_y_continuous(limits = c(0, 1000))#Fig 4
+  scale_y_continuous(limits = c(0, 1000))
 
 ```
-According to the Frechet distances, functional walk trajectories were very dissimilar, and the same was observed for recreational trajectories (Fig. 5).
+
 ```{r results = 'hide'}
 
 # Frechet Distance
@@ -604,7 +601,7 @@ Traj43MK <- as.matrix(Traj43MK)
 
 ```
 
-```{r}
+```{r fig.cap= "Figure 5: According to the Frechet distances, functional walk trajectories were very dissimilar, and the same was observed for recreational trajectories."}
 #Similarity measures: Calculate Frechet distance for 4 randomly selected functional and 4 recreational walks within the same walker. 
 run_full <- FALSE
 if(run_full){
@@ -675,33 +672,33 @@ ggplot(Frechet, aes(Trajpair, Frechet))+
   facet_wrap(~ Type, nrow = 2, scales = "free")+
     theme_light()+
   labs(x = "Trajectory pairs", y = "Frechet Distance")+
-  theme(axis.text.x = element_text(angle = 90))#Fig. 5
+  theme(axis.text.x = element_text(angle = 90))
 
 
 ```
 
 **The Effect of Weather on the Dog-Walking Behavior**
 Rainy weather did not affect the distance covered during dog walks (t = -0.13733, df = 8, p-value = 0.89). In rainy weather, the average length of dog walks was 3577.27 m whereas under no rain the average length was 3453.63 m. However, the weather conditions had an effect on the speed of the dog walking behavior. Under rainy conditions, the speed of dog walks was faster than when there was no rain (t = -4.3871, df = 27.165, p-value < 0.0001) (Fig. 6). 
-```{r}
+```{r fig.cap= "Figure 6: Boxplot displaying speed for walks with- and without precipitation."}
 ggplot(speed_precip_summary, mapping = aes(precip_50, speed))+
   geom_boxplot() +
   labs(x = "Precipitation", y = "Speed [m/s]")+
-  theme_light() #Fig. 6
+  theme_light() 
 
 ```
 
 **Temporal Differences in Dog Walking Behavior**
 Distance covered during dog walks varied throughout the day (Df = 2, Sum Sq = 78656052, F value = 8.444, p < 0.001). Morning dog walks were on average longer than in the afternoon, and the evening walks were the shortest on average (Fig. 7).  Neither the length (t = 0.63, df = 53.73, p-value = 0.53) nor the duration of the walks was (t = -0.19 secs, df = 48, p-value = 0.84) affected by the day of the week. During weekdays the length of dog walks were on average 3565.23 m, while on weekends the average was 3236.9 m. 
-```{r}
+```{r fig.cap= "Figure 7: Boxplot displaying distance covered for each time of the day category."}
 ggplot(dist_type_tofday_summary, mapping = aes(time_of_day, distance))+
   geom_boxplot() +
   labs(x = "Time of day", y = "Distance [m]")+
-  theme_light()#Fig. 7
+  theme_light()
 ```
 
 **Dog Walking Behavior**
 Most of the trajectories while dog walking were loops and semi-loops and, the less common were axial trajectories (Fig. 8). 
-```{r}
+```{r fig.cap= "Figure 8: Pie chart displaying the trajectory shapes in percentage of all walks."}
 # Summarise the trajectory shapes
 shape_summary <- posmo |>
   group_by(trajectoryID, Shape) |> 
@@ -716,11 +713,10 @@ shape_summary <- posmo |>
 plot_ly(shape_summary, labels = ~Shape, values = ~percent, type = 'pie') %>%
   layout(title = "Trajectory Shapes",          
          xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
-         yaxis = list(showgrid = FALSE))#Fig. 8
+         yaxis = list(showgrid = FALSE))
 ```
 
-```{r}
-# Visualization of trajectories for both users
+```{r fig.cap= "Figure 9: Visualization of all home trajectories for both users."}
 
 # Visualization of all trajectories of MN
 plotMN <- posmo_MN |> 
@@ -760,7 +756,7 @@ plotMK <- posmoMK_home |>
   
 plot_grid(plotMN, plotMK, align = "hv",
          labels = c("MN Trajectories", "MK Trajectories"),
-         ncol = 2, nrow = 1, vjust = 3) # Figure 9
+         ncol = 2, nrow = 1, vjust = 3)
          
 ```
 
