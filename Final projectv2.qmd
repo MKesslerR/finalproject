@@ -460,29 +460,17 @@ mean(dist_summary$distance[34:103]) # average distance of recreational walks 438
 #The effect of the weather on the dog-walking behavior
 
 # calculate average speed for dog walks with and without precipitation
-speed_precip_summary <- posmo |>
+speed_precip_summary <- posmo_speed |>
   group_by(Type, precip_50, speed) |> 
   summarise() |> 
   st_drop_geometry()
 
 t.test(speed~precip_50, speed_precip_summary)
 
-#mean(precip_dist_summary$distance[1:31]) # average distance of functional walks without rain 1251.38 m
-#mean(precip_dist_summary$distance[32:33]) # average distance of functional walks with rain 2015.86 m
-#mean(precip_dist_summary$distance[34:97]) # average distance of recreational walks without rain 4492.32 m
-#mean(precip_dist_summary$distance[98:103]) # average distance of recreational walks with rain 4396.58 m
-
-
-# calculate average speed for recreational/functional walks with and without precipitation
-speed_precip_summary <- posmo |>
-  group_by(Type, precip_50, speed) |> 
-  summarise() |> 
-  st_drop_geometry()  
-
-mean(speed_precip_summary$speed[1:31]) # average speed of functional walks without rain 1.17 m/s
-mean(speed_precip_summary$speed[32:33]) # average speed of functional walks with rain 1.31 m/s
-mean(speed_precip_summary$speed[34:97]) # average speed of recreational walks without rain 1.21 m/s
-mean(speed_precip_summary$speed[98:103]) # average speed of recreational walks with rain 1.30 m/s
+mean(precip_dist_summary$distance[1:31]) # average distance of functional walks without rain 1251.38 m
+mean(precip_dist_summary$distance[32:33]) # average distance of functional walks with rain 2015.86 m
+mean(precip_dist_summary$distance[34:97]) # average distance of recreational walks without rain 4492.32 m
+mean(precip_dist_summary$distance[98:103]) # average distance of recreational walks with rain 4396.58 m
 
 #Evaluating differences in distance covered during dog walks with and without precipitation
 precip_dist_summary <- posmo |>
