@@ -10,12 +10,12 @@ execute:
   message: false
 ---
 
-## Abstract 
+## **Abstract**
 <!-- (50-60 words) -->
 
-## Background and Research Questions
+## **Background and Research Questions**
 
-Walking is inherently a social activity, often performed with others, and there is a sense of pleasure gained from sharing the experience. Walking can occur both as an integrative practice and a dispersed practice (Harries and Rettie, 2016). Walking as an integrative practice occurs, where the purpose of the walking is actually to experience the walk. In contrast, dispersed walking is walking that occurs as part of a different integrative practice, such as shopping or traveling to work; walking is not the purpose of the practice but a means to achieve it (Westgard et al. 2021). Walking with a dog has been assumed to be leisure time or recreational. However, dog walking can also be an integrative practice when walking is just a way to achieve the purpose of satisfying the basic needs of the dog. Westgarth et al. classify dog walks into two broad categories: functional and recreational walks. Functional walks are primarily for the purpose of meeting the needs of the dog. In contrast, recreational walks catered to both the dog owner’s needs as well as those of the dog. They constitute an integrated practice where the purpose of the walk for the owner is to enjoy the walk, not just meet the needs of the dog to have a walk. As dog walking is a specific behavior different from general physical activity or even other types of walking, it requires a context-specific approach to examining these correlates. Specifically, dog walking is determined by the physical environment, social environment, and personal and dog-related factors (Westgard et al. 2014). Certain environments and contexts are deemed more conducive to functional than recreational dog walks (Westgard et al. 2021). Here, we aim to characterize the two types of dog walking behaviors. Our research questions are the following: 
+Walking is inherently a social activity, often performed with others, and there is a sense of pleasure gained from sharing the experience. Walking can occur both as an integrative practice and a dispersed practice (Harries and Rettie, 2016). Walking as an integrative practice occurs, where the purpose of the walking is actually to experience the walk. In contrast, dispersed walking is walking that occurs as part of a different integrative practice, such as shopping or traveling to work; walking is not the purpose of the practice but a means to achieve it (Westgard et al. 2021). Walking with a dog has been assumed to be leisure time or recreational. However, dog walking can also be an integrative practice when walking is just a way to achieve the purpose of satisfying the basic needs of the dog. Westgarth et al. 2021, classify dog walks into two broad categories: functional and recreational walks. Functional walks are primarily for the purpose of meeting the needs of the dog. In contrast, recreational walks catered to both the dog owner’s needs as well as those of the dog. They constitute an integrated practice where the purpose of the walk for the owner is to enjoy the walk, not just meet the needs of the dog to have a walk. As dog walking is a specific behavior different from general physical activity or even other types of walking, it requires a context-specific approach to examining these correlates. Specifically, dog walking is determined by the physical environment, social environment, and personal and dog-related factors (Westgard et al. 2014). Certain environments and contexts are deemed more conducive to functional than recreational dog walks (Westgard et al. 2021). Here, we aim to characterize the two types of dog walking behaviors. Our research questions are the following: 
 
 How do recreational- differ from functional dog walks?
 Are dog walks influenced by weather (precipitation)? 
@@ -23,9 +23,9 @@ How do the recreational dog walking patterns differ through the day? weekdays an
 How are the moving behavior patterns during dog walks?
 
 
-## Data and Methods
+## **Data and Methods**
 
-### Data set
+### **Data set**
 We tracked our own daily movement behavior with the tracking app Posmo over the course of about two months (April & May 2023. We then filtered our dog walks, which contain 25´455 data points of 103 trajeectories in total. The following attributes are part of the movement dataset of the two tracker users:
 
 1. user_id: Name that identifies the walker     
@@ -44,7 +44,7 @@ Of the weather data we filtered the precipitation data of the two weather statio
 2. time: Time
 3. rco150z0: Ten minute precipitation sum
 
-### Pre-processing
+### **Pre-processing**
 
 Because we were only working with our data from our dog walks, we had to look at all the walks in Posmo and exclude the walking modes and segments that were not part of our dog walks, and any walks with incomplete tracking. There were issues in our data that the app created duplicate time stamps with different sets of coordinates. These erroneous had to be cleaned out first. Several pre-processing steps had to be done before we could join our two movement data sets. First, we had to store the coordinates into two separate columns (X-coordinates and Y-coordinates). Next, the precipitation data was joined to the individual movement data sets and we added a new column for rain/no rain before we joined the two data frames. We categorized trajectories that had precipitation of more than 50% of the walk as rain and no rain for values below the set threshold. A new column was added for weekday vs. weekend, as well as for the time of day (morning/evening/afternoon). 
 
@@ -53,14 +53,25 @@ Because we were only working with data from our dog walks, we had to look at all
 We adjusted the data types for further analysis and calculations. Further parameters were calculated after static points were removed, such as step mean, time lag, step lenght, speed, duration and distance.All these parameters were added to the data set. 
 The average distance of functional walks is 1322.05 m, compared to an average distance of 4472.65 m for recreational walks.
 
-### Analysis
+### **Analysis**
 
 
 
-## Results
+## **Results**
+**Comparison of Functional and Recreational Dog-walks**
+Functional dog walks took place at a speed of 1.20 m/s while the average for recreational dog walks was 1.21 m/s., and there weren’t significant differences between them (t = -0.38, df = 100, p-value = 0.70) (Fig. 1A). Functional walks covered shorter distances (Fig. 1B) and took place at closer distances from the house than recreational dog walks (Fig. 1C). According to the Frechet distances, functional walk trajectories were very dissimilar, and the same was observed for recreational trajectories (Fig. 2).
+
+**The Effect of Weather on the Dog-Walking Behavior**
+Rainy weather did not affect the distance covered during dog walks (t = -0.13733, df = 8, p-value = 0.89). In rainy weather, the average length of dog walks was 3577.27 m whereas under no rain the average length was 3453.63 m. However, the weather conditions had an effect on the speed of the dog walking behavior. Under rainy conditions, the speed of dog walks was faster than when there was no rain (t = -4.3871, df = 27.165, p-value < 0.0001) (Fig. 3). 
+
+**Temporal Differences in Dog Walking Behavior**
+Distance covered during dog walks varied throughout the day (Df = 2, Sum Sq = 78656052, F value = 8.444, p < 0.001). Morning dog walks were on average longer than in the afternoon, and the evening walks were the shortest on average (Fig. 4).  Neither the length (t = 0.63, df = 53.73, p-value = 0.53) nor the duration of the walks was (t = -0.19 secs, df = 48, p-value = 0.84) affected by the day of the week. During weekdays the length of dog walks were on average 3565.23 m, while on weekends the average was 3236.9 m. 
+
+**Dog Walking Behavior**
+Most of the trajectories while dog walking were loops and semi-loops and, the less common were axial trajectories (Fig. 5). 
 
 
-## Discussion and conclussions
+## **Discussion and Conclusions**
 
 
 ## References
@@ -441,16 +452,46 @@ Maxdist_summary <- posmo |>
   group_by(Type, max_distance) |> 
   summarise() |> 
   st_drop_geometry()
+mean(dist_summary$distance[1:33]) # average distance of functional walks 1272.11 m
+mean(dist_summary$distance[34:103]) # average distance of recreational walks 4389.43 m
 
-#Evaluating differences in distance covered during dog walks 
+#The effect of the weather on the dog-walking behavior
 
-# calculate average distance with and without precipitation
+# calculate average speed for dog walks with and without precipitation
+speed_precip_summary <- posmo |>
+  group_by(Type, precip_50, speed) |> 
+  summarise() |> 
+  st_drop_geometry()
+
+t.test(speed~precip_50, speed_precip_summary)
+
+#mean(precip_dist_summary$distance[1:31]) # average distance of functional walks without rain 1251.38 m
+#mean(precip_dist_summary$distance[32:33]) # average distance of functional walks with rain 2015.86 m
+#mean(precip_dist_summary$distance[34:97]) # average distance of recreational walks without rain 4492.32 m
+#mean(precip_dist_summary$distance[98:103]) # average distance of recreational walks with rain 4396.58 m
+
+
+# calculate average speed for recreational/functional walks with and without precipitation
+speed_precip_summary <- posmo |>
+  group_by(Type, precip_50, speed) |> 
+  summarise() |> 
+  st_drop_geometry()  
+
+mean(speed_precip_summary$speed[1:31]) # average speed of functional walks without rain 1.17 m/s
+mean(speed_precip_summary$speed[32:33]) # average speed of functional walks with rain 1.31 m/s
+mean(speed_precip_summary$speed[34:97]) # average speed of recreational walks without rain 1.21 m/s
+mean(speed_precip_summary$speed[98:103]) # average speed of recreational walks with rain 1.30 m/s
+
+#Evaluating differences in distance covered during dog walks with and without precipitation
 precip_dist_summary <- posmo |>
   group_by(precip_50, distance) |> 
   summarise() |> 
   st_drop_geometry()  
 
 t.test(distance ~ precip_50, precip_dist_summary)
+
+
+#Temporal differences in dog walking behavior
 
 # calculate average distance for recreational/functional walks for time of day 3 categories (morning/afternoon/evening)
 dist_type_tofday_summary <- posmo |>
@@ -490,32 +531,7 @@ mean(dist_wday_summary$distance[72:103]) # average distance of weekend walks 323
 
 t.test(distance~wday, dist_wday_summary)
 
-#Evaluating differences in speed
 
-# calculate average speed for dog walks with and without precipitation
-speed_precip_summary <- posmo |>
-  group_by(Type, precip_50, speed) |> 
-  summarise() |> 
-  st_drop_geometry()
-
-t.test(speed~precip_50, speed_precip_summary)
-
-#mean(precip_dist_summary$distance[1:31]) # average distance of functional walks without rain 1251.38 m
-#mean(precip_dist_summary$distance[32:33]) # average distance of functional walks with rain 2015.86 m
-#mean(precip_dist_summary$distance[34:97]) # average distance of recreational walks without rain 4492.32 m
-#mean(precip_dist_summary$distance[98:103]) # average distance of recreational walks with rain 4396.58 m
-
-
-# calculate average speed for recreational/functional walks with and without precipitation
-speed_precip_summary <- posmo |>
-  group_by(Type, precip_50, speed) |> 
-  summarise() |> 
-  st_drop_geometry()  
-
-mean(speed_precip_summary$speed[1:31]) # average speed of functional walks without rain 1.17 m/s
-mean(speed_precip_summary$speed[32:33]) # average speed of functional walks with rain 1.31 m/s
-mean(speed_precip_summary$speed[34:97]) # average speed of recreational walks without rain 1.21 m/s
-mean(speed_precip_summary$speed[98:103]) # average speed of recreational walks with rain 1.30 m/s
 
 # calculate average speed for weekday/weekend walks
 speed_wday_summary <- posmo_speed |>
@@ -541,6 +557,7 @@ duration_wday_summary <- posmo |>
   summarise() |> 
   st_drop_geometry()
 
+t.test(duration ~ wday, duration_wday_summary)
 
 ```
 
@@ -568,7 +585,7 @@ ggplot(Maxdist_summary, mapping = aes(Type, max_distance))+
 ggplot(speed_precip_summary, mapping = aes(precip_50, speed))+
   geom_boxplot() +
   labs(x = "Precipitation", y = "Speed [m/s]")+
-  theme_light() #Fig. 2
+  theme_light() #Fig. 3
 
 ggplot(precip_dist_summary, mapping = aes(precip_50, distance))+
   geom_boxplot() +
@@ -578,7 +595,7 @@ ggplot(precip_dist_summary, mapping = aes(precip_50, distance))+
 ggplot(dist_type_tofday_summary, mapping = aes(time_of_day, distance))+
   geom_boxplot() +
   labs(x = "Time of day", y = "Distance [m]")+
-  theme_light()
+  theme_light()#Fig. 4
 
 ggplot(speed_precip_summary, mapping = aes(precip_50, speed))+
   geom_boxplot() +
@@ -600,7 +617,7 @@ ggplot(duration_wday_summary, mapping = aes(wday, duration))+
 plot_ly(shape_summary, labels = ~Shape, values = ~percent, type = 'pie') %>%
   layout(title = "Trajectory Shapes",          
          xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
-         yaxis = list(showgrid = FALSE))
+         yaxis = list(showgrid = FALSE))#Fig. 5
 
 ```
 
@@ -809,7 +826,7 @@ ggplot(Frechet, aes(Trajpair, Frechet))+
   facet_wrap(~ Type, nrow = 2, scales = "free")+
     theme_light()+
   labs(x = "Trajectory pairs", y = "Frechet Distance")+
-  theme(axis.text.x = element_text(angle = 90))
+  theme(axis.text.x = element_text(angle = 90))#Fig. 2
 
 
 ```
