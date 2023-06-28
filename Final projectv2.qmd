@@ -57,52 +57,8 @@ Of the weather data we filtered the precipitation data of the two weather statio
 3. rco150z0: Ten minute precipitation sum
 
 ### **Pre-processing**
-
-Because we were only working with our data from our dog walks, we had to look at all the walks in Posmo and exclude the walking modes and segments that were not part of our dog walks, and any walks with incomplete tracking. There were issues in our data that the app created duplicate time stamps with different sets of coordinates. These erroneous had to be cleaned out first. Several pre-processing steps had to be done before we could join our two movement data sets. First, we had to store the coordinates into two separate columns (X-coordinates and Y-coordinates). Next, the precipitation data was joined to the individual movement data sets and we added a new column for rain/no rain before we joined the two data frames. We categorized trajectories that had precipitation of more than 50% of the walk as rain and no rain for values below the set threshold. A new column was added for weekday vs. weekend, as well as for the time of day (morning/evening/afternoon). 
-
 Because we were only working with data from our dog walks, we had to look at all the walks in Posmo and exclude the walking modes and segments that were not part of our dog walks. There were issues in our data that the app created duplicate time stamps with different sets of coordinates. These ereneous data points had to be cleaned out first. Several pre-processing steps had to be done before we could join our two movement datasets. First, we had to store the coordinates into two seperate columns (X-coordinates and Y-coordinates). Next, the precipitation data was joined to the individual movement datasets that contains the precipitation data of the nearest weather station. A new column was added for rain/no rain and categorized trajectories that had precipitation of more than 50% of the walk as having rain and assigned no rain for values below the set threshold.The longest distance home was calculated for each trajectory. New columns were added for the weekday (weekend/weekday), time of the day (morning/afternoon/evening) and the start time of each trajectory.  
-Further parameters were calculated after static points were removed, such as step mean, time lag, step lenght, speed, duration and distance. 
-
-Because we were only working with data from our dog walks, we had to look at all the walks in Posmo and exclude the walking modes and segments that were not part of our dog walks. There were issues in our data that the app created duplicate time stamps with different sets of coordinates. These ereneous had to be cleaned out first. Several pre-processing steps had to be done before we could join our two movement datasets. First, we had to store the coordinates into two seperate columns (X-coordinates and Y-coordinates). Next, the precipitation data was joined to the individual movement datasets and we added a new column for rain/no rain before we joined the two data frames. We categorized trajectories that had precipitation of more than 50% of the walk as rain and no rain for values below the set threshold. A new column was added for weekday vs. weekend, as well as for the time of day (morning/evening/afternoon). 
-
-We adjusted the data types for further analysis and calculations. Further parameters were calculated after static points were removed, such as step mean, time lag, step lenght, speed, duration and distance.All these parameters were added to the data set. 
-The average distance of functional walks is 1322.05 m, compared to an average distance of 4472.65 m for recreational walks.
-
-### **Analysis**
-We evaluated differences between functional and recreational dog walks in speed, distance and maximum distance from the house. T-test were used to test the hypothesis that the difference in means of the two groups was 0. We chose randomly four functional and four recreational trajectories for each of the two subjects to evaluate similarity. For that purpose we calculated Frechet distance among the trajectories within trajectory type and within subject. 
-The effect of weather, specifically rain, on the dog walking behavior was assessed by comparing the length and speed of dog walks during rain and with no rain with a t-test or the equivalent Welch's test when the variances weren't homogeneous. The effect of the time of the day on the length of dog walks was evaluated with an ANOVA. Differences in duration and the length of the walk between weekdays and weekends were examined with a t-test. 
-
-## **Results**
-**Comparison of Functional and Recreational Dog-walks**
-Functional dog walks took place at a speed of 1.20 m/s while the average for recreational dog walks was 1.21 m/s., and there weren’t significant differences between them (t = -0.38, df = 100, p-value = 0.70) (Fig. 1A). Functional walks covered shorter distances (Fig. 1B) and took place at closer distances from the house than recreational dog walks (Fig. 1C). According to the Frechet distances, functional walk trajectories were very dissimilar, and the same was observed for recreational trajectories (Fig. 2).
-
-**The Effect of Weather on the Dog-Walking Behavior**
-Rainy weather did not affect the distance covered during dog walks (t = -0.13733, df = 8, p-value = 0.89). In rainy weather, the average length of dog walks was 3577.27 m whereas under no rain the average length was 3453.63 m. However, the weather conditions had an effect on the speed of the dog walking behavior. Under rainy conditions, the speed of dog walks was faster than when there was no rain (t = -4.3871, df = 27.165, p-value < 0.0001) (Fig. 3). 
-
-**Temporal Differences in Dog Walking Behavior**
-Distance covered during dog walks varied throughout the day (Df = 2, Sum Sq = 78656052, F value = 8.444, p < 0.001). Morning dog walks were on average longer than in the afternoon, and the evening walks were the shortest on average (Fig. 4).  Neither the length (t = 0.63, df = 53.73, p-value = 0.53) nor the duration of the walks was (t = -0.19 secs, df = 48, p-value = 0.84) affected by the day of the week. During weekdays the length of dog walks were on average 3565.23 m, while on weekends the average was 3236.9 m. 
-
-**Dog Walking Behavior**
-Most of the trajectories while dog walking were loops and semi-loops and, the less common were axial trajectories (Fig. 5). 
-
-
-## **Discussion and Conclusions**
-
-
-## References
-
-```{r}
-library(sf)
-library(tidyverse)
-library(tmap)
-library(cowplot)
-library(lubridate)
-library(dplyr)
-library(plotly)
-library(tmap)
-library(SimilarityMeasures)
-library(data.table)
-```
+Further parameters were calculated and stored in new columns after static points were removed, such as step mean, time lag, step lenght, speed, duration and distance. 
 
 ```{r results = 'hide'}
 
@@ -484,10 +440,9 @@ duration_wday_summary <- posmo |>
 t.test(duration ~ wday, duration_wday_summary)
 
 ```
-
 ### **Analysis**
-
-
+We evaluated differences between functional and recreational dog walks in speed, distance and maximum distance from the house. T-test were used to test the hypothesis that the difference in means of the two groups was 0. We chose randomly four functional and four recreational trajectories for each of the two subjects to evaluate similarity. For that purpose we calculated Frechet distance among the trajectories within trajectory type and within subject. 
+The effect of weather, specifically rain, on the dog walking behavior was assessed by comparing the length and speed of dog walks during rain and with no rain with a t-test or the equivalent Welch's test when the variances weren't homogeneous. The effect of the time of the day on the length of dog walks was evaluated with an ANOVA. Differences in duration and the length of the walk between weekdays and weekends were examined with a t-test. 
 
 ## **Results**
 **Comparison of Functional and Recreational Dog-walks**
@@ -722,6 +677,7 @@ ggplot(Frechet, aes(Trajpair, Frechet))+
 
 
 ```
+
 **The Effect of Weather on the Dog-Walking Behavior**
 Rainy weather did not affect the distance covered during dog walks (t = -0.13733, df = 8, p-value = 0.89). In rainy weather, the average length of dog walks was 3577.27 m whereas under no rain the average length was 3453.63 m. However, the weather conditions had an effect on the speed of the dog walking behavior. Under rainy conditions, the speed of dog walks was faster than when there was no rain (t = -4.3871, df = 27.165, p-value < 0.0001) (Fig. 3). 
 ```{r}
@@ -762,7 +718,6 @@ plot_ly(shape_summary, labels = ~Shape, values = ~percent, type = 'pie') %>%
 ```
 
 ```{r}
-
 # Visualization of trajectories for both users
 
 # Visualization of all trajectories of MN
@@ -814,7 +769,7 @@ plot_grid(plotMN, plotMK, align = "hv",
 
 
 
-```{r}
+```{r results = 'hide'}
 # Plots that are not going to be included in the report (could get deleted)
 #Visualization of parameters
 
