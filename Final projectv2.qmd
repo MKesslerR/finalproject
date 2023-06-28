@@ -60,10 +60,9 @@ Of the weather data we filtered the precipitation data of the two weather statio
 
 Because we were only working with our data from our dog walks, we had to look at all the walks in Posmo and exclude the walking modes and segments that were not part of our dog walks, and any walks with incomplete tracking. There were issues in our data that the app created duplicate time stamps with different sets of coordinates. These erroneous had to be cleaned out first. Several pre-processing steps had to be done before we could join our two movement data sets. First, we had to store the coordinates into two separate columns (X-coordinates and Y-coordinates). Next, the precipitation data was joined to the individual movement data sets and we added a new column for rain/no rain before we joined the two data frames. We categorized trajectories that had precipitation of more than 50% of the walk as rain and no rain for values below the set threshold. A new column was added for weekday vs. weekend, as well as for the time of day (morning/evening/afternoon). 
 
-<<<<<<< HEAD
 Because we were only working with data from our dog walks, we had to look at all the walks in Posmo and exclude the walking modes and segments that were not part of our dog walks. There were issues in our data that the app created duplicate time stamps with different sets of coordinates. These ereneous data points had to be cleaned out first. Several pre-processing steps had to be done before we could join our two movement datasets. First, we had to store the coordinates into two seperate columns (X-coordinates and Y-coordinates). Next, the precipitation data was joined to the individual movement datasets that contains the precipitation data of the nearest weather station. A new column was added for rain/no rain and categorized trajectories that had precipitation of more than 50% of the walk as having rain and assigned no rain for values below the set threshold.The longest distance home was calculated for each trajectory. New columns were added for the weekday (weekend/weekday), time of the day (morning/afternoon/evening) and the start time of each trajectory.  
 Further parameters were calculated after static points were removed, such as step mean, time lag, step lenght, speed, duration and distance. 
-=======
+
 Because we were only working with data from our dog walks, we had to look at all the walks in Posmo and exclude the walking modes and segments that were not part of our dog walks. There were issues in our data that the app created duplicate time stamps with different sets of coordinates. These ereneous had to be cleaned out first. Several pre-processing steps had to be done before we could join our two movement datasets. First, we had to store the coordinates into two seperate columns (X-coordinates and Y-coordinates). Next, the precipitation data was joined to the individual movement datasets and we added a new column for rain/no rain before we joined the two data frames. We categorized trajectories that had precipitation of more than 50% of the walk as rain and no rain for values below the set threshold. A new column was added for weekday vs. weekend, as well as for the time of day (morning/evening/afternoon). 
 
 We adjusted the data types for further analysis and calculations. Further parameters were calculated after static points were removed, such as step mean, time lag, step lenght, speed, duration and distance.All these parameters were added to the data set. 
@@ -104,8 +103,6 @@ library(tmap)
 library(SimilarityMeasures)
 library(data.table)
 ```
-
->>>>>>> edc29d86416697ea69e0e0ea679a4591505ac371
 
 ```{r results = 'hide'}
 
@@ -320,6 +317,7 @@ plot_grid(K1a, K1b,
           vjust = 2.5,
           ncol = 2, nrow = 1)
 ```
+
 ```{r results = 'hide'}
 
 #Timelag. 
