@@ -760,7 +760,7 @@ plotMK <- posmoMK_home |>
   
 plot_grid(plotMN, plotMK, align = "hv",
          labels = c("MN Trajectories", "MK Trajectories"),
-         ncol = 2, nrow = 1, vjust = 3) Figure 9
+         ncol = 2, nrow = 1, vjust = 3) # Figure 9
          
 ```
 
