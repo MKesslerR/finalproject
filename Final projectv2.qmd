@@ -437,21 +437,21 @@ t.test(speed~Type, speed_summary, var.equal = TRUE)
 #mean in group functional mean in group recreational 
 #                  1.202219                   1.214331 
 ```
-Functional dog walks took place at an average speed of 1.20 m/s while the average speed of recreational dog walks was 1.21 m/s (see Figure 2). The t-test showed no significant differences between them (t = -0.38, df = 100, p-value = 0.70).
+Functional dog walks took place at an average speed of 1.20 m/s while the average speed of recreational dog walks was 1.21 m/s (Fig. 2). The t-test showed no significant differences between them (t = -0.38, df = 100, p-value = 0.70).
 ```{r fig.cap= "Figure 2: Boxplot displaying speed for the two types of walks."}
 ggplot(speed_summary, mapping = aes(Type, speed))+
   geom_boxplot() +
   labs(x = "Type of dog walking", y = "Speed [m/s]")+
   theme_light() 
 ```
-Figure 3 shows the average distance of functional walks of 1272.11 m, compared to 4389.43 m for recreational walks.
+The average distance of functional walks of 1272.11 m, compared to 4389.43 m for recreational walks (Fig. 3).
 ```{r fig.cap= "Figure 3: Functional walks covered shorter distances than recreational walks."}
 ggplot(dist_summary, mapping = aes(Type, distance))+
   geom_boxplot() +
   labs(x = "Type of dog walking", y = "Distance [m]")+
   theme_light()
 ```
-Figure 4 shows the average maximum distance distance covered from home, which was 624.39 m for functional walks and 1833.64 m for recreational walks (two outliers were not included in the calculation).
+The average maximum distance distance covered from home (Fig. 4), which was 624.39 m for functional walks and 1833.64 m for recreational walks (two outliers were not included in the calculation).
 ```{r fig.cap= "Figure 4: Functional walks took place at closer distances from the house than recreational dog walks."}
 ggplot(Maxdist_summary, mapping = aes(Type, max_distance))+
   geom_boxplot() +
@@ -593,7 +593,7 @@ Traj43MK <- as.matrix(Traj43MK)
 
 ```
 
-```{r fig.cap= "Figure 5: According to the Frechet distances, functional walk trajectories were very dissimilar, and the same was observed for recreational trajectories."}
+```{r fig.cap= "Figure 5: Boxplot of Frechet distance for the two types of walks."}
 #Similarity measures: Calculate Frechet distance for 4 randomly selected functional and 4 recreational walks within the same walker. 
 run_full <- FALSE
 if(run_full){
@@ -659,7 +659,7 @@ ggplot(Frechet, mapping = aes(Type, Frechet))+
   theme_light()  
 ```
 
-```{r}
+```{r fig.cap= "Figure 6: According to the Frechet distances, functional walk trajectories were very dissimilar, and the same was observed for recreational trajectories."}
 ggplot(Frechet, aes(Trajpair, Frechet))+
   geom_col(aes(fill = Walker))+
   facet_wrap(~ Type, nrow = 2, scales = "free")+
@@ -669,8 +669,8 @@ ggplot(Frechet, aes(Trajpair, Frechet))+
 ```
 
 **The Effect of Weather on the Dog-Walking Behavior**
-Rainy weather did not affect the distance covered during dog walks (t = -0.13733, df = 8, p-value = 0.89). In rainy weather, the average length of dog walks was 3577.27 m whereas under no rain the average length was 3453.63 m. However, the weather conditions had an effect on the speed of the dog walking behavior. Under rainy conditions, the speed of dog walks was faster than when there was no rain (t = -4.3871, df = 27.165, p-value < 0.0001) (see Figure 6). The average speed was 1.20 m/s for walks without precipitation, compared to an average speed of 1.30 m/s for walks with precipitation. There were only 8 walks (7.8%) with precipitation, compared to 95 walks (92.2 %) without precipitation.
-```{r fig.cap= "Figure 6: Boxplot displaying speed for walks with- and without precipitation."}
+Rainy weather did not affect the distance covered during dog walks (t = -0.13733, df = 8, p-value = 0.89). In rainy weather, the average length of dog walks was 3577.27 m whereas under no rain the average length was 3453.63 m. However, the weather conditions had an effect on the speed of the dog walking behavior. Under rainy conditions, the speed of dog walks was faster than when there was no rain (t = -4.3871, df = 27.165, p-value < 0.0001) (Fig. 7). The average speed was 1.20 m/s for walks without precipitation, compared to an average speed of 1.30 m/s for walks with precipitation. There were only 8 walks (7.8%) with precipitation, compared to 95 walks (92.2 %) without precipitation.
+```{r fig.cap= "Figure 7: Boxplot displaying speed for walks with- and without precipitation."}
 ggplot(speed_precip_summary, mapping = aes(precip_50, speed))+
   geom_boxplot() +
   labs(x = "Precipitation", y = "Speed [m/s]")+
@@ -678,8 +678,8 @@ ggplot(speed_precip_summary, mapping = aes(precip_50, speed))+
 ```
 
 **Temporal Differences in Dog Walking Behavior**
-Distance covered during dog walks varied throughout the day (Df = 2, Sum Sq = 78656052, F value = 8.444, p < 0.001). Morning dog walks were on average longer than in the afternoon, and the evening walks were the shortest on average (Fig. 7).  Neither the length (t = 0.63, df = 53.73, p-value = 0.53) nor the duration of the walks was (t = -0.19 secs, df = 48, p-value = 0.84) affected by the day of the week. During weekdays the length of dog walks were on average 3565.23 m, while on weekends the average was 3236.9 m. 
-```{r fig.cap= "Figure 7: Boxplot displaying distance covered for each time of the day category."}
+Distance covered during dog walks varied throughout the day (Df = 2, Sum Sq = 78656052, F value = 8.444, p < 0.001). Morning dog walks were on average longer than in the afternoon, and the evening walks were the shortest on average (Fig. 8).  Neither the length (t = 0.63, df = 53.73, p-value = 0.53) nor the duration of the walks was (t = -0.19 secs, df = 48, p-value = 0.84) affected by the day of the week. During weekdays the length of dog walks were on average 3565.23 m, while on weekends the average was 3236.9 m. 
+```{r fig.cap= "Figure 8: Boxplot displaying distance covered for each time of the day category."}
 ggplot(dist_type_tofday_summary, mapping = aes(time_of_day, distance))+
   geom_boxplot() +
   labs(x = "Time of day", y = "Distance [m]")+
@@ -688,7 +688,7 @@ ggplot(dist_type_tofday_summary, mapping = aes(time_of_day, distance))+
 
 **Dog Walking Behavior**
 The spatial movement behavior while dog walking ranged from axial movement to full-loop circuits. The more common spatial movement behavior was loops followed by semi-loops and the less common was axial trajectories (Fig. 8). In the full-loop trajectories the walk occurs without any repetition of the routes. In the semi-loop trajectories, the dog and dog owner move partially over the axial route to a certain point and then start a circuitous path to return home. In the axial routes, the dog owner and dog take a direct route from their starting point to a certain point and subsequently, they return home taking the same route.
-```{r fig.cap= "Figure 8: Pie chart displaying the trajectory shapes in percentage of all walks."}
+```{r fig.cap= "Figure 9: Pie chart displaying the trajectory shapes in percentage of all walks."}
 # Summarise the trajectory shapes
 shape_summary <- posmo |>
   group_by(trajectoryID, Shape) |> 
@@ -726,7 +726,6 @@ plot_ly(shape_summary, labels = ~Shape, values = ~percent, type = 'pie') %>%
          yaxis = list(showgrid = FALSE))
 ```
 
-<<<<<<< HEAD
 ```{r fig.cap= "Figure 10: Vizualization of the three trajectory shapes."}
 loop_plot <- posmo  |> 
   filter(trajectoryID == "T7") |> 
