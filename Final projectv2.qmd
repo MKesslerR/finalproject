@@ -5,6 +5,7 @@ author: "Margarita Kessler Rios & Mirjam Nötzli"
 format:
   html:
     code-fold: true
+    
 execute: 
   warning: false
   message: false
@@ -21,9 +22,6 @@ library(tmap)
 library(SimilarityMeasures)
 library(data.table)
 ```
-
-## **Abstract**
-<!-- (50-60 words) -->
 
 ## **Background and Research Questions**
 
@@ -60,8 +58,8 @@ Of the weather data we filtered the precipitation data of the two weather statio
 3. rco150z0: Ten minute precipitation sum
 
 ### **Pre-processing**
-Because we were only working with data from our dog walks, we had to look at all the walks in Posmo and exclude the walking modes and segments that were not part of our dog walks. There were issues in our data that the app created duplicate time stamps with different sets of coordinates. These ereneous data points had to be cleaned out first. Several pre-processing steps had to be done before we could join our two movement datasets. First, we had to store the coordinates into two seperate columns (X-coordinates and Y-coordinates). Next, the precipitation data was joined to the individual movement datasets that contains the precipitation data of the nearest weather station. A new column was added for rain/no rain and categorized trajectories that had precipitation of more than 50% of the walk as having rain and assigned no rain for values below the set threshold.The longest distance home was calculated for each trajectory. New columns were added for the weekday (weekend/weekday), time of the day (morning/afternoon/evening) and the start time of each trajectory.  
-Further parameters were calculated and stored in new columns after static points were removed, such as step mean, time lag, step lenght, speed, duration and distance. 
+Because we were only working with data from our dog walks, we had to look at all the walks in Posmo and exclude the walking modes and segments that were not part of our dog walks. There were issues in our data that the app created duplicate time stamps with different sets of coordinates. These eroneous data points had to be cleaned out first. Several pre-processing steps had to be done before we could join our two movement data sets. First, we had to store the coordinates into two separate columns (X-coordinates and Y-coordinates). Next, the precipitation data was joined to the individual movement data sets that contains the precipitation data of the nearest weather station. A new column was added for rain/no rain and categorized trajectories that had precipitation of more than 50% of the walk as having rain and assigned no rain for values below the set threshold.The longest distance home was calculated for each trajectory. New columns were added for the weekday (weekend/weekday), time of the day (morning/afternoon/evening) and the start time of each trajectory.  
+Further parameters were calculated and stored in new columns after static points were removed, such as step mean, time lag, step length, speed, duration and distance. 
 
 ```{r results = 'hide'}
 # Import data
@@ -242,7 +240,7 @@ which(posmo$stepMean> 50 )
 posmo_filter <- posmo |>
     filter(!static)
 ```
-Figure 1 below shows a trajectory with- (left) and without static points (right). A threshold of the average step mean of 50 meters was applied to filter out the static points that are below the defined threshold.
+Trajectory with- (left) and without static points (right). A threshold of the average step mean of 50 meters was applied to filter out the static points that are below the defined threshold (Fig. 1).
 ```{r fig.cap= "Figure 1: Vizualization of a trajectory with and without static points."}
 # Trajectories visualization with and without static points 
 K1 <- posmo %>%
@@ -437,21 +435,21 @@ t.test(speed~Type, speed_summary, var.equal = TRUE)
 #mean in group functional mean in group recreational 
 #                  1.202219                   1.214331 
 ```
-Functional dog walks took place at an average speed of 1.20 m/s while the average speed of recreational dog walks was 1.21 m/s (see Figure 2). The t-test showed no significant differences between them (t = -0.38, df = 100, p-value = 0.70).
+Functional dog walks took place at an average speed of 1.20 m/s while the average speed of recreational dog walks was 1.21 m/s (Fig. 2). The t-test showed no significant differences between them (t = -0.38, df = 100, p-value = 0.70).
 ```{r fig.cap= "Figure 2: Boxplot displaying speed for the two types of walks."}
 ggplot(speed_summary, mapping = aes(Type, speed))+
   geom_boxplot() +
   labs(x = "Type of dog walking", y = "Speed [m/s]")+
   theme_light() 
 ```
-Figure 3 shows the average distance of functional walks of 1272.11 m, compared to 4389.43 m for recreational walks.
+The average distance of functional walks of 1272.11 m, compared to 4389.43 m for recreational walks (Fig. 3).
 ```{r fig.cap= "Figure 3: Functional walks covered shorter distances than recreational walks."}
 ggplot(dist_summary, mapping = aes(Type, distance))+
   geom_boxplot() +
   labs(x = "Type of dog walking", y = "Distance [m]")+
   theme_light()
 ```
-Figure 4 shows the average maximum distance distance covered from home, which was 624.39 m for functional walks and 1833.64 m for recreational walks (two outliers were not included in the calculation).
+The average maximum distance distance covered from home (Fig. 4), which was 624.39 m for functional walks and 1833.64 m for recreational walks (two outliers were not included in the calculation).
 ```{r fig.cap= "Figure 4: Functional walks took place at closer distances from the house than recreational dog walks."}
 ggplot(Maxdist_summary, mapping = aes(Type, max_distance))+
   geom_boxplot() +
@@ -670,7 +668,7 @@ ggplot(Frechet, aes(Trajpair, Frechet))+
 
 **The Effect of Weather on the Dog-Walking Behavior**
 
-Rainy weather did not affect the distance covered during dog walks (t = -0.13733, df = 8, p-value = 0.89). In rainy weather, the average length of dog walks was 3577.27 m, whereas under no rain the average length was 3453.63 m. However, the weather conditions had an effect on the speed of the dog walking behavior. Under rainy conditions, the speed of dog walks was faster than when there was no rain (t = -4.3871, df = 27.165, p-value < 0.0001) (see Figure 7). The average speed was 1.20 m/s for walks without precipitation, compared to an average speed of 1.30 m/s for walks with precipitation. There were only 8 walks (7.8%) with precipitation, compared to 95 walks (92.2 %) without precipitation.
+Rainy weather did not affect the distance covered during dog walks (t = -0.13733, df = 8, p-value = 0.89). In rainy weather, the average length of dog walks was 3577.27 m, whereas under no rain the average length was 3453.63 m. However, the weather conditions had an effect on the speed of the dog walking behavior. Under rainy conditions, the speed of dog walks was faster than when there was no rain (t = -4.3871, df = 27.165, p-value < 0.0001) (Fig. 7). The average speed was 1.20 m/s for walks without precipitation, compared to an average speed of 1.30 m/s for walks with precipitation. There were only 8 walks (7.8%) with precipitation, compared to 95 walks (92.2 %) without precipitation.
 ```{r fig.cap= "Figure 7: Boxplot displaying speed for walks with- and without precipitation."}
 ggplot(speed_precip_summary, mapping = aes(precip_50, speed))+
   geom_boxplot() +
@@ -691,7 +689,7 @@ ggplot(dist_type_tofday_summary, mapping = aes(time_of_day, distance))+
 **Dog Walking Behavior**
 
 
-Most of the trajectories while dog walking were loops and semi-loops, the less common were axial trajectories (Fig. 9). The spatial movement behavior while dog walking ranged from axial movement to full-loop circuits. The more common spatial movement behavior was loops followed by semi-loops and the less common was axial trajectories (Fig. 8). In the full-loop trajectories the walk occurs without any repetition of the routes. In the semi-loop trajectories, the dog and dog owner move partially over the axial route to a certain point and then start a circuitous path to return home. In the axial routes, the dog owner and dog take a direct route from their starting point to a certain point and subsequently, they return home taking the same route.
+Most of the trajectories while dog walking were loops and semi-loops, the less common were axial trajectories (Fig. 9). The spatial movement behavior while dog walking ranged from axial movement to full-loop circuits. The more common spatial movement behavior was loops followed by semi-loops and the less common was axial trajectories (Fig. 9). In the full-loop trajectories the walk occurs without any repetition of the routes. In the semi-loop trajectories, the dog and dog owner move partially over the axial route to a certain point and then start a circuitous path to return home. In the axial routes, the dog owner and dog take a direct route from their starting point to a certain point and subsequently, they return home taking the same route.
 ```{r fig.cap= "Figure 9: Pie chart displaying the trajectory shapes in percentage of all walks."}
 
 # Summarise the trajectory shapes
@@ -731,7 +729,41 @@ plot_ly(shape_summary, labels = ~Shape, values = ~percent, type = 'pie') %>%
          yaxis = list(showgrid = FALSE))
 ```
 
-```{r fig.cap= "Figure 10: Visualization of all home trajectories for both users."}
+```{r fig.cap= "Figure 10: Vizualization of the three trajectory shapes."}
+loop_plot <- posmo  |> 
+  filter(trajectoryID == "T7") |> 
+  ggplot(aes(X, Y))+
+  geom_path(col = "blue", size = 0.9)+
+    coord_fixed()+
+    theme_classic()+
+  labs(x = "X", y = "Y")
+
+semi_loop_plot <- posmo |> 
+  filter(trajectoryID == "T45") |> 
+  ggplot(aes(X, Y))+
+  geom_path(col = "black", size = 0.9)+
+    coord_fixed()+
+    theme_classic()+
+  labs(x = "X", y = "")
+
+axial_plot <- posmo |> 
+  filter(trajectoryID == "T4") |> 
+  ggplot(aes(X, Y))+
+  geom_path(col = "purple", size = 0.9)+
+    coord_fixed()+
+    theme_classic()+
+  labs(x = "X", y = "")+
+  scale_x_continuous(limits = c(2706650, 2707200), breaks = c(2706700, 2706900, 2707100))+
+  scale_y_continuous(limits = c(1233300, 1234700), breaks = c(1233400, 1233800, 1234200, 1234600))
+  
+
+plot_grid(loop_plot, semi_loop_plot, axial_plot, align = "hv",
+         labels = c("Loop", "Semi-loop", "Axial"),
+         hjust = c(-2, -1, -2),
+         ncol = 3, nrow = 1)
+```
+
+```{r fig.cap= "Figure 11: Visualization of all home trajectories for both users."}
 
 # Visualization of all trajectories of MN
 plotMN <- posmo_MN |> 
@@ -818,13 +850,5 @@ Fletcher T, Platt L. (2016) Just a walk with the dog? Animal geographies and neg
 Pickup, E., German, A., Blackwell, E., Evans, M., & Westgarth, C. (2017). Variation in activity levels amongst dogs of different breeds: Results of a large online survey of dog owners from the UK. Journal of Nutritional Science, 6, E10. doi:10.1017/jns.2017.7
 
 Aspling, F., Juhlin, O.,& Chiodo, E. (2015). Smelling, pulling, and looking: unpacking similarities and differences in dog and human city life. In Proceedings of the 12th International Conference on Advances in Computer Entertainment Technology (pp.1-9).
-
-
-```{r}
-tmap_mode("view")
-posmoMK_home |> tm_shape() + tm_dots()
-
-T_39 <- posmo |> filter(trajectoryID=="T39")
-```
 
 
