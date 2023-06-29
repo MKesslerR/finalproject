@@ -61,17 +61,15 @@ Because we were only working with data from our dog walks, we had to look at all
 Further parameters were calculated and stored in new columns after static points were removed, such as step mean, time lag, step lenght, speed, duration and distance. 
 
 ```{r results = 'hide'}
-
-#Import data
+# Import data
 # Filter walk transport mode, select only necessary columns, and transform data frame into sf object and transform it into EPSG 2056 coordinate system
 
-#Import Posmo data MK
+# Import Posmo data MK
 posmo_MK <- read_delim("data/posmo_MK_edited3.csv", delim = ";") |> 
   filter(transport_mode == "Walk") |> 
   select(user_id, datetime, weekday, lon_x, lat_y, trajectoryID, Type, Shape) |> 
   st_as_sf(coords = c("lon_x","lat_y"), crs = 4326)|>
   st_transform(2056)
-
 
 # Import Posmo data MN
 posmo_MN <- read_delim("data/posmo_MN_edited3.csv", delim = ";") |> 
@@ -97,7 +95,6 @@ precip_SHA$datetime <- as.POSIXct(precip_SHA$datetime, tz = "UTC") # convert cha
 precip_HIW <- precip_hinwil |> filter(stn == "HIW")|> rename(datetime = time) |> rename(rco150z0 = rre150z0)
 precip_HIW$datetime <- as.POSIXct(precip_HIW$datetime, tz = "UTC") # convert character into POSIXct
 
-
 # Pre-processing
 # store the coordinates into two separate columns
 posmo_coordinates <- st_coordinates(posmo_MK)
@@ -111,9 +108,8 @@ posmoMN_coordinates <- st_coordinates(posmo_MN)
 
 posmo_MN <- cbind(posmo_MN, posmoMN_coordinates)
 
-
-#calculate longest distance from each trajectory to home for the two data sets
-#Create an sf object with the house coordinates
+# calculate longest distance from each trajectory to home for the two data sets
+# Create an sf object with the house coordinates
 house_MK <- read_delim("data/MK_house.csv") |> 
   st_as_sf(coords = c("lon_x","lat_y"), crs = 4326)|>
   st_transform(2056)
@@ -122,8 +118,7 @@ houseMK_coordinates <- st_coordinates(house_MK)
 
 house_MK <- cbind(house_MK, houseMK_coordinates)
 
-
-#The same with MN 
+# The same with MN 
 house_MN <- read_delim("data/MN_house.csv") |> 
   st_as_sf(coords = c("lon_x","lat_y"), crs = 4326)|>
   st_transform(2056)
@@ -131,23 +126,22 @@ house_MN <- read_delim("data/MN_house.csv") |>
 houseMN_coordinates <- st_coordinates(house_MN)
 
 house_MN <- cbind(house_MN, houseMN_coordinates)
-
-#Calculate the max distance from the house for each trajectory
+ 
+# Calculate the max distance from the house for each trajectory
 posmo_MK$distance_home <- as.numeric(st_distance(posmo_MK, house_MK)[,1])
  
 posmo_MK <- posmo_MK |>
   group_by(trajectoryID) |>
   mutate(max_distance = max(distance_home))
 
-#the same for MN
+# the same for MN
 posmo_MN$distance_home <- as.numeric(st_distance(posmo_MN, house_MN)[,1])
  
 posmo_MN <- posmo_MN |>
   group_by(trajectoryID) |>
   mutate(max_distance = max(distance_home))
 
-
-## Join posmo data with weather data then join the two dataframes
+# Join posmo data with weather data then join the two dataframes
 # Create new column with time values rounded to closest 10 minutes, to be able to join with weather data
 posmo_MN <- posmo_MN |> mutate(
   Datetime_round = lubridate::round_date(datetime,"10 minutes")
@@ -172,7 +166,7 @@ posmo_weather_MN$precip[posmo_weather_MN$rco150z0 > 0] <- "yes"
 posmo_weather_MK$precip[posmo_weather_MK$rco150z0 == 0] <- "no"
 posmo_weather_MK$precip[posmo_weather_MK$rco150z0 > 0] <- "yes"
 
-#Join the two data frames vertically
+# Join the two data frames vertically
 posmo <- rbind(posmo_weather_MN, posmo_weather_MK)
 
 # Get trajectories with precipitation >50% of the time 
@@ -203,7 +197,7 @@ posmo$precip_50 <- posmo$precip_50 |> replace_na("no")
 # Add a new column wday for Weekday/Weekend
 posmo$wday <- ifelse(posmo$weekday %in% c("Sat", "Sun"), "weekend", "weekday") 
 
-#Add a new column start with the time at which the trajectory started and separate the time with format H and M
+# Add a new column start with the time at which the trajectory started and separate the time with format H and M
 posmo <- posmo |>
   group_by(trajectoryID) |> 
   mutate(start = min(datetime))
@@ -216,10 +210,10 @@ posmo$time_of_day <- cut(x=hour(posmo$start), breaks = breaks, labels = labels, 
 
 posmo$start <- strftime(posmo$start, format="%H:%M:%S")
 
-#Remove static points from trajectories. posmo-filter contains the trajectories without static points
+# Remove static points from trajectories. posmo-filter contains the trajectories without static points
 str(posmo)
 
-#To calculate distance among  Time-stamp 1 and 2 back and forward.
+# calculate distance among  Time-stamp 1 and 2 back and forward.
 posmo <- posmo |>
   group_by(trajectoryID) |> 
   mutate(
@@ -238,19 +232,16 @@ posmo <- posmo |>
  
 which(posmo$stepMean> 50 )
  
-#Remove static points by applying threshold,  the threshold is the average step Mean. 
+# Remove static points by applying threshold,  the threshold is the average step Mean. 
  posmo <- posmo |> 
   mutate(static = stepMean < mean(stepMean, na.rm = TRUE))
 
 posmo_filter <- posmo |>
     filter(!static)
-
 ```
-
+Figure 1 below shows a trajectory with- (left) and without static points (right). A threshold of the average step mean of 50 meters was applied to filter out the static points that are below the defined threshold.
 ```{r fig.cap= "Figure 1: Vizualization of a trajectory with and without static points."}
-
-##Trajectories visualization with and without static points 
-## One of MK
+# Trajectories visualization with and without static points 
 K1 <- posmo %>%
   filter(trajectoryID == "T1")
 
@@ -259,15 +250,18 @@ K1_filter <- posmo_filter %>%
   
 K1a <- ggplot(K1, aes(X, Y))+
   geom_path()+
-  geom_point(color  = "blue")+
-  coord_fixed()
+  geom_point()+
+  coord_fixed()+
+  theme_minimal()
 
 K1b <- ggplot(K1_filter, aes(X, Y))+
   geom_path()+
     geom_point()+
-    coord_fixed()
+    coord_fixed()+
+    theme_minimal()+
+   scale_x_continuous(limits = c(2708520, 2708675), breaks = c(2708550, 2708600, 2708650))
 
-plot_grid(K1a, K1b, 
+plot_grid(K1a, K1b, align = "hv",
          labels = c("Raw", "Static points removed"),
           hjust = c(-2,-0.4),
           vjust = 2.5,
@@ -275,9 +269,8 @@ plot_grid(K1a, K1b,
 ```
 
 ```{r results = 'hide'}
-
-#Timelag. 
-#How often was the position recorded. Calculated for the trajectories with and without (posmo_filter) static points
+# Timelag. 
+# How often was the position recorded. Calculated for the trajectories with and without (posmo_filter) static points
 posmo <- posmo |> 
     group_by(trajectoryID)|> 
     mutate(timelag = as.numeric(difftime(lead(datetime), datetime, units = "secs")))
@@ -287,12 +280,11 @@ posmo_filter <- posmo_filter |>
     mutate(timelag = as.numeric(difftime(lead(datetime), datetime, units = "secs")))
 
  
-which(posmo$timelag> 300)#The threshold was set at 300 (15*20), sometimes we had pauses of up to 20 minutes during the walks that recorded the same location several times
+which(posmo$timelag> 300)# The threshold was set at 300 (15*20), sometimes we had pauses of up to 20 minutes during the walks that recorded the same location several times
 which(posmo$timelag> 500)
 
-#Step-length, distance covered and speed calculation
-#calculation for the whole trajectories 
-
+# calculation for Step-length, duration, distance covered and speed 
+# calculation for the whole trajectories 
  posmo <- posmo |>
   group_by(trajectoryID) |> 
   mutate(steplenght = sqrt ((X-lead(X))^2 + (Y-lead(Y))^2))|>
@@ -301,7 +293,7 @@ which(posmo$timelag> 500)
  
  which(posmo$steplenght > 30) #30 meters in 15 seconds its an average
 
- #to filter out outlayers (trackings with steplenght longer than 50 and timelags longer than 300)
+# filter out outlayers (trackings with steplenght longer than 50 and timelags longer than 300)
 posmo_speed <- posmo |>
   filter(timelag < 300 | steplenght >50,)
 
@@ -312,13 +304,12 @@ posmo_speed <- posmo_speed|>
 posmo_speed <- posmo_speed|>
   filter(speed < 1.8)
 
-#calculation with the trajectories without static points
-#posmo_filter <- posmo_filter |>
+# calculation with the trajectories without static points
+# posmo_filter <- posmo_filter |>
 #  group_by(trajectoryID) |> 
 #  mutate(steplenght = sqrt ((X-lead(X))^2 + (Y-lead(Y))^2))|>
 #  mutate(duration = (max(datetime)- min(datetime))/60)|>
 #  mutate(distance = sum(steplenght, na.rm = TRUE))
-
 
 # Distance calculations for recreational/functional walks
 dist_summary <- posmo |>
@@ -329,25 +320,29 @@ dist_summary <- posmo |>
 mean(dist_summary$distance[1:33]) # average distance of functional walks 1272.11 m
 mean(dist_summary$distance[34:103]) # average distance of recreational walks 4389.43 m
 
-#Differences in max distance to the house
+# Differences in max distance to the house
 Maxdist_summary <- posmo |>
   group_by(Type, max_distance) |> 
   summarise() |> 
-  st_drop_geometry()
-mean(dist_summary$distance[1:33]) # average distance of functional walks 1272.11 m
-mean(dist_summary$distance[34:103]) # average distance of recreational walks 4389.43 m
+  st_drop_geometry() 
 
-#The effect of the weather on the dog-walking behavior
+mean(Maxdist_summary$max_distance[1:33]) # average distance of functional walks 624.39 m
+mean(Maxdist_summary$max_distance[34:103]) # average distance of recreational walks 3484.34 m
+
+# The effect of the weather on the dog-walking behavior
 
 # calculate average speed for dog walks with and without precipitation
 speed_precip_summary <- posmo_speed |>
-  group_by(Type, precip_50, speed) |> 
+  group_by(precip_50, speed) |> 
   summarise() |> 
   st_drop_geometry()
 
+mean(speed_precip_summary$speed[1:94])# average speed of 1.20 m/s for walks without precipitation
+mean(speed_precip_summary$speed[95:102])# average speed of 1.30 m/s for walks with precipitation
+
 t.test(speed~precip_50, speed_precip_summary)
 
-#Evaluating differences in distance covered during dog walks with and without precipitation
+# Evaluating differences in distance covered during dog walks with and without precipitation
 precip_dist_summary <- posmo |>
   group_by(precip_50, distance) |> 
   summarise() |> 
@@ -355,8 +350,7 @@ precip_dist_summary <- posmo |>
 
 t.test(distance ~ precip_50, precip_dist_summary)
 
-
-#Temporal differences in dog walking behavior
+# Temporal differences in dog walking behavior
 
 # calculate average distance for recreational/functional walks for time of day 3 categories (morning/afternoon/evening)
 dist_type_tofday_summary <- posmo |>
@@ -404,22 +398,20 @@ speed_wday_summary <- posmo_speed |>
 mean(speed_wday_summary$speed[1:70]) # average speed of weekday walks 1.22 m/s
 mean(speed_wday_summary$speed[71:102]) # average speed of weekend walks 1.18 m/s
 
-#Differences in the start time of the morning walk on weekdays vs weekends
+# Differences in the start time of the morning walk on weekdays vs weekends
  starttime_wday_summary <- posmo |>
   filter(time_of_day == "Morning")|>
   group_by(wday, start) |> 
   summarise() |> 
   st_drop_geometry()
 
-#Differences in duration of the walk on weekdays vs weekends
-
+# Differences in duration of the walk on weekdays vs weekends
 duration_wday_summary <- posmo |>
   group_by (wday, duration) |> 
   summarise() |> 
   st_drop_geometry()
 
 t.test(duration ~ wday, duration_wday_summary)
-
 ```
 ### **Analysis**
 We evaluated differences between functional and recreational dog walks in speed, distance and maximum distance from the house. T-test were used to test the hypothesis that the difference in means of the two groups was 0. We chose randomly four functional and four recreational trajectories for each of the two subjects to evaluate similarity. For that purpose we calculated Frechet distance among the trajectories within trajectory type and within subject. 
@@ -427,7 +419,6 @@ The effect of weather, specifically rain, on the dog walking behavior was assess
 
 ## **Results**
 **Comparison of Functional and Recreational Dog-walks**
-Functional dog walks took place at a speed of 1.20 m/s while the average for recreational dog walks was 1.21 m/s., and there weren’t significant differences between them (t = -0.38, df = 100, p-value = 0.70) 
 ```{r results = 'hide'}
 #Comparing functional and recreational dog walks
 
@@ -437,38 +428,35 @@ speed_summary <- posmo_speed |>
   summarise() |> 
   st_drop_geometry()
 
-
 # t-Test to evaluate differences in speed between the two types of walks 
 t.test(speed~Type, speed_summary, var.equal = TRUE)
 #mean in group functional mean in group recreational 
 #                  1.202219                   1.214331 
 ```
-
+Functional dog walks took place at an average speed of 1.20 m/s while the average speed of recreational dog walks was 1.21 m/s (see Figure 2). The t-test showed no significant differences between them (t = -0.38, df = 100, p-value = 0.70).
 ```{r fig.cap= "Figure 2: Boxplot displaying speed for the two types of walks."}
 ggplot(speed_summary, mapping = aes(Type, speed))+
   geom_boxplot() +
   labs(x = "Type of dog walking", y = "Speed [m/s]")+
   theme_light() 
 ```
-
+Figure 3 shows the average distance of functional walks of 1272.11 m, compared to 4389.43 m for recreational walks.
 ```{r fig.cap= "Figure 3: Functional walks covered shorter distances than recreational walks."}
 ggplot(dist_summary, mapping = aes(Type, distance))+
   geom_boxplot() +
   labs(x = "Type of dog walking", y = "Distance [m]")+
   theme_light()
 ```
-
+Figure 4 shows the average maximum distance distance covered from home, which was 624.39 m for functional walks and 3484.34 m for recreational walks (please note that two outliers were removed from the plot).
 ```{r fig.cap= "Figure 4: Functional walks took place at closer distances from the house than recreational dog walks."}
 ggplot(Maxdist_summary, mapping = aes(Type, max_distance))+
   geom_boxplot() +
   labs(x = "Type of dog walking", y = "Max distance home [m]")+
   theme_light()+
-  scale_y_continuous(limits = c(0, 1000))
-
+   scale_y_continuous(limits = c(100, 2000))
 ```
 
 ```{r results = 'hide'}
-
 # Frechet Distance
 
 #Visualization of parameters
@@ -661,30 +649,28 @@ Frechet <- rbind(SM1, SM2, SM3, SM4)
   Frechet <- read_csv("data-temp/Frechet.csv")
 } 
 
-
 ggplot(Frechet, mapping = aes(Type, Frechet))+
   geom_boxplot() +
   labs(x = "Type of dog walking", y = "Frechet Distance")+
   theme_light()  
+```
 
+```{r}
 ggplot(Frechet, aes(Trajpair, Frechet))+
   geom_col(aes(fill = Walker))+
   facet_wrap(~ Type, nrow = 2, scales = "free")+
     theme_light()+
   labs(x = "Trajectory pairs", y = "Frechet Distance")+
   theme(axis.text.x = element_text(angle = 90))
-
-
 ```
 
 **The Effect of Weather on the Dog-Walking Behavior**
-Rainy weather did not affect the distance covered during dog walks (t = -0.13733, df = 8, p-value = 0.89). In rainy weather, the average length of dog walks was 3577.27 m whereas under no rain the average length was 3453.63 m. However, the weather conditions had an effect on the speed of the dog walking behavior. Under rainy conditions, the speed of dog walks was faster than when there was no rain (t = -4.3871, df = 27.165, p-value < 0.0001) (Fig. 6). 
+Rainy weather did not affect the distance covered during dog walks (t = -0.13733, df = 8, p-value = 0.89). In rainy weather, the average length of dog walks was 3577.27 m whereas under no rain the average length was 3453.63 m. However, the weather conditions had an effect on the speed of the dog walking behavior. Under rainy conditions, the speed of dog walks was faster than when there was no rain (t = -4.3871, df = 27.165, p-value < 0.0001) (see Figure 6). The average speed was 1.20 m/s for walks without precipitation, compared to an average speed of 1.30 m/s for walks with precipitation.
 ```{r fig.cap= "Figure 6: Boxplot displaying speed for walks with- and without precipitation."}
 ggplot(speed_precip_summary, mapping = aes(precip_50, speed))+
   geom_boxplot() +
   labs(x = "Precipitation", y = "Speed [m/s]")+
   theme_light() 
-
 ```
 
 **Temporal Differences in Dog Walking Behavior**
@@ -705,6 +691,16 @@ shape_summary <- posmo |>
   summarise() |>
   ungroup() |>
   group_by(Shape) |>
+  summarise(count = n()) |>
+  st_drop_geometry() |>
+  mutate(percent = round(count / sum(count) * 100, 2))
+
+# Summarise the types of walks
+type_summary <- posmo |>
+  group_by(trajectoryID, Type) |> 
+  summarise() |>
+  ungroup() |>
+  group_by(Type) |>
   summarise(count = n()) |>
   st_drop_geometry() |>
   mutate(percent = round(count / sum(count) * 100, 2))
@@ -797,5 +793,10 @@ ggplot(duration_wday_summary, mapping = aes(wday, duration))+
 ```
 
 
+```{r}
+test <- posmo |> group_by(Type, trajectoryID) |> 
+  count(trajectoryID)
+  
+```
 
 
