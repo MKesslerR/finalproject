@@ -428,7 +428,7 @@ The effect of weather, specifically rain, on the dog walking behavior was assess
 
 #Speed calculation  for the two type of walks excluding out-layers
 speed_summary <- posmo_speed |>
-  group_by(Type, speed) |> 
+  group_by(Type, speed ) |> 
   summarise() |> 
   st_drop_geometry()
 
@@ -593,7 +593,7 @@ Traj43MK <- as.matrix(Traj43MK)
 
 ```
 
-```{r fig.cap= "Figure 5: According to the Frechet distances, functional walk trajectories were very dissimilar, and the same was observed for recreational trajectories."}
+```{r fig.cap= "Figure 5: Boxplot of frechet distance for the two types of walks"}
 #Similarity measures: Calculate Frechet distance for 4 randomly selected functional and 4 recreational walks within the same walker. 
 run_full <- FALSE
 if(run_full){
@@ -659,7 +659,7 @@ ggplot(Frechet, mapping = aes(Type, Frechet))+
   theme_light()  
 ```
 
-```{r}
+```{r fig.cap= "Figure 6: According to the Frechet distances, functional walk trajectories were very dissimilar, and the same was observed for recreational trajectories."}
 ggplot(Frechet, aes(Trajpair, Frechet))+
   geom_col(aes(fill = Walker))+
   facet_wrap(~ Type, nrow = 2, scales = "free")+
@@ -669,8 +669,9 @@ ggplot(Frechet, aes(Trajpair, Frechet))+
 ```
 
 **The Effect of Weather on the Dog-Walking Behavior**
-Rainy weather did not affect the distance covered during dog walks (t = -0.13733, df = 8, p-value = 0.89). In rainy weather, the average length of dog walks was 3577.27 m whereas under no rain the average length was 3453.63 m. However, the weather conditions had an effect on the speed of the dog walking behavior. Under rainy conditions, the speed of dog walks was faster than when there was no rain (t = -4.3871, df = 27.165, p-value < 0.0001) (see Figure 6). The average speed was 1.20 m/s for walks without precipitation, compared to an average speed of 1.30 m/s for walks with precipitation. There were only 8 walks (7.8%) with precipitation, compared to 95 walks (92.2 %) without precipitation.
-```{r fig.cap= "Figure 6: Boxplot displaying speed for walks with- and without precipitation."}
+
+Rainy weather did not affect the distance covered during dog walks (t = -0.13733, df = 8, p-value = 0.89). In rainy weather, the average length of dog walks was 3577.27 m, whereas under no rain the average length was 3453.63 m. However, the weather conditions had an effect on the speed of the dog walking behavior. Under rainy conditions, the speed of dog walks was faster than when there was no rain (t = -4.3871, df = 27.165, p-value < 0.0001) (see Figure 7). The average speed was 1.20 m/s for walks without precipitation, compared to an average speed of 1.30 m/s for walks with precipitation. There were only 8 walks (7.8%) with precipitation, compared to 95 walks (92.2 %) without precipitation.
+```{r fig.cap= "Figure 7: Boxplot displaying speed for walks with- and without precipitation."}
 ggplot(speed_precip_summary, mapping = aes(precip_50, speed))+
   geom_boxplot() +
   labs(x = "Precipitation", y = "Speed [m/s]")+
@@ -678,8 +679,9 @@ ggplot(speed_precip_summary, mapping = aes(precip_50, speed))+
 ```
 
 **Temporal Differences in Dog Walking Behavior**
-Distance covered during dog walks varied throughout the day (Df = 2, Sum Sq = 78656052, F value = 8.444, p < 0.001). Morning dog walks were on average longer than in the afternoon, and the evening walks were the shortest on average (Fig. 7).  Neither the length (t = 0.63, df = 53.73, p-value = 0.53) nor the duration of the walks was (t = -0.19 secs, df = 48, p-value = 0.84) affected by the day of the week. During weekdays the length of dog walks were on average 3565.23 m, while on weekends the average was 3236.9 m. 
-```{r fig.cap= "Figure 7: Boxplot displaying distance covered for each time of the day category."}
+
+Distance covered during dog walks varied throughout the day (Df = 2, Sum Sq = 78656052, F value = 8.444, p < 0.001). Morning dog walks were on average longer than in the afternoon, and the evening walks were the shortest on average (Fig. 8).  Neither the length (t = 0.63, df = 53.73, p-value = 0.53) nor the duration of the walks (t = -0.19 secs, df = 48, p-value = 0.84) was affected by the day of the week. During weekdays the length of dog walks were on average 3565.23 m, while on weekends the average was 3236.9 m. 
+```{r fig.cap= "Figure 8: Boxplot displaying distance covered for each time of the day category."}
 ggplot(dist_type_tofday_summary, mapping = aes(time_of_day, distance))+
   geom_boxplot() +
   labs(x = "Time of day", y = "Distance [m]")+
@@ -687,8 +689,9 @@ ggplot(dist_type_tofday_summary, mapping = aes(time_of_day, distance))+
 ```
 
 **Dog Walking Behavior**
-Figure 8: Most of the trajectories while dog walking were loops and semi-loops, the less common were axial trajectories. 
-```{r fig.cap= "Figure 8: Pie chart displaying the trajectory shapes in percentage of all walks."}
+
+Figure 9: Most of the trajectories while dog walking were loops and semi-loops, the less common were axial trajectories. 
+```{r fig.cap= "Figure 9: Pie chart displaying the trajectory shapes in percentage of all walks."}
 # Summarise the trajectory shapes
 shape_summary <- posmo |>
   group_by(trajectoryID, Shape) |> 
@@ -773,56 +776,32 @@ plot_grid(plotMN, plotMK, align = "hv",
 ## **Discussion and Conclusions**
 
 **Comparison of functional and recreational dog-walks**
-Our research aimed to characterize two types of dog walking practices: functional and recreational. Additionally, we sought to evaluate temporal differences and the effect of the weather on the dog walking behavior. According to Westgarth et al. (2021), functional walks are usually performed for a simple functional purpose, usually to meet the perceived practical needs of the dog to undertake some exercise and excretion. Recreational walks were used to de-stress and relax the owner, particularly after work or at weekends. Functional dog walks are usually short in distance and duration and occur close to home and in bad weather (Westgarth et al. 2021). During our classification of the two types of walking practices, we initially set the threshold of functional walks as shorter than 15 minutes, but only a few trajectories meet this condition, then we set the threshold as 20 minutes but still none of the walks of one to the participants met this condition. We finally set the threshold for 30 minutes. This threshold is backed up by the recommendation of the US Department of Agriculture which advises that dogs should have at least 30 min of exercise per day (Pickup et al. 2017). Our results agreed with our predictions, functional walks are usually taken close to home, in the neighborhood, because these were the most convenient places when short on time. We had also predicted that the pace of functional walks would be faster than recreational walks. However, we found no differences. Probably, for both dog owners is the dog who sets the pace of the walk and when there were time constraints, both owners just chose short routes, and hence the time constraint didn’t affect the pace. 
-We predicted that the trajectories followed during functional walks were more similar to one another than recreational walks. The rationale behind it is that there were fewer options when walking the dog under a time constraint or that when time was limited the dog owners have a few favorite-practical routes. Yet, the Frechet distances calculations suggest that the differences among trajectories of functional walks were as large as those among recreational trajectories (Fig. x). This suggests that dog owners don’t have favorite routes for functional or recreational dog walks. However, these results should be interpreted cautiously since only four randomly chosen trajectories of each type for each dog owner were included in the analysis. It is likely that if the analysis included all the trajectories, other patterns may have emerged. 
-The dog-owner relationship appears to be the most important determinant of dog walking behavior. The dog-owner relationship includes factors such as attachment, frequency of interactions, feelings of support and motivation provided by the dog for walking, and feelings of obligation towards walking the dog (Westgarth et al. 2014). During this trial, most of the walks were recreational which suggests that for both dog owners, the dog walking activity is an integrative practice enjoyable for both dogs and dog owners.  
+
+Our research aimed to characterize two types of dog walking practices: functional and recreational. Additionally, we sought to evaluate temporal differences and the effect of the weather on the dog walking behavior. According to Westgarth et al. (2021), functional walks are usually performed for a simple functional purpose, usually to meet the perceived practical needs of the dog to undertake some exercise and excretion. Recreational walks were used to de-stress and relax the owner, particularly after work or at weekends. Functional dog walks are usually short in distance and duration and occur close to home and in bad weather (Westgarth et al. 2021). During our classification of the two types of walking practices, we initially set the threshold of functional walks as shorter than 15 minutes, but only a few trajectories meet this condition. Then we set the threshold as 20 minutes but still none of the walks of one of the participants met this condition. We finally set the threshold of 30 minutes. This threshold is backed up by the recommendation of the US Department of Agriculture which advises that dogs should have at least 30 min of exercise per day (Pickup et al. 2017). 
+Our results agreed with our predictions, functional walks are usually taken close to home, in the neighborhood, because these were the most convenient places when short on time. We had also predicted that the pace of functional walks would be faster than recreational walks. However, we found no differences. Probably, for both dog owners it is the dog who sets the pace of the walk. When there were time constraints, both owners just chose short routes, and hence the time constraint didn’t affect the pace. 
+We predicted that the trajectories followed during functional walks were more similar to one another than recreational walks. The rationale behind it is that there were fewer options when walking the dog under a time constraint or that when time was limited, the dog owners have a few favorite-practical routes. Yet, the Frechet distances calculations suggest, that the differences among trajectories of functional walks were as large as those among recreational trajectories (Figure 6). This suggests that dog owners don’t have favorite routes for functional or recreational dog walks. However, these results should be interpreted cautiously since only three randomly trajectories of each type of walk was chosen for each dog owner that were included in the analysis. It is likely that if the analysis included all the trajectories, other patterns may have emerged. 
+The dog-owner relationship appears to be the most important determinant of dog walking behavior. The dog-owner relationship includes factors such as attachment, frequency of interactions, feelings of support and motivation provided by the dog for walking, and feelings of obligation towards walking the dog (Westgarth et al. 2014). During this trial, most of the walks were recreational.  This suggests that for both dog owners, the dog walking activity is an integrative practice, enjoyable for both dogs and dog owners.  
+
 **The effect of weather on the dog-walking behavior**
+
 We had initially predicted that in poor weather (rainy conditions) walks would often be more functional in nature, shorter in duration, and at a faster pace. But we have very few walks in poor weather to find meaningful patterns. Our results indicate that under rainy conditions the dog walks have a higher pace but weren’t shorter than under dry conditions. Since both pet owners have flexible schedules for the dog walks most of the week, it is possible that the walks were timed out in between rain episodes or when the rain was light and therefore the walks weren’t shorter but only at a faster pace to avoid being caught in the rain.
 
 **Temporal differences in dog walking behavior**
-We expected that weekend walks would be longer than those on weekdays due to time constraints. We also predicted that morning dog walks will cover longer distances than afternoon and evening walks. We did not find differences in the length between weekdays and weekends since both dog owners have the flexibility to arrange the timing of the walks most weekdays. This pattern would be more likely to be found with dog owners with a tight working schedule.
-As we had predicted the longest walk usually occurred in the morning. Morning walks are a way to boost energy levels and improve your mood. They provide exercise opportunities for both dogs and dog owners after, and in the absence of time constraints, it seems the most adequate time for long and pleasant walks. At night, the walks are usually shorter and usually functional in nature.  
+
+We expected that weekend walks would be longer than those on weekdays due to time constraints. We also predicted that morning dog walks will cover longer distances than afternoon and evening walks. We did not find differences in the length between weekdays and weekends since both dog owners have the flexibility to arrange the timing of the walks on most weekdays. This pattern would be more likely to be found with dog owners with a tight working schedule.
+As we had predicted, the longest walk usually occurred in the morning. Morning walks are a way to boost energy levels and improve your mood. They provide exercise opportunities for both, dogs and dog owners. In the absence of time constraints, it seems the most adequate time for long and pleasant walks. In the evening, the walks are usually shorter and functional in nature.  
 
 
 ## References
 
 
 
-```{r results = 'hide'}
-# Plots that are not going to be included in the report (could get deleted)
-#Visualization of parameters
-
-ggplot(precip_dist_summary, mapping = aes(precip_50, distance))+
-  geom_boxplot() +
-  labs(x = "Precipitation", y = "Distance [m]")+
-  theme_light() 
-
-
-
-ggplot(speed_precip_summary, mapping = aes(precip_50, speed))+
-  geom_boxplot() +
-  labs(x = "Precipitation", y = "Speed [m/s]")+
-  theme_light()
-
-ggplot(duration_wday_summary, mapping = aes(wday, duration))+
-  geom_boxplot() +
-  labs(x = "Day", y = "Duration [mins]")+
-  theme_light()
-
-#ggplot(starttime_wday_summary, mapping = aes(wday, start))+
-#  geom_point() +
-#  labs(x = "Day", y = "Time at the start of morning walk")+
-#  theme_light()
-
-
-```
-
 
 ```{r}
 tmap_mode("view")
 posmoMK_home |> tm_shape() + tm_dots()
 
-
+T_39 <- posmo |> filter(trajectoryID=="T39")
 ```
 
 
