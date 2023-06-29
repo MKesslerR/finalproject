@@ -22,9 +22,6 @@ library(SimilarityMeasures)
 library(data.table)
 ```
 
-## **Abstract**
-<!-- (50-60 words) -->
-
 ## **Background and Research Questions**
 
 Walking is the most natural form of movement around our environment and occurs in multiple diverse contexts (Morris & Hardman, 1997). Walking can occur both as an integrative practice and a dispersed practice (Harries and Rettie, 2016). Walking as an integrative practice occurs, where the purpose of the walking is actually to experience the walk. In contrast, dispersed walking is walking that occurs as part of a different integrative practice, such as shopping or traveling to work; walking is not the purpose of the practice but a means to achieve it (Westgard et al. 2021). 
@@ -242,7 +239,7 @@ which(posmo$stepMean> 50 )
 posmo_filter <- posmo |>
     filter(!static)
 ```
-Figure 1 below shows a trajectory with- (left) and without static points (right). A threshold of the average step mean of 50 meters was applied to filter out the static points that are below the defined threshold.
+One trajectory with- (left) and without static points (right). A threshold of the average step mean of 50 meters was applied to filter out the static points that are below the defined threshold (Fig. 1).
 ```{r fig.cap= "Figure 1: Vizualization of a trajectory with and without static points."}
 # Trajectories visualization with and without static points 
 K1 <- posmo %>%
@@ -687,7 +684,7 @@ ggplot(dist_type_tofday_summary, mapping = aes(time_of_day, distance))+
 ```
 
 **Dog Walking Behavior**
-The spatial movement behavior while dog walking ranged from axial movement to full-loop circuits. The more common spatial movement behavior was loops followed by semi-loops and the less common was axial trajectories (Fig. 8). In the full-loop trajectories the walk occurs without any repetition of the routes. In the semi-loop trajectories, the dog and dog owner move partially over the axial route to a certain point and then start a circuitous path to return home. In the axial routes, the dog owner and dog take a direct route from their starting point to a certain point and subsequently, they return home taking the same route.
+The spatial movement behavior while dog walking ranged from axial movement to full-loop circuits. The more common spatial movement behavior was loops followed by semi-loops and the less common was axial trajectories (Fig. 9). In the full-loop trajectories the walk occurs without any repetition of the routes. In the semi-loop trajectories, the dog and dog owner move partially over the axial route to a certain point and then start a circuitous path to return home. In the axial routes, the dog owner and dog take a direct route from their starting point to a certain point and subsequently, they return home taking the same route.
 ```{r fig.cap= "Figure 9: Pie chart displaying the trajectory shapes in percentage of all walks."}
 # Summarise the trajectory shapes
 shape_summary <- posmo |>
