@@ -120,7 +120,6 @@ posmo_weather_join |>
   group_by(trajectoryID) |>
   summarise(max_distance = max(st_distance())) #Put point in st_distance()
 
-
 ggplot(posmo_MN, aes(X, Y))+
   geom_path()+
   geom_point()+
