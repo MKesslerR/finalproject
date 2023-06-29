@@ -322,13 +322,14 @@ mean(dist_summary$distance[34:103]) # average distance of recreational walks 438
 
 # Differences in max distance to the house
 Maxdist_summary <- posmo |>
-  group_by(Type, max_distance) |> 
+  group_by(Type, user_id, max_distance) |> 
   summarise() |> 
-  st_drop_geometry() 
+  st_drop_geometry() |> 
+  filter(max_distance< 6090) #(two outliers were excluded)
+
 
 mean(Maxdist_summary$max_distance[1:33]) # average distance of functional walks 624.39 m
-mean(Maxdist_summary$max_distance[34:103]) # average distance of recreational walks 3484.34 m
-
+mean(Maxdist_summary$max_distance[34:101]) # average distance of recreational walks 1833.64 m 
 # The effect of the weather on the dog-walking behavior
 
 # calculate average speed for dog walks with and without precipitation
@@ -447,13 +448,13 @@ ggplot(dist_summary, mapping = aes(Type, distance))+
   labs(x = "Type of dog walking", y = "Distance [m]")+
   theme_light()
 ```
-Figure 4 shows the average maximum distance distance covered from home, which was 624.39 m for functional walks and 3484.34 m for recreational walks (please note that two outliers were removed from the plot).
+Figure 4 shows the average maximum distance distance covered from home, which was 624.39 m for functional walks and 1833.64 m for recreational walks (two outliers were not included in the calculation).
 ```{r fig.cap= "Figure 4: Functional walks took place at closer distances from the house than recreational dog walks."}
 ggplot(Maxdist_summary, mapping = aes(Type, max_distance))+
   geom_boxplot() +
   labs(x = "Type of dog walking", y = "Max distance home [m]")+
   theme_light()+
-   scale_y_continuous(limits = c(100, 2000))
+  scale_y_continuous(limits = c(100, 1300), breaks = c(300, 600, 900, 1200))
 ```
 
 ```{r results = 'hide'}
@@ -665,7 +666,7 @@ ggplot(Frechet, aes(Trajpair, Frechet))+
 ```
 
 **The Effect of Weather on the Dog-Walking Behavior**
-Rainy weather did not affect the distance covered during dog walks (t = -0.13733, df = 8, p-value = 0.89). In rainy weather, the average length of dog walks was 3577.27 m whereas under no rain the average length was 3453.63 m. However, the weather conditions had an effect on the speed of the dog walking behavior. Under rainy conditions, the speed of dog walks was faster than when there was no rain (t = -4.3871, df = 27.165, p-value < 0.0001) (see Figure 6). The average speed was 1.20 m/s for walks without precipitation, compared to an average speed of 1.30 m/s for walks with precipitation.
+Rainy weather did not affect the distance covered during dog walks (t = -0.13733, df = 8, p-value = 0.89). In rainy weather, the average length of dog walks was 3577.27 m whereas under no rain the average length was 3453.63 m. However, the weather conditions had an effect on the speed of the dog walking behavior. Under rainy conditions, the speed of dog walks was faster than when there was no rain (t = -4.3871, df = 27.165, p-value < 0.0001) (see Figure 6). The average speed was 1.20 m/s for walks without precipitation, compared to an average speed of 1.30 m/s for walks with precipitation. There were only 8 walks (7.8%) with precipitation, compared to 95 walks (92.2 %) without precipitation.
 ```{r fig.cap= "Figure 6: Boxplot displaying speed for walks with- and without precipitation."}
 ggplot(speed_precip_summary, mapping = aes(precip_50, speed))+
   geom_boxplot() +
@@ -683,7 +684,7 @@ ggplot(dist_type_tofday_summary, mapping = aes(time_of_day, distance))+
 ```
 
 **Dog Walking Behavior**
-Most of the trajectories while dog walking were loops and semi-loops and, the less common were axial trajectories (Fig. 8). 
+Figure 8: Most of the trajectories while dog walking were loops and semi-loops, the less common were axial trajectories. 
 ```{r fig.cap= "Figure 8: Pie chart displaying the trajectory shapes in percentage of all walks."}
 # Summarise the trajectory shapes
 shape_summary <- posmo |>
@@ -701,6 +702,16 @@ type_summary <- posmo |>
   summarise() |>
   ungroup() |>
   group_by(Type) |>
+  summarise(count = n()) |>
+  st_drop_geometry() |>
+  mutate(percent = round(count / sum(count) * 100, 2))
+
+# Summarise the walks with- and without precipitation
+precip_summary <- posmo |>
+  group_by(trajectoryID, precip_50) |> 
+  summarise() |>
+  ungroup() |>
+  group_by(precip_50) |>
   summarise(count = n()) |>
   st_drop_geometry() |>
   mutate(percent = round(count / sum(count) * 100, 2))
@@ -794,9 +805,10 @@ ggplot(duration_wday_summary, mapping = aes(wday, duration))+
 
 
 ```{r}
-test <- posmo |> group_by(Type, trajectoryID) |> 
-  count(trajectoryID)
-  
+tmap_mode("view")
+posmoMK_home |> tm_shape() + tm_dots()
+
+
 ```
 
 
