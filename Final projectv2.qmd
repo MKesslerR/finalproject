@@ -734,27 +734,38 @@ loop_plot <- posmo  |>
   filter(trajectoryID == "T7") |> 
   ggplot(aes(X, Y))+
   geom_path(col = "blue", size = 0.9)+
+  coord_equal(ratio = 1) +
     coord_fixed()+
     theme_classic()+
-  labs(x = "X", y = "Y")
+    labs(x = "X", y = "Y")+
+   scale_x_continuous(limits = c(2708300, 2709105), breaks = c(2708500, 2709000))+
+   scale_y_continuous(limits = c(1236930, 1237610), breaks = c(1237000, 1237200, 1237400, 1237600))
+ 
 
 semi_loop_plot <- posmo |> 
   filter(trajectoryID == "T45") |> 
   ggplot(aes(X, Y))+
+  coord_equal(ratio = 1) +
   geom_path(col = "black", size = 0.9)+
     coord_fixed()+
     theme_classic()+
-  labs(x = "X", y = "")
+    labs(x = "X", y = "")+
+   scale_x_continuous(limits = c(2703250, 2704620), breaks = c(2703600, 2704400))+
+   scale_y_continuous(limits = c(1233760, 1235220), breaks = c(1234000, 1234400, 1234800, 1235200))
+ 
+  
 
 axial_plot <- posmo |> 
   filter(trajectoryID == "T4") |> 
   ggplot(aes(X, Y))+
+  coord_equal(ratio = 1) +
   geom_path(col = "purple", size = 0.9)+
     coord_fixed()+
     theme_classic()+
-  labs(x = "X", y = "")+
-  scale_x_continuous(limits = c(2706650, 2707200), breaks = c(2706700, 2706900, 2707100))+
+    labs(x = "X", y = "")+
+    scale_x_continuous(limits = c(2706650, 2707200), breaks = c(2706700, 2707100))+
   scale_y_continuous(limits = c(1233300, 1234700), breaks = c(1233400, 1233800, 1234200, 1234600))
+
   
 
 plot_grid(loop_plot, semi_loop_plot, axial_plot, align = "hv",
