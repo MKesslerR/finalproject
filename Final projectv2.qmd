@@ -400,13 +400,6 @@ speed_wday_summary <- posmo_speed |>
 mean(speed_wday_summary$speed[1:70]) # average speed of weekday walks 1.22 m/s
 mean(speed_wday_summary$speed[71:102]) # average speed of weekend walks 1.18 m/s
 
-# Differences in the start time of the morning walk on weekdays vs weekends
- starttime_wday_summary <- posmo |>
-  filter(time_of_day == "Morning")|>
-  group_by(wday, start) |> 
-  summarise() |> 
-  st_drop_geometry()
-
 # Differences in duration of the walk on weekdays vs weekends
 duration_wday_summary <- posmo |>
   group_by (wday, duration) |> 
