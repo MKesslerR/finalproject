@@ -240,7 +240,7 @@ which(posmo$stepMean> 50 )
 posmo_filter <- posmo |>
     filter(!static)
 ```
-We segmented the trajectories and eliminated static points with the method used by Laube and Purves (2011). A threshold of the average step mean was applied to eliminate static points (Fig. 1).
+We segmented the trajectories and eliminated static points with the method used by Laube and Purves (2011). A threshold of the average step mean was applied to eliminate static points (Fig. 1). However, after filtering static points several trajectories were left out and therefore subsequent calculations were done with the original data set.  
 ```{r fig.cap= "Figure 1: Vizualization of a trajectory with (left) and without (right) static points."}
 # Trajectories visualization with and without static points 
 K1 <- posmo %>%
