@@ -28,7 +28,7 @@ library(data.table)
 Walking is the most natural form of movement around our environment and occurs in multiple diverse contexts (Morris & Hardman, 1997). Walking can occur both as an integrative practice and a dispersed practice (Harries & Rettie, 2016). Walking as an integrative practice occurs, where the purpose of the walking is actually to experience the walk. In contrast, dispersed walking is walking that occurs as part of a different integrative practice, such as shopping or traveling to work; walking is not the purpose of the practice but a means to achieve it (Westgard et al. 2021). 
 
 Walking with a dog is a complex public activity that involves negotiation between the dog and the walker. Dogs, then, are both agents and companions in the walk, not objects to be moved (Fletcher & Platt, 2016). Walking with a dog has been assumed to be leisure time or recreational. However, dog walking can also be an integrative practice when walking is just a way to achieve the purpose of satisfying the basic needs of the dog. Westgarth et al. 2021, classify dog walks into two broad categories: functional and recreational walks. The concept of "functional" dog walks, which focus on fulfilling the dog's needs, fit into Harries and Rettie's definition of dispersed walking within the broader practice of exercising the dog. In contrast, the concept of "recreational" walks aligns with the integrative approaches discussed by Harries and Rettie (2016), wherein the primary objective of the walk is to derive pleasure from it. Recreational walks cater to both the dog owner’s needs and those of the dog. They constitute an integrated practice where the purpose of the walk for the owner is to enjoy the walk, not just meet the dog’s needs to have a walk. As dog walking is a specific behavior different from general physical activity or even other types of walking, it requires a context-specific approach to examining these correlates. Dog walking behavior is determined by the physical environment, social environment, and personal and dog-related factors (Westgard et al. 2014) and certain environments and contexts are deemed more conducive to functional than recreational dog walks (Westgard et al. 2021). 
-With the prevalence of personal mobile devices, a significant amount of positioning data capturing people's movements can be gathered. Nevertheless, there remains a substantial disparity between the raw trajectory data, which represents the basic geographic coordinates detected by mobile devices, and the comprehension of human behavior. A trajectory is defined by a time interval, which is delimited by the instant at which the tracked object starts to travel and the instant when it stops (Spaccapietra et al. 1007). There is a clear requirement to analyze these raw trajectories and extract behavioral patterns in order to interpret them and gain novel insights into mobility behavior (Renso et al. 2013). We attempted to use tracking data from personal devices of two dog owners to characterize the two types of dog walking behaviors. Our research questions are the following:
+With the prevalence of personal mobile devices, a significant amount of positioning data capturing people's movements can be gathered. Nevertheless, there remains a substantial disparity between the raw trajectory data, which represents the basic geographic coordinates detected by mobile devices, and the comprehension of human behavior. A trajectory is defined by a time interval, which is delimited by the instant at which the tracked object starts to travel and the instant when it stops (Spaccapietra et al. 2008). There is a clear requirement to analyze these raw trajectories and extract behavioral patterns in order to interpret them and gain novel insights into mobility behavior (Renso et al. 2013). We attempted to use tracking data from personal devices of two dog owners to characterize the two types of dog walking behaviors. Our research questions are the following:
 
 How do recreational- differ from functional dog walks?
 Are dog walks influenced by weather (precipitation)? 
@@ -59,7 +59,7 @@ We then extracted the precipitation data from the the weather data set for the t
 
 ### **Pre-processing**
 
-We were interested only on tracking data in walking mode, and specifically on tracking data while dog walking. Because we were only working with data from our dog walks, we had to look at all the walks in Posmo and exclude the walking modes and segments that were not part of our dog walks. There were issues with our data because the app created duplicate time stamps with different sets of coordinates. These erroneous data points had to be cleaned out first. Several pre-processing steps had to be done before we could join our two movement data sets. First, we had to store the coordinates into two separate columns (X-coordinates and Y-coordinates). Next, the precipitation data was joined to the individual movement data sets that contains the precipitation data of the nearest weather station. A new column was added for rain/no rain and categorized trajectories that had precipitation of more than 50% of the walk as having rain and assigned no rain for values below the set threshold.The longest distance home was calculated for each trajectory. New columns were added for the weekday (weekend/weekday), time of the day (morning/afternoon/evening) and the start time of each trajectory.  
+We were interested only on tracking data in walking mode, and specifically on tracking data while dog walking. Because we were only working with data from our dog walks, we had to look at all the walks in Posmo and exclude the walking modes and segments that were not part of our dog walks. There were issues with our data because the app created duplicate time stamps with different sets of coordinates. These erroneous data points had to be cleaned out first. Several pre-processing steps had to be done before we could join our two movement data sets. First, we had to store the coordinates into two separate columns (X-coordinates and Y-coordinates). Next, the precipitation data was joined to the individual movement data sets that contains the precipitation data of the nearest weather station. This process is defined as a semantic enrichment process, which complements the existing data with additional data also known as an annotation (Parent et al. 2013). A new column was added for rain/no rain and categorized trajectories that had precipitation of more than 50% of the walk as having rain and assigned no rain for values below the set threshold. The longest distance home was calculated for each trajectory. New columns were added for the weekday (weekend/weekday), time of the day (morning/afternoon/evening) and the start time of each trajectory.  
 Further parameters were calculated and stored in new columns after static points were removed, such as step mean, time lag, step length, speed, duration and distance. 
 
 ```{r results = 'hide'}
@@ -587,7 +587,6 @@ Traj43MK <- as.matrix(Traj43MK)
 
 ```
 
-
 ```{r fig.cap= "Figure 5: Boxplot of frechet distance for the two types of walks"}
 
 #Similarity measures: Calculate Frechet distance for 4 randomly selected functional and 4 recreational walks within the same walker. 
@@ -688,7 +687,7 @@ ggplot(dist_type_tofday_summary, mapping = aes(time_of_day, distance))+
 
 **Dog Walking Behavior**
 
-Most of the trajectories while dog walking were loops and semi-loops, the less common were axial trajectories (Fig. 9). The spatial movement behavior while dog walking ranged from axial movement to full-loop circuits. The more common spatial movement behavior was loops followed by semi-loops and the less common was axial trajectories (Fig. 9). In the full-loop trajectories the walk occurs without any repetition of the routes. In the semi-loop trajectories, the dog and dog owner move partially over the axial route to a certain point and then start a circuitous path to return home. In the axial routes, the dog owner and dog take a direct route from their starting point to a certain point and subsequently, they return home taking the same route.
+The spatial movement behavior while dog walking ranged from axial movement to full-loop circuits. The more common spatial movement behavior was loops followed by semi-loops and the less common was axial trajectories (Fig. 9). In the full-loop trajectories the walk occurs without any repetition of the routes. In the semi-loop trajectories, the dog and dog owner move partially over the axial route to a certain point and then start a circuitous path to return home. In the axial routes, the dog owner and dog take a direct route from their starting point to a certain point and subsequently, they return home taking the same route.
 ```{r fig.cap= "Figure 9: Pie chart displaying the trajectory shapes in percentage of all walks."}
 
 # Summarise the trajectory shapes
@@ -733,9 +732,6 @@ loop_plot <- posmo  |>
   filter(trajectoryID == "T7") |> 
   ggplot(aes(X, Y))+
   geom_path(col = "blue", size = 0.9)+
-    coord_fixed()+
-    theme_classic()+
-  labs(x = "X", y = "Y")
   coord_equal(ratio = 1) +
     coord_fixed()+
     theme_classic()+
@@ -746,10 +742,6 @@ loop_plot <- posmo  |>
 semi_loop_plot <- posmo |> 
   filter(trajectoryID == "T45") |> 
   ggplot(aes(X, Y))+
-  geom_path(col = "black", size = 0.9)+
-    coord_fixed()+
-    theme_classic()+
-  labs(x = "X", y = "") +
   coord_equal(ratio = 1) +
   geom_path(col = "black", size = 0.9)+
     coord_fixed()+
@@ -757,18 +749,10 @@ semi_loop_plot <- posmo |>
     labs(x = "X", y = "")+
    scale_x_continuous(limits = c(2703250, 2704620), breaks = c(2703600, 2704400))+
    scale_y_continuous(limits = c(1233760, 1235220), breaks = c(1234000, 1234400, 1234800, 1235200))
- 
-  
 
 axial_plot <- posmo |> 
   filter(trajectoryID == "T4") |> 
   ggplot(aes(X, Y))+
-  geom_path(col = "purple", size = 0.9)+
-    coord_fixed()+
-    theme_classic()+
-  labs(x = "X", y = "")+
-  scale_x_continuous(limits = c(2706650, 2707200), breaks = c(2706700, 2706900, 2707100))+
-  scale_y_continuous(limits = c(1233300, 1234700), breaks = c(1233400, 1233800, 1234200, 1234600))+
   coord_equal(ratio = 1) +
   geom_path(col = "purple", size = 0.9)+
     coord_fixed()+
@@ -776,8 +760,6 @@ axial_plot <- posmo |>
     labs(x = "X", y = "")+
     scale_x_continuous(limits = c(2706650, 2707200), breaks = c(2706700, 2707100))+
   scale_y_continuous(limits = c(1233300, 1234700), breaks = c(1233400, 1233800, 1234200, 1234600))
-
-  
 
 plot_grid(loop_plot, semi_loop_plot, axial_plot, align = "hv",
          labels = c("Loop", "Semi-loop", "Axial"),
