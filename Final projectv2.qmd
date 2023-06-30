@@ -436,21 +436,21 @@ Functional dog walks took place at an average speed of 1.20 m/s while the averag
 ggplot(speed_summary, mapping = aes(Type, speed))+
   geom_boxplot() +
   labs(x = "Type of dog walking", y = "Speed [m/s]")+
-  theme_light() 
+  theme_classic() 
 ```
 The average distance of functional walks of 1272.11 m, compared to 4389.43 m for recreational walks (Fig. 3).
 ```{r fig.cap= "Figure 3: Functional walks covered shorter distances than recreational walks."}
 ggplot(dist_summary, mapping = aes(Type, distance))+
   geom_boxplot() +
   labs(x = "Type of dog walking", y = "Distance [m]")+
-  theme_light()
+  theme_classic()
 ```
 The average maximum distance distance covered from home (Fig. 4), which was 624.39 m for functional walks and 1833.64 m for recreational walks (two outliers were not included in the calculation).
 ```{r fig.cap= "Figure 4: Functional walks took place at closer distances from the house than recreational dog walks."}
 ggplot(Maxdist_summary, mapping = aes(Type, max_distance))+
   geom_boxplot() +
   labs(x = "Type of dog walking", y = "Max distance home [m]")+
-  theme_light()+
+  theme_classic()+
   scale_y_continuous(limits = c(100, 1300), breaks = c(300, 600, 900, 1200))
 ```
 
@@ -651,7 +651,7 @@ Frechet <- rbind(SM1, SM2, SM3, SM4)
 ggplot(Frechet, mapping = aes(Type, Frechet))+
   geom_boxplot() +
   labs(x = "Type of dog walking", y = "Frechet Distance")+
-  theme_light()  
+  theme_classic()  
 ```
 
 ```{r fig.cap= "Figure 6: According to the Frechet distances, functional walk trajectories were very dissimilar, and the same was observed for recreational trajectories."}
@@ -671,7 +671,7 @@ Rainy weather did not affect the distance covered during dog walks (t = -0.13733
 ggplot(speed_precip_summary, mapping = aes(precip_50, speed))+
   geom_boxplot() +
   labs(x = "Precipitation", y = "Speed [m/s]")+
-  theme_light() 
+  theme_classic()
 ```
 
 **Temporal Differences in Dog Walking Behavior**
@@ -682,7 +682,7 @@ Distance covered during dog walks varied throughout the day (Df = 2, Sum Sq = 78
 ggplot(dist_type_tofday_summary, mapping = aes(time_of_day, distance))+
   geom_boxplot() +
   labs(x = "Time of day", y = "Distance [m]")+
-  theme_light()
+  theme_classic()
 ```
 
 **Dog Walking Behavior**
