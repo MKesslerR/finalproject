@@ -652,7 +652,7 @@ ggplot(Frechet, mapping = aes(Type, Frechet))+
   theme_classic()  
 ```
 
-```{r fig.cap= "Figure 6: According to the Frechet distances, functional walk trajectories were very dissimilar, and the same was observed for recreational trajectories."}
+```{r fig.cap= "Figure 6: Frechet distances calcualted among three functional and three recreational trajectories for two dog owners."}
 ggplot(Frechet, aes(Trajpair, Frechet))+
   geom_col(aes(fill = Walker))+
   facet_wrap(~ Type, nrow = 2, scales = "free")+
