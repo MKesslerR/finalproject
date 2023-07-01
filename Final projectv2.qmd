@@ -333,7 +333,6 @@ Maxdist_summary <- posmo |>
   st_drop_geometry() |> 
   filter(max_distance< 6090) #(two outliers were excluded)
 
-
 mean(Maxdist_summary$max_distance[1:33]) # average distance of functional walks 624.39 m
 mean(Maxdist_summary$max_distance[34:101]) # average distance of recreational walks 1833.64 m 
 # The effect of the weather on the dog-walking behavior
@@ -450,8 +449,7 @@ The average maximum distance covered from home (Fig. 4) was 624.39 m for functio
 ggplot(Maxdist_summary, mapping = aes(Type, max_distance))+
   geom_boxplot() +
   labs(x = "Type of dog walking", y = "Max distance home [m]")+
-  theme_classic()+
-  scale_y_continuous(limits = c(100, 1300), breaks = c(300, 600, 900, 1200))
+  theme_classic()
 ```
 According to the Frechet distances, functional walk trajectories were very dissimilar, and the same was observed for recreational trajectories (Fig. 5).
 ```{r results = 'hide'}
