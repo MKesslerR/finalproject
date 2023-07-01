@@ -98,13 +98,13 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <link href="Final projectv2_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="Final projectv2_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
 <script src="Final projectv2_files/libs/htmlwidgets-1.5.4/htmlwidgets.js"></script>
-<script src="Final projectv2_files/libs/plotly-binding-4.10.1/plotly.js"></script>
+<script src="Final projectv2_files/libs/plotly-binding-4.10.0/plotly.js"></script>
 <script src="Final projectv2_files/libs/typedarray-0.1/typedarray.min.js"></script>
 <script src="Final projectv2_files/libs/jquery-3.5.1/jquery.min.js"></script>
 <link href="Final projectv2_files/libs/crosstalk-1.2.0/css/crosstalk.min.css" rel="stylesheet">
 <script src="Final projectv2_files/libs/crosstalk-1.2.0/js/crosstalk.min.js"></script>
-<link href="Final projectv2_files/libs/plotly-htmlwidgets-css-2.11.1/plotly-htmlwidgets.css" rel="stylesheet">
-<script src="Final projectv2_files/libs/plotly-main-2.11.1/plotly-latest.min.js"></script>
+<link href="Final projectv2_files/libs/plotly-htmlwidgets-css-2.5.1/plotly-htmlwidgets.css" rel="stylesheet">
+<script src="Final projectv2_files/libs/plotly-main-2.5.1/plotly-latest.min.js"></script>
 
 
 </head>
@@ -773,7 +773,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span>(run_full){</span>
 <span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="co"># MN Functional: 4, 36, 55</span></span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>A<span class="ot">&lt;-</span> <span class="fu">Frechet</span>(Traj4MN, Traj36MN)<span class="co"># 1291697</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>A<span class="ot">&lt;-</span> <span class="fu">Frechet</span>(Traj4MN, Traj36MN, <span class="at">testLeash=</span><span class="sc">-</span><span class="dv">1</span>)<span class="co"># 1291697</span></span>
 <span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>B <span class="ot">&lt;-</span> <span class="fu">Frechet</span>(Traj4MN, Traj55MN)<span class="co"># 1898412</span></span>
 <span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>D <span class="ot">&lt;-</span> <span class="fu">Frechet</span>(Traj36MN, Traj55MN)<span class="co"># 606863 </span></span>
 <span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a></span>
@@ -836,7 +836,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><img src="Final-projectv2_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid figure-img" width="672"></p>
-<p></p><figcaption class="figure-caption">Figure 5: Boxplot of frechet distance calculated for the two types of walks</figcaption><p></p>
+<p></p><figcaption class="figure-caption">Figure 5: Boxplot of frechet distance for the two types of walks</figcaption><p></p>
 </figure>
 </div>
 </div>
@@ -940,13 +940,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb14-35"><a href="#cb14-35" aria-hidden="true" tabindex="-1"></a>         <span class="at">yaxis =</span> <span class="fu">list</span>(<span class="at">showgrid =</span> <span class="cn">FALSE</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<<<<<<< HEAD
-<div id="htmlwidget-94f61dfc7ace91b2bb46" style="width:100%;height:464px;" class="plotly html-widget"></div>
-<script type="application/json" data-for="htmlwidget-94f61dfc7ace91b2bb46">{"x":{"visdat":{"28a0144f4709":["function () ","plotlyVisDat"]},"cur_data":"28a0144f4709","attrs":{"28a0144f4709":{"labels":{},"values":{},"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"pie"}},"layout":{"margin":{"b":40,"l":60,"t":25,"r":10},"title":"Trajectory Shapes","xaxis":{"showgrid":false,"zeroline":false,"showticklabels":false},"yaxis":{"showgrid":false},"hovermode":"closest","showlegend":true},"source":"A","config":{"modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"data":[{"labels":["axial","loop","semi-loop"],"values":[10.68,62.14,27.18],"type":"pie","marker":{"color":"rgba(31,119,180,1)","line":{"color":"rgba(255,255,255,1)"}},"frame":null}],"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.2,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
-=======
-<div id="htmlwidget-48782ae6fbaf6c3ca9a3" style="width:100%;height:464px;" class="plotly html-widget"></div>
-<script type="application/json" data-for="htmlwidget-48782ae6fbaf6c3ca9a3">{"x":{"visdat":{"8710bf620e9":["function () ","plotlyVisDat"]},"cur_data":"8710bf620e9","attrs":{"8710bf620e9":{"labels":{},"values":{},"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"pie"}},"layout":{"margin":{"b":40,"l":60,"t":25,"r":10},"title":"Trajectory Shapes","xaxis":{"showgrid":false,"zeroline":false,"showticklabels":false},"yaxis":{"showgrid":false},"hovermode":"closest","showlegend":true},"source":"A","config":{"modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"data":[{"labels":["axial","loop","semi-loop"],"values":[10.68,62.14,27.18],"type":"pie","marker":{"color":"rgba(31,119,180,1)","line":{"color":"rgba(255,255,255,1)"}},"frame":null}],"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.2,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
->>>>>>> b24ed35251e4e0b5827a9724e7aec613f7f26ccf
+<div id="htmlwidget-012677ba196d9d876be8" style="width:100%;height:464px;" class="plotly html-widget"></div>
+<script type="application/json" data-for="htmlwidget-012677ba196d9d876be8">{"x":{"visdat":{"4db43f804165":["function () ","plotlyVisDat"]},"cur_data":"4db43f804165","attrs":{"4db43f804165":{"labels":{},"values":{},"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"pie"}},"layout":{"margin":{"b":40,"l":60,"t":25,"r":10},"title":"Trajectory Shapes","xaxis":{"showgrid":false,"zeroline":false,"showticklabels":false},"yaxis":{"showgrid":false},"hovermode":"closest","showlegend":true},"source":"A","config":{"modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"data":[{"labels":["axial","loop","semi-loop"],"values":[10.68,62.14,27.18],"type":"pie","marker":{"color":"rgba(31,119,180,1)","line":{"color":"rgba(255,255,255,1)"}},"frame":null}],"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.2,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
 <p>Figure 9: Pie chart displaying the trajectory shapes in percentage of all walks.</p>
 </div>
 </div>
