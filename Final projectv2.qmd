@@ -451,7 +451,7 @@ ggplot(Maxdist_summary, mapping = aes(Type, max_distance))+
   labs(x = "Type of dog walking", y = "Max distance home [m]")+
   theme_classic()
 ```
-According to the Frechet distances, functional walk trajectories were very dissimilar, and the same was observed for recreational trajectories (Fig. 5).
+According to the Frechet distances, functional walk trajectories were more dissimilar than recreational trajectories (Fig. 5). However, we detected high variability in both types of trajectories. 
 ```{r results = 'hide'}
 # Frechet Distance
 
@@ -818,7 +818,7 @@ Our research aimed to characterize two types of dog walking practices: functiona
 
 Our results agreed with our predictions: functional walks were usually taken close to home, in the neighborhood, because these were the most convenient places when short on time. We also predicted that the pace of functional walks would be faster than recreational walks. However, we found no differences in pace. For both dog owners, it was probably the dog who set the pace of the walks; or, while under time constraints, both owners chose short routes rather than a quickened pace. Hence, time constraints did not affect the pace. 
 
-We predicted that the trajectories followed during functional walks would be more similar to one another than recreational walks. We reasoned that there would be fewer options when walking the dog under time constraints, or that, when time was limited, the dog owners would default to a few favorite, practical routes. Yet the Frechet distances calculated suggest that the differences between the trajectories of functional walks were as large as those among recreational trajectories (Figure 6). This indicates that the two dog owners don’t have favorite routes for functional or recreational dog walks. However, these results should be interpreted cautiously since the analyses only included three trajectories of each type of walk for each dog owner. It is likely that if the analysis had included all the trajectories, other patterns may have emerged. 
+We predicted that the trajectories followed during functional walks would be more similar to one another than recreational walks. We reasoned that there would be fewer options when walking the dog under time constraints, or that, when time was limited, the dog owners would default to a few favorite, practical routes. Yet the Frechet distances calculated suggest that the differences between the trajectories of functional walks were larger than among recreational trajectories (Figure 6). This indicates that the two dog owners don’t have favorite routes for functional walks but may have a some preferences regarding recreational walks. However, these results should be interpreted cautiously since the analyses only included three trajectories of each type of walk for each dog owner. It is likely that if the analysis had included all the trajectories, other patterns may have emerged. 
 
 The dog/owner relationship is thought to be the most important determinant of dog walking behavior (Westgarth et al. 2014). During this trial, most of the walks were recreational. This suggests that for both dog owners, the dog walking activity is an integrative practice, enjoyable for both dogs and dog owners.  
 
